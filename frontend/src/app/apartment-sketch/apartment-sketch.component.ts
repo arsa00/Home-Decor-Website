@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ApartmentSketch, RoomSketch } from '../models/ApartmentSketch';
 
 @Component({
   selector: 'app-apartment-sketch',
@@ -7,139 +8,130 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ApartmentSketchComponent implements OnInit {
 
-  static basta;
-	static bastaC;
-		
-	static collisionDetected = false; // jako bitno
-	
-	static stoVisina = 150;
-	static stoSirina = 400;
-	static stoX = 0;
-	static stoY = 0;
-	static misX = 0;
-	static misY = 0;
-	static move = false;
-	static invalid = false
+	static sketchCanvas;
+	static sketchCanvasContext;
 
-	// simulacija drugog pravougaonog stola
-	static sto2Visina = 150;
-	static sto2Sirina = 250;
-	static sto2X = 500;
-	static sto2Y = 300;
-	static move2 = false;
-	static invalid2 = false;
+	static apartmentSketch?: ApartmentSketch;
 
-  constructor() { }
+	static mousePosX: number;
+	static mousePosY: number;
+	static isCollisionDetected: boolean = false;
+	// static isAnyMoving: boolean = false;
+	static selectedRoomIndex: number = -1;
+	static selectedRoom?: RoomSketch;
 
-  ngOnInit(): void {
-    ApartmentSketchComponent.basta = document.querySelector("#apartmentCanvas");
-    ApartmentSketchComponent.bastaC = ApartmentSketchComponent.basta.getContext("2d");
+	constructor() {}
 
-    ApartmentSketchComponent.basta.height = "700";
-    ApartmentSketchComponent.basta.style.height = "700px";
-	  ApartmentSketchComponent.basta.width = "800";
-    ApartmentSketchComponent.basta.style.width = "800px";
-    ApartmentSketchComponent.drawAllTables();
+	ngOnInit(): void {
+		ApartmentSketchComponent.sketchCanvas = document.querySelector("#apartmentCanvas");
+		ApartmentSketchComponent.sketchCanvasContext = ApartmentSketchComponent.sketchCanvas.getContext("2d");
 
-    ApartmentSketchComponent.basta.addEventListener("mousedown", ApartmentSketchComponent.startPosition);
-    ApartmentSketchComponent.basta.addEventListener("mousemove", ApartmentSketchComponent.moveTable);
-    ApartmentSketchComponent.basta.addEventListener("mouseup",   ApartmentSketchComponent.endPosition);
-    ApartmentSketchComponent.basta.addEventListener("mouseout",  ApartmentSketchComponent.endPosition);
-    }
-
-  static drawAllTables()
-	{ // ovo ce biti neki niz
-		if(!ApartmentSketchComponent.move) 
-		{
-			if(ApartmentSketchComponent.invalid) 
-			{
-				ApartmentSketchComponent.bastaC.fillStyle = 'red';
-				ApartmentSketchComponent.bastaC.fillRect(ApartmentSketchComponent.stoX, ApartmentSketchComponent.stoY, ApartmentSketchComponent.stoSirina, ApartmentSketchComponent.stoVisina);
-				ApartmentSketchComponent.bastaC.fillStyle = 'black';
-			}
-			else
-      ApartmentSketchComponent.bastaC.fillRect(ApartmentSketchComponent.stoX, ApartmentSketchComponent.stoY, ApartmentSketchComponent.stoSirina, ApartmentSketchComponent.stoVisina);
-			
+		if(!ApartmentSketchComponent.apartmentSketch){
+			ApartmentSketchComponent.apartmentSketch = new ApartmentSketch();
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 400));
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 500, 300));
 		}
-		if(!ApartmentSketchComponent.move2) 
-		{ 
-			if(ApartmentSketchComponent.invalid2) 
-			{
-				ApartmentSketchComponent.bastaC.fillStyle = 'red';
-				ApartmentSketchComponent.bastaC.fillRect(ApartmentSketchComponent.sto2X, ApartmentSketchComponent.sto2Y, ApartmentSketchComponent.sto2Sirina, ApartmentSketchComponent.sto2Visina);
-				ApartmentSketchComponent.bastaC.fillStyle = 'black';
-			}
-			else
-      ApartmentSketchComponent.bastaC.fillRect(ApartmentSketchComponent.sto2X, ApartmentSketchComponent.sto2Y, ApartmentSketchComponent.sto2Sirina, ApartmentSketchComponent.sto2Visina);
-		}
-		
-	}
-	
-	static startPosition(e)
-	{
-		ApartmentSketchComponent.misX = e.clientX;
-		ApartmentSketchComponent.misY = e.clientY;
-		ApartmentSketchComponent.move = true;
-	}
-	
-	static moveTable(e)
-	{
-		if(!ApartmentSketchComponent.move) return;
 
-    console.log(e.clientX);
-
-		ApartmentSketchComponent.bastaC.clearRect(ApartmentSketchComponent.stoX, ApartmentSketchComponent.stoY, ApartmentSketchComponent.stoSirina, ApartmentSketchComponent.stoVisina);
+		ApartmentSketchComponent.sketchCanvas.height = "700";
+		ApartmentSketchComponent.sketchCanvas.style.height = "700px";
+		ApartmentSketchComponent.sketchCanvas.width = "800";
+		ApartmentSketchComponent.sketchCanvas.style.width = "800px";
 		ApartmentSketchComponent.drawAllTables();
 
-		var errorX = false, errorY = false;
+		ApartmentSketchComponent.sketchCanvas.addEventListener("mousedown", ApartmentSketchComponent.startPosition);
+		ApartmentSketchComponent.sketchCanvas.addEventListener("mousemove", ApartmentSketchComponent.moveTable);
+		ApartmentSketchComponent.sketchCanvas.addEventListener("mouseup",   ApartmentSketchComponent.endPosition);
+		ApartmentSketchComponent.sketchCanvas.addEventListener("mouseout",  ApartmentSketchComponent.endPosition);
+	}
+
+	static drawAllTables() {
+		ApartmentSketchComponent.apartmentSketch.roomSketches.forEach((rs, roomIndex) => {
+			if(roomIndex != ApartmentSketchComponent.selectedRoomIndex) {
+				if(rs.isInvalid) {
+					ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'red';
+					ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
+					ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'black';
+				}
+				else {
+					ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
+				}
+			}
+		});		
+	}
+
+	static startPosition(e)
+	{
+		ApartmentSketchComponent.mousePosX = e.clientX;
+		ApartmentSketchComponent.mousePosY = e.clientY;
+
+		// TODO: find which room should move and set clickedIndex accordingly
+		let clickedIndex = 0;
+		ApartmentSketchComponent.selectedRoomIndex = clickedIndex;
+		ApartmentSketchComponent.selectedRoom = ApartmentSketchComponent.apartmentSketch.roomSketches[clickedIndex];
+	}
+
+	static moveTable(e)
+	{
+		if(!ApartmentSketchComponent.selectedRoom) return;
+
+		ApartmentSketchComponent.sketchCanvasContext.clearRect(ApartmentSketchComponent.selectedRoom.x, ApartmentSketchComponent.selectedRoom.y, ApartmentSketchComponent.selectedRoom.width, ApartmentSketchComponent.selectedRoom.height);
+		ApartmentSketchComponent.drawAllTables();
+
+		let errorX: boolean = false, errorY: boolean = false;
 		
 		// check and correct moving off the canvas
-		if(ApartmentSketchComponent.stoX + (e.clientX - ApartmentSketchComponent.misX) < 0)
+		if(ApartmentSketchComponent.selectedRoom.x + (e.clientX - ApartmentSketchComponent.mousePosX) < 0)
 		{
-			ApartmentSketchComponent.stoX = 0;
+			ApartmentSketchComponent.selectedRoom.x = 0;
 			errorX = true;
 		}
-		if(ApartmentSketchComponent.stoX + (e.clientX - ApartmentSketchComponent.misX) + ApartmentSketchComponent.stoSirina > ApartmentSketchComponent.basta.width)
+		if(ApartmentSketchComponent.selectedRoom.x + (e.clientX - ApartmentSketchComponent.mousePosX) + ApartmentSketchComponent.selectedRoom.width > ApartmentSketchComponent.sketchCanvas.width)
 		{
-			ApartmentSketchComponent.stoX = ApartmentSketchComponent.basta.width - ApartmentSketchComponent.stoSirina;
+			ApartmentSketchComponent.selectedRoom.x = ApartmentSketchComponent.sketchCanvas.width - ApartmentSketchComponent.selectedRoom.width;
 			errorX = true;
 		}
-		if(ApartmentSketchComponent.stoY + (e.clientY - ApartmentSketchComponent.misY) < 0)
+		if(ApartmentSketchComponent.selectedRoom.y + (e.clientY - ApartmentSketchComponent.mousePosY) < 0)
 		{
-			ApartmentSketchComponent.stoY = 0;
+			ApartmentSketchComponent.selectedRoom.y = 0;
 			errorY = true;
 		}
-		if(ApartmentSketchComponent.stoY + (e.clientY - ApartmentSketchComponent.misY) + ApartmentSketchComponent.stoVisina > ApartmentSketchComponent.basta.height)
+		if(ApartmentSketchComponent.selectedRoom.y + (e.clientY - ApartmentSketchComponent.mousePosY) + ApartmentSketchComponent.selectedRoom.height > ApartmentSketchComponent.sketchCanvas.height)
 		{
-			ApartmentSketchComponent.stoY = ApartmentSketchComponent.basta.height - ApartmentSketchComponent.stoVisina;
+			ApartmentSketchComponent.selectedRoom.y = ApartmentSketchComponent.sketchCanvas.height - ApartmentSketchComponent.selectedRoom.height;
 			errorY = true;
 		}
 		
 		
 		
-		if(!errorX) ApartmentSketchComponent.stoX = ApartmentSketchComponent.stoX + (e.clientX - ApartmentSketchComponent.misX);
-		if(!errorY) ApartmentSketchComponent.stoY = ApartmentSketchComponent.stoY + (e.clientY - ApartmentSketchComponent.misY);
+		if(!errorX) ApartmentSketchComponent.selectedRoom.x = ApartmentSketchComponent.selectedRoom.x + (e.clientX - ApartmentSketchComponent.mousePosX);
+		if(!errorY) ApartmentSketchComponent.selectedRoom.y = ApartmentSketchComponent.selectedRoom.y + (e.clientY - ApartmentSketchComponent.mousePosY);
 		
-		// detect collision with other tables (this would be some forech through some array)
-		if(((ApartmentSketchComponent.stoY >= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y + ApartmentSketchComponent.sto2Visina) || (ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY + ApartmentSketchComponent.stoVisina >= ApartmentSketchComponent.sto2Y)) && 
-		   ((ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX + ApartmentSketchComponent.stoSirina >= ApartmentSketchComponent.sto2X)  || (ApartmentSketchComponent.stoX >= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X + ApartmentSketchComponent.sto2Sirina))) 
-       ApartmentSketchComponent.collisionDetected = true;
-		else
-    ApartmentSketchComponent.collisionDetected = false;
+		// TODO: detect collision with other tables (this would be some forech through some array)
+		// if(((ApartmentSketchComponent.stoY >= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y + ApartmentSketchComponent.sto2Visina) || (ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY + ApartmentSketchComponent.stoVisina >= ApartmentSketchComponent.sto2Y)) && 
+		// 	((ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX + ApartmentSketchComponent.stoSirina >= ApartmentSketchComponent.sto2X)  || (ApartmentSketchComponent.stoX >= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X + ApartmentSketchComponent.sto2Sirina))) 
+		// 	ApartmentSketchComponent.collisionDetected = true;
+		// else
+		// 	ApartmentSketchComponent.collisionDetected = false;
 		
-		if(ApartmentSketchComponent.collisionDetected) ApartmentSketchComponent.bastaC.fillStyle = 'red';
-		else ApartmentSketchComponent.bastaC.fillStyle = 'green';
-		ApartmentSketchComponent.bastaC.fillRect(ApartmentSketchComponent.stoX, ApartmentSketchComponent.stoY, ApartmentSketchComponent.stoSirina, ApartmentSketchComponent.stoVisina);
-		ApartmentSketchComponent.bastaC.fillStyle = 'black';
-		ApartmentSketchComponent.misX = e.clientX;
-		ApartmentSketchComponent.misY = e.clientY;
+		if(ApartmentSketchComponent.isCollisionDetected) ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'red';
+		else ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'green';
+
+		ApartmentSketchComponent.sketchCanvasContext.fillRect(ApartmentSketchComponent.selectedRoom.x, ApartmentSketchComponent.selectedRoom.y, ApartmentSketchComponent.selectedRoom.width, ApartmentSketchComponent.selectedRoom.height);
+		ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'black';
+		ApartmentSketchComponent.mousePosX = e.clientX;
+		ApartmentSketchComponent.mousePosY = e.clientY;
 	}
-	
+
 	static endPosition()
 	{ // ovo se takodje treba generalizovati
-		if(ApartmentSketchComponent.collisionDetected) ApartmentSketchComponent.invalid = true;
-		else ApartmentSketchComponent.invalid = false;
-		ApartmentSketchComponent.move = false;
+		if(ApartmentSketchComponent.selectedRoom) {
+			if(ApartmentSketchComponent.isCollisionDetected) ApartmentSketchComponent.selectedRoom.isInvalid = true;
+			else ApartmentSketchComponent.selectedRoom.isInvalid = false;
+		}
+
+		ApartmentSketchComponent.selectedRoom = undefined;
+		ApartmentSketchComponent.selectedRoomIndex = -1;
+
 		ApartmentSketchComponent.drawAllTables();
 	}
 
