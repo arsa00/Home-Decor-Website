@@ -9,6 +9,7 @@ import { ApartmentSketch, ProgressState, RoomSketch } from '../models/ApartmentS
 export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
 	static readonly BORDER_FILL_OFFSET: number = 1;
+	static readonly AUTOFIX_OFFSET: number = 7;
 
 	static sketchCanvas;
 	static sketchCanvasContext;
@@ -33,7 +34,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 500, 300, ProgressState.IN_PROGRESS));
 			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 100, 500, ProgressState.FINISHED));
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 400));
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(200, 400));
 		}
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
@@ -155,10 +156,111 @@ export class ApartmentSketchComponent implements OnInit {
 		if(!errorY) ApartmentSketchComponent.selectedRoom.y = ApartmentSketchComponent.selectedRoom.y + (mouseCurrY - ApartmentSketchComponent.mousePosY);
 
 		// detect collision with other room sketches
+		let autofixedX: boolean = false;
+		let autofixedY: boolean = false;
 		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
-			if(i == ApartmentSketchComponent.selectedRoomIndex || !ApartmentSketchComponent.apartmentSketch.roomSketches[i].isSet) continue;
+			if(i == ApartmentSketchComponent.selectedRoomIndex) continue;
 
 			let rs: RoomSketch = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
+
+			let rightSideOfMovingRS: number = ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width;
+			let rightSideofStandingRS: number = rs.x + rs.width;
+
+			// auto fixing X coordinate (left side of the moving room to the right side of standing rooms)
+			if(ApartmentSketchComponent.selectedRoom.x > rightSideofStandingRS && ApartmentSketchComponent.selectedRoom.x <= rightSideofStandingRS + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rightSideofStandingRS;
+				autofixedX = true;
+			}
+
+			if(ApartmentSketchComponent.selectedRoom.x < rightSideofStandingRS && ApartmentSketchComponent.selectedRoom.x >= rightSideofStandingRS - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rightSideofStandingRS;
+				autofixedX = true;
+			}
+
+			// auto fixing X coordinate (right side of the moving room to the left side of standing rooms)
+			if(rightSideOfMovingRS < rs.x && rightSideOfMovingRS >= rs.x - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rs.x - ApartmentSketchComponent.selectedRoom.width;
+				autofixedX = true;
+			}
+
+			if(rightSideOfMovingRS > rs.x && rightSideOfMovingRS <= rs.x + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rs.x - ApartmentSketchComponent.selectedRoom.width;
+				autofixedX = true;
+			}
+
+			// auto fixing X coordinate (left side of the moving room to the left side of standing rooms)
+			if(ApartmentSketchComponent.selectedRoom.x > rs.x && ApartmentSketchComponent.selectedRoom.x <= rs.x + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rs.x;
+				autofixedX = true;
+			}
+
+			if(ApartmentSketchComponent.selectedRoom.x < rs.x && ApartmentSketchComponent.selectedRoom.x >= rs.x - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rs.x;
+				autofixedX = true;
+			}
+
+			// auto fixing X coordinate (right side of the moving room to the right side of standing rooms)
+			if(rightSideOfMovingRS < rightSideofStandingRS && rightSideOfMovingRS >= rightSideofStandingRS - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rightSideofStandingRS - ApartmentSketchComponent.selectedRoom.width;
+				autofixedX = true;
+			}
+
+			if(rightSideOfMovingRS > rightSideofStandingRS && rightSideOfMovingRS <= rightSideofStandingRS + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.x = rightSideofStandingRS - ApartmentSketchComponent.selectedRoom.width;
+				autofixedX = true;
+			}
+
+
+			let bottomSideOfMovingRS: number = ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height;
+			let bottomSideofStandingRS: number = rs.y + rs.height;
+
+			// auto fixing Y coordinate (top side of the moving room to the bottom side of standing rooms)
+			if(ApartmentSketchComponent.selectedRoom.y > bottomSideofStandingRS && ApartmentSketchComponent.selectedRoom.y <= bottomSideofStandingRS + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = bottomSideofStandingRS;
+				autofixedY = true;
+			}
+
+			if(ApartmentSketchComponent.selectedRoom.y < bottomSideofStandingRS && ApartmentSketchComponent.selectedRoom.y >= bottomSideofStandingRS - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = bottomSideofStandingRS;
+				autofixedY = true;
+			}
+
+			// auto fixing Y coordinate (bottom side of the moving room to the top side of standing rooms)
+			if(bottomSideOfMovingRS > rs.y && bottomSideOfMovingRS <= rs.y + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = rs.y - ApartmentSketchComponent.selectedRoom.height;
+				autofixedY = true;
+			}
+
+			if(bottomSideOfMovingRS < rs.y && bottomSideOfMovingRS >= rs.y - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = rs.y - ApartmentSketchComponent.selectedRoom.height;
+				autofixedY = true;
+			}
+
+			// auto fixing Y coordinate (top side of the moving room to the top side of standing rooms)
+			if(ApartmentSketchComponent.selectedRoom.y > rs.y && ApartmentSketchComponent.selectedRoom.y <= rs.y + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = rs.y;
+				autofixedY = true;
+			}
+
+			if(ApartmentSketchComponent.selectedRoom.y < rs.y && ApartmentSketchComponent.selectedRoom.y >= rs.y - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = rs.y;
+				autofixedY = true;
+			}
+
+			// auto fixing Y coordinate (bottom side of the moving room to the bottom side of standing rooms)
+			if(bottomSideOfMovingRS > bottomSideofStandingRS && bottomSideOfMovingRS <= bottomSideofStandingRS + ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = bottomSideofStandingRS - ApartmentSketchComponent.selectedRoom.height;
+				autofixedY = true;
+			}
+
+			if(bottomSideOfMovingRS < bottomSideofStandingRS && bottomSideOfMovingRS >= bottomSideofStandingRS - ApartmentSketchComponent.AUTOFIX_OFFSET) {
+				ApartmentSketchComponent.selectedRoom.y = bottomSideofStandingRS - ApartmentSketchComponent.selectedRoom.height;
+				autofixedY = true;
+			}
+
+
+
+			if(!rs.isSet) continue;
 
 			if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
 			   ((ApartmentSketchComponent.selectedRoom.x <= rs.x && ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width > rs.x)  || (ApartmentSketchComponent.selectedRoom.x >= rs.x && ApartmentSketchComponent.selectedRoom.x < rs.x + rs.width))) {
@@ -170,8 +272,8 @@ export class ApartmentSketchComponent implements OnInit {
 		}
 
 		ApartmentSketchComponent.drawRoomSketch(ApartmentSketchComponent.selectedRoom);
-		ApartmentSketchComponent.mousePosX = mouseCurrX;
-		ApartmentSketchComponent.mousePosY = mouseCurrY;
+		if(!autofixedX) ApartmentSketchComponent.mousePosX = mouseCurrX;
+		if(!autofixedY) ApartmentSketchComponent.mousePosY = mouseCurrY;
 	}
 
 	static endPosition(): void { // ovo se takodje treba generalizovati
