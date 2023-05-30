@@ -30,6 +30,7 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.apartmentSketch = new ApartmentSketch();
 			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 400));
 			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 500, 300));
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 100, 500));
 		}
 
 		ApartmentSketchComponent.sketchCanvas.height = "700";
@@ -105,13 +106,20 @@ export class ApartmentSketchComponent implements OnInit {
 		
 		if(!errorX) ApartmentSketchComponent.selectedRoom.x = ApartmentSketchComponent.selectedRoom.x + (e.clientX - ApartmentSketchComponent.mousePosX);
 		if(!errorY) ApartmentSketchComponent.selectedRoom.y = ApartmentSketchComponent.selectedRoom.y + (e.clientY - ApartmentSketchComponent.mousePosY);
-		
-		// TODO: detect collision with other tables (this would be some forech through some array)
-		// if(((ApartmentSketchComponent.stoY >= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y + ApartmentSketchComponent.sto2Visina) || (ApartmentSketchComponent.stoY <= ApartmentSketchComponent.sto2Y && ApartmentSketchComponent.stoY + ApartmentSketchComponent.stoVisina >= ApartmentSketchComponent.sto2Y)) && 
-		// 	((ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX + ApartmentSketchComponent.stoSirina >= ApartmentSketchComponent.sto2X)  || (ApartmentSketchComponent.stoX >= ApartmentSketchComponent.sto2X && ApartmentSketchComponent.stoX <= ApartmentSketchComponent.sto2X + ApartmentSketchComponent.sto2Sirina))) 
-		// 	ApartmentSketchComponent.collisionDetected = true;
-		// else
-		// 	ApartmentSketchComponent.collisionDetected = false;
+
+		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
+			if(i == ApartmentSketchComponent.selectedRoomIndex) continue;
+
+			let rs: RoomSketch = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
+
+			if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
+			   ((ApartmentSketchComponent.selectedRoom.x <= rs.x && ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width > rs.x)  || (ApartmentSketchComponent.selectedRoom.x >= rs.x && ApartmentSketchComponent.selectedRoom.x < rs.x + rs.width))) {
+				ApartmentSketchComponent.isCollisionDetected = true;
+				break;
+			}
+			else
+				ApartmentSketchComponent.isCollisionDetected = false;
+		}
 		
 		if(ApartmentSketchComponent.isCollisionDetected) ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'red';
 		else ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'green';
