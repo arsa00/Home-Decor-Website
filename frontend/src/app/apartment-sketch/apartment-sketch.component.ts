@@ -32,6 +32,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static mousePosY: number;
 	static selectedRoomIndex: number = -1;
 	static selectedRoom?: RoomSketch;
+	static isDoorSelected: boolean = false;
 
 	constructor() {}
 
@@ -177,8 +178,8 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e): void {
-		let mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-		let mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
 
 		ApartmentSketchComponent.mousePosX = mouseCurrX;
 		ApartmentSketchComponent.mousePosY = mouseCurrY;
@@ -196,13 +197,47 @@ export class ApartmentSketchComponent implements OnInit {
 				break;
 			}
 		}
+
+		if(!ApartmentSketchComponent.selectedRoom) return;
+
+		// check if click was on door within selected room
+		const mouseWithinRoomX: number = mouseCurrX - ApartmentSketchComponent.selectedRoom.x;
+		const mouseWithinRoomY: number = mouseCurrY - ApartmentSketchComponent.selectedRoom.y;
+
+		const doorStartX: number = ApartmentSketchComponent.selectedRoom.doorX;
+		const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.DOOR_WIDTH;
+		const doorStartY: number = ApartmentSketchComponent.selectedRoom.doorY;
+		const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.DOOR_HEIGHT;
+
+		if(mouseWithinRoomX >= doorStartX && mouseWithinRoomX <= doorEndX && 
+			(
+				(mouseWithinRoomY <= ApartmentSketchComponent.DOOR_HEIGHT 
+				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP)
+			||
+				(mouseWithinRoomY >= ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT 
+				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM)
+			)
+		) {
+			ApartmentSketchComponent.isDoorSelected = true;
+		} else 
+		if(mouseWithinRoomY >= doorStartY && mouseWithinRoomY <= doorEndY && 
+			(
+				(mouseWithinRoomX <= ApartmentSketchComponent.DOOR_WIDTH 
+				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT)
+			||
+				(mouseWithinRoomX >= ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH 
+				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT)
+			)
+		) {
+			ApartmentSketchComponent.isDoorSelected = true;
+		}
 	}
 
 	static moveRoom(e): void {
 		if(!ApartmentSketchComponent.selectedRoom) return;
 
-		let mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-		let mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
 
 		ApartmentSketchComponent.clearRoomSketch(ApartmentSketchComponent.selectedRoom);
 		ApartmentSketchComponent.drawAllRoomSketches();
@@ -338,7 +373,7 @@ export class ApartmentSketchComponent implements OnInit {
 			}
 
 
-
+			// don't check for collision with non-set room sketches
 			if(!rs.isSet) continue;
 
 			if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
@@ -350,19 +385,27 @@ export class ApartmentSketchComponent implements OnInit {
 				ApartmentSketchComponent.selectedRoom.isCollided = false;
 		}
 
+		// draw room sketch and update (last) mouse position
 		ApartmentSketchComponent.drawRoomSketch(ApartmentSketchComponent.selectedRoom);
 		if(!autofixedX) ApartmentSketchComponent.mousePosX = mouseCurrX;
 		if(!autofixedY) ApartmentSketchComponent.mousePosY = mouseCurrY;
 	}
 
-	static endPosition(): void { // ovo se takodje treba generalizovati
+	static endPosition(): void {
 		if(ApartmentSketchComponent.selectedRoom) {
-			if(ApartmentSketchComponent.selectedRoom.isCollided) ApartmentSketchComponent.selectedRoom.isSet = false;
-			else ApartmentSketchComponent.selectedRoom.isSet = true; // TODO: update savedX & savedY of selected room
+			if(ApartmentSketchComponent.selectedRoom.isCollided) {
+				ApartmentSketchComponent.selectedRoom.isSet = false;
+			}
+			else {
+				ApartmentSketchComponent.selectedRoom.isSet = true; 
+				ApartmentSketchComponent.selectedRoom.savedX = ApartmentSketchComponent.selectedRoom.x;
+				ApartmentSketchComponent.selectedRoom.savedY = ApartmentSketchComponent.selectedRoom.y;
+			}
 		}
 
 		ApartmentSketchComponent.selectedRoom = undefined;
 		ApartmentSketchComponent.selectedRoomIndex = -1;
+		ApartmentSketchComponent.isDoorSelected = false;
 
 		ApartmentSketchComponent.drawAllRoomSketches();
 	}
