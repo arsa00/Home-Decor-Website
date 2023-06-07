@@ -239,6 +239,57 @@ export class ApartmentSketchComponent implements OnInit {
 		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
 		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
 
+		if(ApartmentSketchComponent.isDoorSelected) {
+
+			ApartmentSketchComponent.clearRoomSketch(ApartmentSketchComponent.selectedRoom);
+			ApartmentSketchComponent.drawRoomSketch(ApartmentSketchComponent.selectedRoom);
+
+			if(ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP
+				|| ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM) {
+
+				let errorX: boolean = false;
+				const doorX: number = ApartmentSketchComponent.selectedRoom.doorX;
+
+				if(doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX) < 0)
+				{
+					ApartmentSketchComponent.selectedRoom.doorX = 0;
+					errorX = true;
+				}
+				if(doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX) + ApartmentSketchComponent.DOOR_WIDTH > ApartmentSketchComponent.selectedRoom.width)
+				{
+					ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.width- ApartmentSketchComponent.DOOR_WIDTH;
+					errorX = true;
+				}
+
+				if(!errorX) ApartmentSketchComponent.selectedRoom.doorX = doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX);
+			}
+
+			if(ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT
+				|| ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT) {
+
+				let errorY: boolean = false;
+				const doorY: number = ApartmentSketchComponent.selectedRoom.doorY;
+
+				if(doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY) < 0)
+				{
+					ApartmentSketchComponent.selectedRoom.doorY = 0;
+					errorY = true;
+				}
+				if(doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY) + ApartmentSketchComponent.DOOR_HEIGHT > ApartmentSketchComponent.selectedRoom.height)
+				{
+					ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.height- ApartmentSketchComponent.DOOR_HEIGHT;
+					errorY = true;
+				}
+
+				if(!errorY) ApartmentSketchComponent.selectedRoom.doorY = doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY);
+			}
+
+			ApartmentSketchComponent.mousePosX = mouseCurrX;
+			ApartmentSketchComponent.mousePosY = mouseCurrY;
+
+			return;
+		}
+
 		ApartmentSketchComponent.clearRoomSketch(ApartmentSketchComponent.selectedRoom);
 		ApartmentSketchComponent.drawAllRoomSketches();
 
