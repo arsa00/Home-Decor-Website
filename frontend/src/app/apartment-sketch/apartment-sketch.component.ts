@@ -12,6 +12,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly AUTOFIX_OFFSET: number = 7;
 	static readonly DOOR_HEIGHT: number = 50;
     static readonly DOOR_WIDTH: number = 50;
+	static readonly CHANGE_DOOR_POSITION_THRESHOLD: number = 10;
 	static readonly DOOR_TOP_SRC: string = "/assets/appartment-sketch-component/doorTop.png";
 	static readonly DOOR_BOTTOM_SRC: string = "/assets/appartment-sketch-component/doorBottom.png";
 	static readonly DOOR_RIGHT_SRC: string = "/assets/appartment-sketch-component/doorRight.png";
@@ -238,18 +239,22 @@ export class ApartmentSketchComponent implements OnInit {
 
 		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
 		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		const threshold: number = ApartmentSketchComponent.CHANGE_DOOR_POSITION_THRESHOLD;
 
+		// moving door within selected room sketch (if door is selected)
 		if(ApartmentSketchComponent.isDoorSelected) {
 
 			ApartmentSketchComponent.clearRoomSketch(ApartmentSketchComponent.selectedRoom);
 			ApartmentSketchComponent.drawRoomSketch(ApartmentSketchComponent.selectedRoom);
 
+			// for TOP and BOTTOM position of door, move door only horizontally
 			if(ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP
 				|| ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM) {
 
 				let errorX: boolean = false;
 				const doorX: number = ApartmentSketchComponent.selectedRoom.doorX;
-
+				
+				// check and correct moving off the room sketch horizontally
 				if(doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX) < 0)
 				{
 					ApartmentSketchComponent.selectedRoom.doorX = 0;
@@ -262,14 +267,54 @@ export class ApartmentSketchComponent implements OnInit {
 				}
 
 				if(!errorX) ApartmentSketchComponent.selectedRoom.doorX = doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX);
+
+
+				const doorStartX: number = ApartmentSketchComponent.selectedRoom.doorX;
+				const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.DOOR_WIDTH;
+				const mouseWithinRoomY: number = mouseCurrY - ApartmentSketchComponent.selectedRoom.y;
+
+				// if door is near edges of room sketch and user is trying to move door vertically, change door position accordingly
+				if(
+					(
+						mouseWithinRoomY > ApartmentSketchComponent.DOOR_HEIGHT + threshold 
+					&& 
+						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP
+					)
+
+					||
+					
+					(
+						mouseWithinRoomY < ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT - threshold 
+					&& 
+						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM
+					)
+				) {
+
+					if(doorStartX < threshold) {
+						ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP 
+																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT;
+
+						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.LEFT;
+					}
+
+					if(doorEndX > ApartmentSketchComponent.selectedRoom.width - threshold) {
+						ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP 
+																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT;
+
+						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.RIGHT;
+					}
+				}
+				 
 			}
 
+			// for RIGHT and LEFT position of door, move door only vertically
 			if(ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT
 				|| ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT) {
 
 				let errorY: boolean = false;
 				const doorY: number = ApartmentSketchComponent.selectedRoom.doorY;
 
+				// check and correct moving off the room sketch vertically
 				if(doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY) < 0)
 				{
 					ApartmentSketchComponent.selectedRoom.doorY = 0;
@@ -282,6 +327,44 @@ export class ApartmentSketchComponent implements OnInit {
 				}
 
 				if(!errorY) ApartmentSketchComponent.selectedRoom.doorY = doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY);
+
+
+				const doorStartY: number = ApartmentSketchComponent.selectedRoom.doorY;
+				const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.DOOR_HEIGHT;
+				const mouseWithinRoomX: number = mouseCurrX - ApartmentSketchComponent.selectedRoom.x;
+
+				// if door is near edges of room sketch and user is trying to move door horizontally, change door position accordingly
+				if(
+					(
+						mouseWithinRoomX > ApartmentSketchComponent.DOOR_WIDTH + threshold 
+					&& 
+						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT
+					)
+
+					||
+					
+					(
+						mouseWithinRoomX < ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH - threshold 
+					&& 
+						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT
+					)
+				) {
+
+					if(doorStartY < threshold) {
+						ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT 
+																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH;
+
+						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.TOP;
+						
+					}
+
+					if(doorEndY > ApartmentSketchComponent.selectedRoom.height - threshold) {
+						ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT 
+																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH;
+
+						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.BOTTOM;
+					}
+				}
 			}
 
 			ApartmentSketchComponent.mousePosX = mouseCurrX;
