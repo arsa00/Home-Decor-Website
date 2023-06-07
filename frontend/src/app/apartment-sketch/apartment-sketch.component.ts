@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApartmentSketch, ProgressState, RoomSketch } from '../models/ApartmentSketch';
+import { ApartmentSketch, DoorPosition, ProgressState, RoomSketch } from '../models/ApartmentSketch';
 
 @Component({
   selector: 'app-apartment-sketch',
@@ -10,6 +10,17 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
 	static readonly BORDER_FILL_OFFSET: number = 1;
 	static readonly AUTOFIX_OFFSET: number = 7;
+	static readonly DOOR_HEIGHT: number = 50;
+    static readonly DOOR_WIDTH: number = 50;
+	static readonly DOOR_TOP_SRC: string = "/assets/appartment-sketch-component/doorTop.png";
+	static readonly DOOR_BOTTOM_SRC: string = "/assets/appartment-sketch-component/doorBottom.png";
+	static readonly DOOR_RIGHT_SRC: string = "/assets/appartment-sketch-component/doorRight.png";
+	static readonly DOOR_LEFT_SRC: string = "/assets/appartment-sketch-component/doorLeft.png";
+
+	static doorTopImg: HTMLImageElement;
+	static doorBottomImg: HTMLImageElement;
+	static doorRightImg: HTMLImageElement;
+	static doorLeftImg: HTMLImageElement;
 
 	static sketchCanvas;
 	static sketchCanvasContext;
@@ -32,10 +43,20 @@ export class ApartmentSketchComponent implements OnInit {
 		if(!ApartmentSketchComponent.apartmentSketch){
 			ApartmentSketchComponent.apartmentSketch = new ApartmentSketch();
 
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 500, 300, ProgressState.IN_PROGRESS));
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 100, 500, ProgressState.FINISHED));
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 500, 300, 50, 50, DoorPosition.LEFT, ProgressState.IN_PROGRESS));
+			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(150, 250, 100, 500, 100, 50, DoorPosition.BOTTOM, ProgressState.FINISHED));
 			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(200, 400));
 		}
+
+		ApartmentSketchComponent.doorTopImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+		ApartmentSketchComponent.doorBottomImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+		ApartmentSketchComponent.doorRightImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+		ApartmentSketchComponent.doorLeftImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+
+		ApartmentSketchComponent.doorTopImg.src = ApartmentSketchComponent.DOOR_TOP_SRC;
+		ApartmentSketchComponent.doorBottomImg.src = ApartmentSketchComponent.DOOR_BOTTOM_SRC;
+		ApartmentSketchComponent.doorRightImg.src = ApartmentSketchComponent.DOOR_RIGHT_SRC;
+		ApartmentSketchComponent.doorLeftImg.src = ApartmentSketchComponent.DOOR_LEFT_SRC;
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
 			rs.x = rs.savedX;
@@ -47,11 +68,17 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas.width = "800";
 		ApartmentSketchComponent.sketchCanvas.style.width = "800px";
 		ApartmentSketchComponent.drawAllRoomSketches();
+		ApartmentSketchComponent.drawAllRoomSketches();
 
 		ApartmentSketchComponent.sketchCanvas.addEventListener("mousedown", ApartmentSketchComponent.startPosition);
 		ApartmentSketchComponent.sketchCanvas.addEventListener("mousemove", ApartmentSketchComponent.moveRoom);
 		ApartmentSketchComponent.sketchCanvas.addEventListener("mouseup",   ApartmentSketchComponent.endPosition);
 		ApartmentSketchComponent.sketchCanvas.addEventListener("mouseout",  ApartmentSketchComponent.endPosition);
+	}
+
+	static clearCanvas():  void {
+		ApartmentSketchComponent.sketchCanvasContext
+			.clearRect(0, 0, ApartmentSketchComponent.sketchCanvas.width, ApartmentSketchComponent.sketchCanvas.height);
 	}
 
 	static clearRoomSketch(rs: RoomSketch): void {
@@ -75,20 +102,70 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.sketchCanvasContext.strokeRect(rs.x, rs.y, rs.width, rs.height);
 
 			ApartmentSketchComponent.sketchCanvasContext.strokeStyle = 'black';
-			return;
+			// return;
+		} else {
+
+			if(rs.progress == ProgressState.IN_PROGRESS) {
+				ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.IN_PROGRESS_FILL_COLOR;
+				ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
+			} else if(rs.progress == ProgressState.FINISHED) {
+				ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.FINISHED_FILL_COLOR;
+				ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
+			}
+
+			ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'black';
+			ApartmentSketchComponent.sketchCanvasContext.strokeRect(rs.x, rs.y, rs.width, rs.height);
 		}
 
+		// draw door
+		let doorX: number;
+		let doorY: number;
+		let doorImg: HTMLImageElement = null;
 
-		if(rs.progress == ProgressState.IN_PROGRESS) {
-			ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.IN_PROGRESS_FILL_COLOR;
-			ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
-		} else if(rs.progress == ProgressState.FINISHED) {
-			ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.FINISHED_FILL_COLOR;
-			ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
+		switch(rs.doorPosition) {
+			case DoorPosition.TOP: {
+				doorX = rs.x + rs.doorX;
+				doorY = rs.y;
+				doorImg = ApartmentSketchComponent.doorTopImg;
+				break;
+			}
+
+			case DoorPosition.BOTTOM: {
+				doorX = rs.x + rs.doorX;
+				doorY = rs.y + rs.height - ApartmentSketchComponent.DOOR_HEIGHT;
+				doorImg = ApartmentSketchComponent.doorBottomImg;
+				break;
+			}
+
+			case DoorPosition.RIGHT: {
+				doorX = rs.x + rs.width - ApartmentSketchComponent.DOOR_WIDTH;
+				doorY = rs.y + rs.doorY;
+				doorImg = ApartmentSketchComponent.doorRightImg;
+				break;
+			}
+
+			case DoorPosition.LEFT: {
+				doorX = rs.x;
+				doorY = rs.y + rs.doorY;
+				doorImg = ApartmentSketchComponent.doorLeftImg;
+				break;
+			}
 		}
 
-		ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'black';
-		ApartmentSketchComponent.sketchCanvasContext.strokeRect(rs.x, rs.y, rs.width, rs.height);
+		if(doorImg == null) return;
+
+		if(doorImg.complete) {
+			// console.log("COMPLETED");
+			ApartmentSketchComponent.sketchCanvasContext.drawImage(doorImg, doorX, doorY, 
+											ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+		}
+		else {
+			// console.log("NOT-COMPLETED");
+			doorImg.addEventListener("load", () => {
+				ApartmentSketchComponent.sketchCanvasContext.drawImage(doorImg, doorX, doorY, 
+											ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+			});
+		}
 	}
 
 	static drawAllRoomSketches(): void {
@@ -106,8 +183,10 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.mousePosX = mouseCurrX;
 		ApartmentSketchComponent.mousePosY = mouseCurrY;
 
-		console.log(mouseCurrX, mouseCurrY);
+		// console.log(mouseCurrX, mouseCurrY);
 
+		// going backwards through array, because sketch that was drawn later is showed on top, 
+		// so when clicked on intersection between two sketches, the one with higher index should be selecteed
 		for(let i: number = ApartmentSketchComponent.apartmentSketch.roomSketches.length - 1; i >= 0; i--) {
 			let currRS: RoomSketch = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
 			if(mouseCurrX >= currRS.x && mouseCurrX <= currRS.x + currRS.width && mouseCurrY >= currRS.y && mouseCurrY <= currRS.y + currRS.height) {
@@ -155,7 +234,7 @@ export class ApartmentSketchComponent implements OnInit {
 		if(!errorX) ApartmentSketchComponent.selectedRoom.x = ApartmentSketchComponent.selectedRoom.x + (mouseCurrX - ApartmentSketchComponent.mousePosX);
 		if(!errorY) ApartmentSketchComponent.selectedRoom.y = ApartmentSketchComponent.selectedRoom.y + (mouseCurrY - ApartmentSketchComponent.mousePosY);
 
-		// detect collision with other room sketches
+		// auto-align functionality & detection of collision with other room sketches
 		let autofixedX: boolean = false;
 		let autofixedY: boolean = false;
 		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
