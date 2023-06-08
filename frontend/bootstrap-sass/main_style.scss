@@ -1,0 +1,72 @@
+// overriding variables
+// $primary: #da6969;
+
+// $secondary:     $gray-600; 
+// $success:       $green;    
+// $info:          $cyan;     
+// $warning:       $yellow;   
+// $danger:        $red;      
+// $light:         $gray-100; 
+// $dark:          $gray-900; 
+
+
+// adding custom colors (color themes)
+
+@import '../node_modules/bootstrap/scss/_functions';
+@import '../node_modules/bootstrap/scss/_variables';
+
+$light-theme-color: (
+    "lth-clr1": #e76f51,
+    "lth-clr2": #f4a261,
+    "lth-clr3": #e9c46a,
+    "lth-clr4": #2a9d8f,
+    "lth-clr5": #264653
+);
+
+$palette-1: (
+    "plt1-clr1": #F94144,
+    "plt1-clr2": #F3722C,
+    "plt1-clr3": #F8961E,
+    "plt1-clr4": #F9844A,
+    "plt1-clr5": #F9C74F,
+    "plt1-clr6": #90BE6D,
+    "plt1-clr7": #43AA8B,
+    "plt1-clr8": #4D908E,
+    "plt1-clr9": #577590,
+    "plt1-clr10": #277DA1,
+    "plt1-clr11": #1d3557   // added (not from original palette)
+);
+
+$palette-2: (
+    "plt2-clr1": #FFAF87,
+    "plt2-clr2": #FFA782,
+    "plt2-clr3": #FF9F7D,
+    "plt2-clr4": #FF8E72,
+    "plt2-clr5": #F67C68,
+    "plt2-clr6": #ED6A5E,
+    "plt2-clr7": #9B6A70,
+    "plt2-clr8": #496A81,
+    "plt2-clr9": #3A5274,
+    "plt2-clr10": #040303
+);
+
+$gray-palette: (
+    "gray-plt-clr0": #FFFFFF,
+    "gray-plt-clr1": #F8F9FA,
+    "gray-plt-clr2": #E9ECEF,
+    "gray-plt-clr3": #DEE2E6,
+    "gray-plt-clr4": #CED4DA,
+    "gray-plt-clr5": #ADB5BD,
+    "gray-plt-clr6": #6C757D,
+    "gray-plt-clr7": #495057,
+    "gray-plt-clr8": #343A40,
+    "gray-plt-clr9": #212529,
+    "gray-plt-clr10": #000000
+);
+
+$theme-colors: map-merge($light-theme-color, $theme-colors);
+$theme-colors: map-merge($palette-1, $theme-colors);
+$theme-colors: map-merge($palette-2, $theme-colors);
+$theme-colors: map-merge($gray-palette, $theme-colors);
+
+@import '../node_modules/bootstrap/scss/bootstrap';
