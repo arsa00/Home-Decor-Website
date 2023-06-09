@@ -9,12 +9,14 @@ import { LoginComponent } from './login/login.component';
 
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
+import { AdminLoginComponent } from './admin-login/admin-login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ApartmentSketchComponent,
-    LoginComponent
+    LoginComponent,
+    AdminLoginComponent
   ],
   imports: [
     BrowserModule,
