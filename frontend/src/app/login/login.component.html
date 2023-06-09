@@ -1,0 +1,46 @@
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center px-3 px-md-0">
+        <div class="col-lg-5 shadow px-2 px-md-5 pb-3 pt-3 text-center">
+            <h1 class="fs-2 mb-4">Prijava</h1>
+
+            <form class="d-flex align-items-center flex-column">
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>person</mat-icon></span>
+                    <!-- <input type="text" class="form-control" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon"> -->
+                    <div class="form-floating">
+                        <input type="text" name="username" [(ngModel)]="username" class="form-control" id="username" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon">
+                        <label for="username">Korisničko ime</label>
+                    </div>
+                </div>
+
+                <div class="input-group mb-2">
+                    <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
+                    <!-- <input type="text" class="form-control" placeholder="Lozinka" aria-label="Username" aria-describedby="pass-addon"> -->
+                    <div class="form-floating position-relative">
+                        <input *ngIf="isPassHidder" type="password" name="pass" [(ngModel)]="password" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon">
+                        <input *ngIf="!isPassHidder" type="text" name="pass" [(ngModel)]="password" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon">
+
+                        <label for="password">Lozinka</label>
+
+                        <mat-icon *ngIf="isPassHidder" class="position-absolute cursor-pointer" style="bottom: 15px; right: 15px;" (click)="tooglePassVisibility()">visibility_off</mat-icon>
+                        <mat-icon *ngIf="!isPassHidder" class="position-absolute cursor-pointer" style="bottom: 15px; right: 15px;" (click)="tooglePassVisibility()">visibility_on</mat-icon>
+                    </div>
+                </div>
+
+                <div class="text-end full-width mb-4 pe-1">
+                  <a href="#">Zaboravljena lozinka?</a>
+                </div>
+
+                <button type="button" class="btn btn-outline-plt1-clr9 fs-5 my-2 full-width">Prijavite se</button>
+                
+                <div class="mt-2">
+                    <span>Nemate nalog? </span><a class="text-plt1-clr2 fw-medium" href="#">Registrujte se</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
