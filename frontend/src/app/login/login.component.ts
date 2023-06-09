@@ -11,6 +11,11 @@ export class LoginComponent implements OnInit {
   password: string;
   username: string;
 
+  passwordErr: boolean = false;
+  usernameErr: boolean = false;
+
+  errMessages: string[] = [];
+
   constructor() { }
 
   ngOnInit(): void {
@@ -18,6 +23,14 @@ export class LoginComponent implements OnInit {
 
   tooglePassVisibility(): void {
     this.isPassHidder = !this.isPassHidder;
+  }
+
+  usernameInputClicked(): void {
+    this.usernameErr = false;
+  }
+
+  passwordInputClicked(): void {
+    this.passwordErr = false;
   }
 
 }

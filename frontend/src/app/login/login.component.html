@@ -6,31 +6,50 @@
 
             <form class="d-flex align-items-center flex-column">
 
-                <div class="input-group mb-3">
+                <div class="input-group">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>person</mat-icon></span>
-                    <!-- <input type="text" class="form-control" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon"> -->
+                   
                     <div class="form-floating">
-                        <input type="text" name="username" [(ngModel)]="username" class="form-control" id="username" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon">
+                        <input type="text" name="username" [(ngModel)]="username" [ngClass]="{'is-invalid': usernameErr}" class="form-control" id="username" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon" (click)="usernameInputClicked()">
                         <label for="username">Korisničko ime</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravno korisničko ime
+                        </div>                      
                     </div>
                 </div>
 
-                <div class="input-group mb-2">
+
+                <div class="input-group mb-2 mt-3" [ngClass]="{'mt-5': usernameErr}">
                     <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
-                    <!-- <input type="text" class="form-control" placeholder="Lozinka" aria-label="Username" aria-describedby="pass-addon"> -->
+
                     <div class="form-floating position-relative">
-                        <input *ngIf="isPassHidder" type="password" name="pass" [(ngModel)]="password" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon">
-                        <input *ngIf="!isPassHidder" type="text" name="pass" [(ngModel)]="password" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon">
+                        <input *ngIf="isPassHidder" type="password" name="pass" [(ngModel)]="password" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon" (click)="passwordInputClicked()">
+                        <input *ngIf="!isPassHidder" type="text" name="pass" [(ngModel)]="password" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon" (click)="passwordInputClicked()">
 
                         <label for="password">Lozinka</label>
 
-                        <mat-icon *ngIf="isPassHidder" class="position-absolute cursor-pointer" style="bottom: 15px; right: 15px;" (click)="tooglePassVisibility()">visibility_off</mat-icon>
-                        <mat-icon *ngIf="!isPassHidder" class="position-absolute cursor-pointer" style="bottom: 15px; right: 15px;" (click)="tooglePassVisibility()">visibility_on</mat-icon>
+                        <mat-icon *ngIf="isPassHidder" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="tooglePassVisibility()">
+                            visibility_off
+                        </mat-icon>
+                        <mat-icon *ngIf="!isPassHidder" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="tooglePassVisibility()">
+                            visibility_on
+                        </mat-icon>
+
+                        <div class="invalid-tooltip">
+                            * Unesite ispravnu lozinku
+                        </div>   
+
                     </div>
                 </div>
 
-                <div class="text-end full-width mb-4 pe-1">
-                  <a href="#">Zaboravljena lozinka?</a>
+                <div class="position-relative full-width mb-4">
+                    <a class="position-absolute end-0 me-1" href="#">Zaboravljena lozinka?</a>
+                </div>
+
+                <div class="full-width errorText text-start">
+                    <ul>
+                        <li *ngFor="let msg of errMessages">{{ msg }}</li>
+                    </ul>
                 </div>
 
                 <button type="button" class="btn btn-outline-plt1-clr9 fs-5 my-2 full-width">Prijavite se</button>
