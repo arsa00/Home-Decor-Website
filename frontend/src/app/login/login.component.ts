@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent implements OnInit {
 
   errMessages: string[] = [];
 
-  constructor() { }
+  constructor(private userService: UserService) { }
 
   ngOnInit(): void {
   }
@@ -31,6 +32,24 @@ export class LoginComponent implements OnInit {
 
   passwordInputClicked(): void {
     this.passwordErr = false;
+  }
+
+  login(): void {
+    if(!this.password) {
+      this.passwordErr = true;
+    }
+
+    if(!this.username) {
+      this.usernameErr = true;
+    }
+
+    if(this.usernameErr || this.passwordErr) return;
+
+/*
+    this.userService.login(this.username, this.password).subscribe(() => {
+      // TODO: check for error; If succeded add JWT to localStorage;
+    });
+*/
   }
 
 }
