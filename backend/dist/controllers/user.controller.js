@@ -28,8 +28,10 @@ class UserController {
                     // hash password before check
                     const isPasswordCorrect = yield bcrypt.compare(req.body.password, user.password);
                     if (isPasswordCorrect) {
-                        // TODO: generate JWT & return user in JSON format but with reduced data
+                        // generating JWT & returning user in JSON format (but with reduced data)
                         const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
+                        user.password = null;
+                        // user._id = null;
                         return res.header("jwt", token).json(user);
                     }
                     else {
