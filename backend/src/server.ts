@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import userRouter from './routers/user.router';
 
 const PORT: number = 4000;
 
@@ -17,7 +18,7 @@ connection.once("open", () => {
 })
 
 const router = express.Router();
-// router.use("/user", userRouter);
+router.use("/user", userRouter);
 router.get("/", (req, res) => { res.send("Server working..."); });
 
 app.use("/", router);

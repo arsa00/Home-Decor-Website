@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const user_router_1 = __importDefault(require("./routers/user.router"));
 const PORT = 4000;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -16,7 +17,7 @@ connection.once("open", () => {
     console.log("DB connected");
 });
 const router = express_1.default.Router();
-// router.use("/user", userRouter);
+router.use("/user", user_router_1.default);
 router.get("/", (req, res) => { res.send("Server working..."); });
 app.use("/", router);
 app.listen(PORT, () => console.log(`Express server running on port ${PORT}`));
