@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { UserModel } from '../models/user';
 
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 export class UserController {
     private static readonly ADMIN_TYPE: string = "admin";
@@ -30,7 +31,10 @@ export class UserController {
 
                 if(isPasswordCorrect) {
                     // TODO: generate JWT & return user in JSON format but with reduced data
-                    return res.json(user);
+
+                    const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
+
+                    return res.header("jwt", token).json(user);
                 } else {
                     return res.status(400).json({errMsg: "Pogrešna lozinka"});
                 }

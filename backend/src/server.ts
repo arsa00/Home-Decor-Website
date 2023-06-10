@@ -3,14 +3,14 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import userRouter from './routers/user.router';
 
-const PORT: number = 4000;
-
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/test");
+require('dotenv').config();
+
+mongoose.connect(process.env.MONGO_DB);
 
 const connection = mongoose.connection;
 connection.once("open", () => {
@@ -22,4 +22,4 @@ router.use("/user", userRouter);
 router.get("/", (req, res) => { res.send("Server working..."); });
 
 app.use("/", router);
-app.listen(PORT, () => console.log(`Express server running on port ${ PORT }`));
+app.listen(process.env.PORT || 4005, () => console.log(`Express server running on port ${ process.env.PORT || 4005 }`));

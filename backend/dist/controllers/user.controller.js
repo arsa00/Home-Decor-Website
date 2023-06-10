@@ -12,26 +12,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const user_1 = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 class UserController {
     constructor() {
         this.login = (req, res) => {
             const username = req.body.username;
             user_1.UserModel.findOne({ "username": username }, (err, user) => __awaiter(this, void 0, void 0, function* () {
                 if (err) {
-                    return res.json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+                    return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
                 }
                 else {
                     if (!user) {
-                        return res.json({ errMsg: "Pogrešno korisničko ime" });
+                        return res.status(400).json({ errMsg: "Pogrešno korisničko ime" });
                     }
-                    // TODO: hash password before check
+                    // hash password before check
                     const isPasswordCorrect = yield bcrypt.compare(req.body.password, user.password);
                     if (isPasswordCorrect) {
-                        // TODO: generate JWT
-                        return res.json(user);
+                        // TODO: generate JWT & return user in JSON format but with reduced data
+                        const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
+                        return res.header("jwt", token).json(user);
                     }
                     else {
-                        return res.json({ errMsg: "Pogrešna lozinka" });
+                        return res.status(400).json({ errMsg: "Pogrešna lozinka" });
                     }
                 }
             }));
@@ -42,9 +44,11 @@ class UserController {
             if (usernameExist)
                 return res.status(409).json({ errMsg: "Uneto korisničko ime već postoji" });
             const type = req.body.type;
+            // hash password
             const salt = yield bcrypt.genSalt(10);
             const password = yield bcrypt.hash(req.body.password, salt);
             if (type === UserController.AGENCY_TYPE) {
+                // insert agency
                 const newUser = new user_1.UserModel({
                     username: username,
                     password: password,
@@ -57,6 +61,7 @@ class UserController {
                     mail: req.body.mail,
                     description: req.body.description
                 });
+                // MAYBE TODO: add additional validation of data in request body
                 try {
                     yield newUser.save();
                     return res.status(200).send("User added successfully");
@@ -66,6 +71,7 @@ class UserController {
                 }
             }
             if (type === UserController.CLIENT_TYPE) {
+                // insert client
                 const newUser = new user_1.UserModel({
                     username: username,
                     password: password,
@@ -76,6 +82,7 @@ class UserController {
                     phone: req.body.phone,
                     mail: req.body.mail
                 });
+                // MAYBE TODO: add additional validation of data in request body
                 try {
                     yield newUser.save();
                     return res.status(200).send("User added successfully");
