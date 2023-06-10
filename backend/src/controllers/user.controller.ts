@@ -1,32 +1,38 @@
-import { Response } from 'express'
-import { Request } from 'express'
+import { Response } from 'express';
+import { Request } from 'express';
 import { UserModel } from '../models/user';
+
+const bcrypt = require("bcryptjs");
 
 export class UserController {
     private static readonly ADMIN_TYPE: string = "admin";
     private static readonly AGENCY_TYPE: string = "agency";
     private static readonly CLIENT_TYPE: string = "client";
+    private static readonly STATUS_PENDING: string = "PENDING";
+    private static readonly STATUS_ACCEPTED: string = "ACCEPTED";
+    private static readonly STATUS_REJECTED: string = "REJECTED";
 
     login = (req: Request, res: Response) => {
 
         const username = req.body.username;
-        const password = req.body.password;
 
-        UserModel.findOne({"username": username}, (err, user) => {
+        UserModel.findOne({"username": username}, async (err, user) => {
             if(err) {
-                return res.json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+                return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
             }
             else {
                 if(!user) {
-                    return res.json({errMsg: "Pogrešno korisničko ime"});
+                    return res.status(400).json({errMsg: "Pogrešno korisničko ime"});
                 }
 
-                // TODO: hash password before check
-                if(user.password === password) {
-                    // TODO: generate JWT
+                // hash password before check
+                const isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
+
+                if(isPasswordCorrect) {
+                    // TODO: generate JWT & return user in JSON format but with reduced data
                     return res.json(user);
                 } else {
-                    return res.json({errMsg: "Pogrešna lozinka"});
+                    return res.status(400).json({errMsg: "Pogrešna lozinka"});
                 }
             }
         });
@@ -38,35 +44,63 @@ export class UserController {
         const username = req.body.username;
         
         const usernameExist = await UserModel.findOne({"username": username});
-        if(usernameExist) return res.json({errMsg: "Uneto korisničko ime već postoji"});
+        if(usernameExist) return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
 
-        // common attributes
-        const password = req.body.password;
         const type = req.body.type;
-        const mail = req.body.mail;
+
+        // hash password
+        const salt = await bcrypt.genSalt(10);
+        const password = await bcrypt.hash(req.body.password, salt);
 
         if(type === UserController.AGENCY_TYPE) {
-
-            const name = req.body.name;
-            const address = req.body.address;
-            const idNumber = req.body.idNumber;
-            const phone = req.body.phone;
-            const description = req.body.description;
-
+            // insert agency
             const newUser = new UserModel({
                 username: username,
                 password: password,
                 type: type,
-                status: "PENDING",
+                status: UserController.STATUS_PENDING,
                 name: req.body.name,
                 address: req.body.address,
                 idNumber: req.body.idNumber,
                 phone: req.body.phone,
+                mail: req.body.mail,
                 description: req.body.description
-            })
+            });
+
+            // MAYBE TODO: add additional validation of data in request body
+
+            try {
+                await newUser.save();
+                return res.status(200).send("User added successfully");
+            } catch (err) {
+                return res.status(500).send(err);
+            }
         }
 
+        if(type === UserController.CLIENT_TYPE) {
+            // insert client
+            const newUser = new UserModel({
+                username: username,
+                password: password,
+                type: type,
+                status: UserController.STATUS_PENDING,
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                phone: req.body.phone,
+                mail: req.body.mail
+            });
 
+            // MAYBE TODO: add additional validation of data in request body
+
+            try {
+                await newUser.save();
+                return res.status(200).send("User added successfully");
+            } catch (err) {
+                return res.status(500).send(err);
+            }
+        }
+
+        return res.status(400).send("Bad request.");
     }
 
 }
