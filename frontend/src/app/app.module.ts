@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
+import { ClientProfileComponent } from './client-profile/client-profile.component';
+import { GuestPageComponent } from './guest-page/guest-page.component';
 
 
 @NgModule({
@@ -18,7 +20,9 @@ import { AdminLoginComponent } from './admin-login/admin-login.component';
     AppComponent,
     ApartmentSketchComponent,
     LoginComponent,
-    AdminLoginComponent
+    AdminLoginComponent,
+    ClientProfileComponent,
+    GuestPageComponent
   ],
   imports: [
     BrowserModule,

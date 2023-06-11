@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../services/user.service';
+import { User } from '../models/User';
+import { GlobalConstants } from '../global-constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +20,7 @@ export class LoginComponent implements OnInit {
 
   errMessages: string[] = [];
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -35,6 +38,8 @@ export class LoginComponent implements OnInit {
   }
 
   login(): void {
+    this.errMessages = [];
+
     if(!this.password) {
       this.passwordErr = true;
     }
@@ -45,11 +50,49 @@ export class LoginComponent implements OnInit {
 
     if(this.usernameErr || this.passwordErr) return;
 
-/*
-    this.userService.login(this.username, this.password).subscribe(() => {
-      // TODO: check for error; If succeded add JWT to localStorage;
+
+    this.userService.login(this.username, this.password).subscribe({
+
+      next: (userDB: User) => {
+        // TODO: check for error; If succeded add JWT to localStorage;
+
+        if(userDB) {
+          // let jwt = res[]
+          localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(userDB));
+
+          if(userDB.type === GlobalConstants.CLIENT_TYPE) {
+            
+          }
+
+          switch(userDB.type) {
+            case GlobalConstants.CLIENT_TYPE: this.router.navigate(["clientProfile"]); break;
+            case GlobalConstants.AGENCY_TYPE: this.router.navigate(["agencyProfile"]); break;
+            case GlobalConstants.ADMIN_TYPE: this.router.navigate(["adminDashboard"]); break;
+          }
+        } else {
+          this.addErrMessages("Došlo je do greške. Pokušajte ponovo.");
+          
+        }
+
+      },
+
+      error: (res) => {
+
+        if(res.error.errMsg) {
+          this.addErrMessages(res.error.errMsg);
+        } else {
+          this.addErrMessages("Došlo je do greške. Pokušajte ponovo.");
+        }
+        
+      }
     });
-*/
   }
+
+  addErrMessages(...msgs: string[]) : void {
+    this.errMessages.push(...msgs);
+    this.password = "";
+  }
+
+
 
 }
