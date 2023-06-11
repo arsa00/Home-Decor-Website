@@ -54,15 +54,9 @@ export class LoginComponent implements OnInit {
     this.userService.login(this.username, this.password).subscribe({
 
       next: (userDB: User) => {
-        // TODO: check for error; If succeded add JWT to localStorage;
 
         if(userDB) {
-          // let jwt = res[]
           localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(userDB));
-
-          if(userDB.type === GlobalConstants.CLIENT_TYPE) {
-            
-          }
 
           switch(userDB.type) {
             case GlobalConstants.CLIENT_TYPE: this.router.navigate(["clientProfile"]); break;
@@ -71,7 +65,6 @@ export class LoginComponent implements OnInit {
           }
         } else {
           this.addErrMessages("Došlo je do greške. Pokušajte ponovo.");
-          
         }
 
       },

@@ -2,6 +2,7 @@ export class User {
     username: string;
     password: string;
     type:  string;
+    jwt: string;
     status?:  string;
     firstname?:  string;
     lastname?:  string;
