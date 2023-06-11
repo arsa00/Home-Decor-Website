@@ -13,6 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { ClientProfileComponent } from './client-profile/client-profile.component';
 import { GuestPageComponent } from './guest-page/guest-page.component';
+import { RegisterComponent } from './register/register.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { GuestPageComponent } from './guest-page/guest-page.component';
     LoginComponent,
     AdminLoginComponent,
     ClientProfileComponent,
-    GuestPageComponent
+    GuestPageComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

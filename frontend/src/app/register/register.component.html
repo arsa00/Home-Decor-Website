@@ -1,0 +1,202 @@
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center px-3 px-md-0">
+        <div class="col-lg-5 shadow px-2 px-md-5 pb-3 pt-3 text-center">
+            <h1 class="fs-2">Registracija</h1>
+
+            <div class="my-3 full-width bg-gray-plt-clr3 rounded" style="height: 5px;"></div>
+
+            <form class="d-flex align-items-center flex-column">
+
+                <div class="full-width d-flex justify-content-around">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="rbUserType" [(ngModel)]="userType" value="client" id="rbClient" role="button">
+                        <label class="form-check-label fs-4" for="rbClient" role="button">
+                            Klijent
+                        </label>
+                    </div>
+                    <div class="form-check ps-5 ms-4">
+                        <input class="form-check-input" type="radio" name="rbUserType" [(ngModel)]="userType" value="agency" id="rbAgency" role="button">
+                        <label class="form-check-label fs-4" for="rbAgency" role="button">
+                            Agencija
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group mt-3">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>person</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="username" [(ngModel)]="username" [ngClass]="{'is-invalid': usernameErr}" class="form-control" id="username" placeholder="Korisničko ime" aria-label="Username" aria-describedby="user-addon" (click)="usernameInputClicked()">
+                        <label for="username">Korisničko ime</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravno korisničko ime
+                        </div>                      
+                    </div>
+                </div>
+
+
+                <div class="input-group mt-3" [ngClass]="{'mt-5': usernameErr}">
+                    <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
+
+                    <div class="form-floating position-relative">
+                        <input *ngIf="isPassHidden" type="password" name="pass" [(ngModel)]="password" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon" (click)="passwordInputClicked()">
+                        <input *ngIf="!isPassHidden" type="text" name="pass" [(ngModel)]="password" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="password" placeholder="Lozinka" aria-label="Password" aria-describedby="pass-addon" (click)="passwordInputClicked()">
+
+                        <label for="password">Lozinka</label>
+
+                        <mat-icon *ngIf="isPassHidden" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="tooglePassVisibility()">
+                            visibility_off
+                        </mat-icon>
+                        <mat-icon *ngIf="!isPassHidden" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="tooglePassVisibility()">
+                            visibility_on
+                        </mat-icon>
+
+                        <div class="invalid-tooltip">
+                            * Unesite ispravnu lozinku
+                        </div>   
+
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" [ngClass]="{'mt-5': usernameErr}">
+                    <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
+
+                    <div class="form-floating position-relative">
+                        <input *ngIf="isRPassHidden" type="password" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passRepeatInputClicked()">
+                        <input *ngIf="!isRPassHidden" type="text" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passRepeatInputClicked()">
+
+                        <label for="passRepeat">Potvrda lozinke</label>
+
+                        <mat-icon *ngIf="isRPassHidden" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="toogleRPassVisibility()">
+                            visibility_off
+                        </mat-icon>
+                        <mat-icon *ngIf="!isRPassHidden" class="position-absolute cursor-pointer" style="bottom: 17px; right: 30px;" (click)="toogleRPassVisibility()">
+                            visibility_on
+                        </mat-icon>
+
+                        <div class="invalid-tooltip">
+                            * Unesite potvrdu lozinke
+                        </div>   
+
+                    </div>
+                </div>
+
+                <div class="input-group mt-3">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>phone</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="tel" name="phoneNum" [(ngModel)]="phoneNum" [ngClass]="{'is-invalid': phoneNumErr}" class="form-control" id="phoneNum" placeholder="Kontakt telefon" aria-label="phoneNum" aria-describedby="user-addon" (click)="phoneNumInputClicked()">
+                        <label for="phoneNum">Kontakt telefon</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravan broj telefona
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>mail</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="mail" [(ngModel)]="mail" [ngClass]="{'is-invalid': mailErr}" class="form-control" id="mail" placeholder="Mejl adresa" aria-label="mail" aria-describedby="user-addon" (click)="mailInputClicked()">
+                        <label for="mail">Mejl adresa</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravnu mejl adresu
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>title</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="agencyName" [(ngModel)]="agencyName" [ngClass]="{'is-invalid': agencyNameErr}" class="form-control" id="agencyName" placeholder="Naziv agencije" aria-label="agencyName" aria-describedby="user-addon" (click)="agencyNameInputClicked()">
+                        <label for="agencyName">Naziv agencije</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravan naziv agencije
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>place</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="agencyAddr" [(ngModel)]="agencyAddr" [ngClass]="{'is-invalid': agencyAddrErr}" class="form-control" id="agencyAddr" placeholder="Adresa sedišta agencije" aria-label="agencyAddr" aria-describedby="user-addon" (click)="agencyAddrInputClicked()">
+                        <label for="agencyAddr">Adresa sedišta agencije</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravnu adresu sedišta agencije
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="agencyIdNum" [(ngModel)]="agencyIdNum" [ngClass]="{'is-invalid': agencyIdNumErr}" class="form-control" id="agencyIdNum" placeholder="Matični broj agencije" aria-label="agencyIdNum" aria-describedby="user-addon" (click)="agencyIdNumInputClicked()">
+                        <label for="agencyIdNum">Matični broj agencije</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravan matični broj agencije
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>article</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <!-- <input type="text" name="agencyDesc" [(ngModel)]="agencyDesc" [ngClass]="{'is-invalid': agencyDescErr}" class="form-control" id="agencyDesc" placeholder="Kratak opis agencije" aria-label="agencyDesc" aria-describedby="user-addon" (click)="agencyDescInputClicked()"> -->
+                        <textarea name="agencyDesc" [(ngModel)]="agencyDesc" [ngClass]="{'is-invalid': agencyDescErr}" class="form-control" id="agencyDesc" rows="3" placeholder="Napišite kratak opis agencije..." aria-label="agencyDesc" aria-describedby="user-addon" (click)="agencyDescInputClicked()"></textarea>
+                        <label for="agencyDesc">Kratak opis agencije</label>
+                        <div class="invalid-tooltip">
+                            * Unesite kratak opis agencije
+                        </div>                      
+                    </div>
+                </div>
+
+
+                <!-- client-only fields -->
+                <div class="input-group mt-3" *ngIf="userType === 'client'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="clientFirstname" [(ngModel)]="clientFirstname" [ngClass]="{'is-invalid': clientFirstnameErr}" class="form-control" id="clientFirstname" placeholder="Ime" aria-label="clientFirstname" aria-describedby="user-addon" (click)="clientFirstnameInputClicked()">
+                        <label for="clientFirstname">Ime</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravno ime
+                        </div>                      
+                    </div>
+                </div>
+
+                <div class="input-group mt-3" *ngIf="userType === 'client'">
+                    <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
+                   
+                    <div class="form-floating">
+                        <input type="text" name="clientLastname" [(ngModel)]="clientLastname" [ngClass]="{'is-invalid': clientLastnameErr}" class="form-control" id="clientLastname" placeholder="Prezime" aria-label="clientLastname" aria-describedby="user-addon" (click)="clientLastnameInputClicked()">
+                        <label for="clientLastname">Prezime</label>
+                        <div class="invalid-tooltip">
+                            * Unesite ispravno prezime
+                        </div>                      
+                    </div>
+                </div>
+
+
+
+                <div class="full-width errorText text-start">
+                    <ul>
+                        <li *ngFor="let msg of errMessages">{{ msg }}</li>
+                    </ul>
+                </div>
+
+                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width">Registrujte se</button>
+                
+                <div class="mt-2">
+                    <span>Već imate nalog? </span><a class="text-plt1-clr2 fw-medium" href="#">Prijavite se</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
