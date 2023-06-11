@@ -35,9 +35,14 @@ export class UserController {
                     const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
 
                     user.password = null;
-                    // user._id = null;
+                    // user._id = null; // maybe
+
+                    let retType = {
+                        ...user._doc,
+                        jwt: token
+                    }
                     
-                    return res.header("jwt", token).json(user);
+                    return res.json(retType);
                 } else {
                     return res.status(400).json({errMsg: "Pogrešna lozinka"});
                 }
