@@ -23,7 +23,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3">
+                <div class="input-group mt-3" [ngClass]="{'mb-3': usernameErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>person</mat-icon></span>
                    
                     <div class="form-floating">
@@ -36,7 +36,7 @@
                 </div>
 
 
-                <div class="input-group mt-3" [ngClass]="{'mt-5': usernameErr}">
+                <div class="input-group mt-3" [ngClass]="{'mb-3': passwordErr}">
                     <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
 
                     <div class="form-floating position-relative">
@@ -59,12 +59,12 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" [ngClass]="{'mt-5': usernameErr}">
+                <div class="input-group mt-3" [ngClass]="{'mb-3': passwordErr}">
                     <span class="input-group-text bg-plt1-clr6" id="pass-addon"><mat-icon>lock</mat-icon></span>
 
                     <div class="form-floating position-relative">
-                        <input *ngIf="isRPassHidden" type="password" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passRepeatInputClicked()">
-                        <input *ngIf="!isRPassHidden" type="text" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passRepeatInputClicked()">
+                        <input *ngIf="isRPassHidden" type="password" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passwordInputClicked()">
+                        <input *ngIf="!isRPassHidden" type="text" name="passRepeat" [(ngModel)]="passRepeat" [ngClass]="{'is-invalid': passwordErr}" class="form-control" id="passRepeat" placeholder="Potvrda lozinke" aria-label="passRepeat" aria-describedby="pass-addon" (click)="passwordInputClicked()">
 
                         <label for="passRepeat">Potvrda lozinke</label>
 
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3">
+                <div class="input-group mt-3" [ngClass]="{'mb-3': phoneNumErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>phone</mat-icon></span>
                    
                     <div class="form-floating">
@@ -94,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3">
+                <div class="input-group mt-3" [ngClass]="{'mb-3': mailErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>mail</mat-icon></span>
                    
                     <div class="form-floating">
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                <div class="input-group mt-3" *ngIf="userType === 'agency'" [ngClass]="{'mb-3': agencyNameErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>title</mat-icon></span>
                    
                     <div class="form-floating">
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                <div class="input-group mt-3" *ngIf="userType === 'agency'" [ngClass]="{'mb-3': agencyAddrErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>place</mat-icon></span>
                    
                     <div class="form-floating">
@@ -130,7 +130,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                <div class="input-group mt-3" *ngIf="userType === 'agency'" [ngClass]="{'mb-3': agencyIdNumErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
                    
                     <div class="form-floating">
@@ -142,7 +142,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" *ngIf="userType === 'agency'">
+                <div class="input-group mt-3" *ngIf="userType === 'agency'" [ngClass]="{'mb-3': agencyDescErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>article</mat-icon></span>
                    
                     <div class="form-floating">
@@ -157,7 +157,7 @@
 
 
                 <!-- client-only fields -->
-                <div class="input-group mt-3" *ngIf="userType === 'client'">
+                <div class="input-group mt-3" *ngIf="userType === 'client'" [ngClass]="{'mb-3': clientFirstnameErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
                    
                     <div class="form-floating">
@@ -169,7 +169,7 @@
                     </div>
                 </div>
 
-                <div class="input-group mt-3" *ngIf="userType === 'client'">
+                <div class="input-group mt-3" *ngIf="userType === 'client'" [ngClass]="{'mb-3': clientLastnameErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>badge</mat-icon></span>
                    
                     <div class="form-floating">
@@ -183,13 +183,13 @@
 
 
 
-                <div class="full-width errorText text-start">
+                <div class="full-width errorText text-start mt-4">
                     <ul>
                         <li *ngFor="let msg of errMessages">{{ msg }}</li>
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width">Registrujte se</button>
+                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width" (click)="register()">Registrujte se</button>
                 
                 <div class="mt-2">
                     <span>Već imate nalog? </span><a class="text-plt1-clr2 fw-medium" routerLink="">Prijavite se</a>

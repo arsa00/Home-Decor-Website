@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { GlobalConstants } from '../global-constants';
 
 @Component({
   selector: 'app-register',
@@ -26,7 +27,6 @@ export class RegisterComponent implements OnInit {
 
 // error variables
   passwordErr: boolean = false;
-  passRepeatErr: boolean = false;
   usernameErr: boolean = false;
   phoneNumErr: boolean = false;
   mailErr: boolean = false;
@@ -62,10 +62,6 @@ export class RegisterComponent implements OnInit {
     this.passwordErr = false;
   }
 
-  passRepeatInputClicked(): void {
-    this.passRepeatErr = false;
-  }
-
   phoneNumInputClicked(): void {
     this.phoneNumErr = false;
   }
@@ -98,6 +94,96 @@ export class RegisterComponent implements OnInit {
     this.clientLastnameErr = false;
   }
 
+  register(): void {
+    this.errMessages = [];
+
+    let isErrCatched: boolean = false;
+    const mailRegEx = new RegExp("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+    const phoneRegEx = new RegExp("^[0-9/\\-+ ]{5,25}$");
+    const lChar = "[a-z]";
+    const uChar = "[A-Z]";
+    const num = "[0-9]";
+    const spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
+    const passwordRegEx = new RegExp(`^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|(${uChar}.*(${num}.*${spec}|${spec}.*${num}))).*$`);
+
+
+    // common fields checkup
+    if(!this.username) {
+      this.usernameErr = true;
+      isErrCatched = true
+    }
+
+    if(!this.password || !passwordRegEx.test(this.password) || this.password.length < 7 || this.password.length > 12) {
+      this.passwordErr = true;
+      isErrCatched = true
+    }
+    
+    if(!this.passRepeat) {
+      this.passwordErr = true;
+      isErrCatched = true
+    }
+
+    if(this.passRepeat !== this.password) {
+      this.errMessages.push("Lozinke se ne podudaraju.");
+      this.passwordErr = true;
+      isErrCatched = true;
+    }
+
+    if(!this.phoneNum || !phoneRegEx.test(this.phoneNum)) {
+      this.phoneNumErr = true;
+      isErrCatched = true
+    }
+
+    if(!this.mail || !mailRegEx.test(this.mail)) {
+      this.mailErr = true;
+      isErrCatched = true
+    }
   
+    // agency-only fields checkup
+    if(this.userType === GlobalConstants.AGENCY_TYPE) {
+
+      if(!this.agencyName) {
+        this.agencyNameErr = true;
+        isErrCatched = true
+      }
+
+      if(!this.agencyAddr) {
+        this.agencyAddrErr = true;
+        isErrCatched = true
+      }
+
+      if(!this.agencyDesc) {
+        this.agencyDescErr = true;
+        isErrCatched = true
+      }
+
+      if(!this.agencyIdNum) {
+        this.agencyIdNumErr = true;
+        isErrCatched = true
+      }
+
+    }
+
+    // client-only fields checkup
+    if(this.userType === GlobalConstants.CLIENT_TYPE) {
+
+      if(!this.clientFirstname) {
+        this.clientFirstnameErr = true;
+        isErrCatched = true
+      }
+
+      if(!this.clientLastname) {
+        this.clientLastnameErr = true;
+        isErrCatched = true
+      }
+
+    }
+
+    if(isErrCatched) return;
+
+    // form data checkup succeded, continue registration
+
+
+  }
 
 }
