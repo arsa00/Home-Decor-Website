@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const user_router_1 = __importDefault(require("./routers/user.router"));
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
@@ -20,5 +21,6 @@ const router = express_1.default.Router();
 router.use("/user", user_router_1.default);
 router.get("/", (req, res) => { res.send("Server working..."); });
 app.use("/", router);
+app.use("/images", express_1.default.static(path_1.default.join(__dirname, "../assets/images"))); // later maybe expand or shrink scope of static folder accessibility 
 app.listen(process.env.PORT || 4005, () => console.log(`Express server running on port ${process.env.PORT || 4005}`));
 //# sourceMappingURL=server.js.map

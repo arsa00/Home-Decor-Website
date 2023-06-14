@@ -1,9 +1,11 @@
 import { Response } from 'express';
 import { Request } from 'express';
 import { UserModel } from '../models/user';
+import path from 'path';
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
 
 export class UserController {
     private static readonly ADMIN_TYPE: string = "admin";
@@ -54,6 +56,8 @@ export class UserController {
 
     register = async (req: Request, res: Response) => {
 
+        // console.log(req.body);
+
         const username = req.body.username;
         
         const usernameExist = await UserModel.findOne({"username": username});
@@ -62,8 +66,8 @@ export class UserController {
         const type = req.body.type;
 
         // hash password
-        const salt = await bcrypt.genSalt(10);
-        const password = await bcrypt.hash(req.body.password, salt);
+       const salt = await bcrypt.genSalt(10);
+       const password = await bcrypt.hash(req.body.password, salt);
 
         if(type === UserController.AGENCY_TYPE) {
             // insert agency
@@ -105,6 +109,26 @@ export class UserController {
             });
 
             // MAYBE TODO: add additional validation of data in request body
+
+            /*if(req.body.image) {
+                const userFolder = path.join(__dirname, "../../assets/images/" + username);
+                let imgType = req.body.image.substring(req.body.image.indexOf("image/"), req.body.image.indexOf(";base64,"));
+                imgType = imgType.replace("image/", "");
+                console.log(imgType);
+                let base64Img = req.body.image.replace(/^data.*;base64,/, "");
+
+                if (!fs.existsSync(userFolder)){
+                    fs.mkdirSync(userFolder);
+                }
+
+                fs.writeFile(`${ userFolder }/profileImg.${imgType}`, base64Img, "base64", (err) => {
+                        if (err)
+                            console.log(err);
+                        else 
+                            console.log("File written successfully\n");
+                    }
+                );
+            }*/
 
             try {
                 await newUser.save();

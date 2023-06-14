@@ -8,11 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const user_1 = require("../models/user");
+const path_1 = __importDefault(require("path"));
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
 class UserController {
     constructor() {
         this.login = (req, res) => {
@@ -43,6 +48,7 @@ class UserController {
             }));
         };
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            // console.log(req.body);
             const username = req.body.username;
             const usernameExist = yield user_1.UserModel.findOne({ "username": username });
             if (usernameExist)
@@ -88,6 +94,22 @@ class UserController {
                     mail: req.body.mail
                 });
                 // MAYBE TODO: add additional validation of data in request body
+                if (req.body.image) {
+                    const userFolder = path_1.default.join(__dirname, "../../assets/images/" + username);
+                    let imgType = req.body.image.substring(req.body.image.indexOf("image/"), req.body.image.indexOf(";base64,"));
+                    imgType = imgType.replace("image/", "");
+                    console.log(imgType);
+                    let base64Img = req.body.image.replace(/^data.*;base64,/, "");
+                    if (!fs.existsSync(userFolder)) {
+                        fs.mkdirSync(userFolder);
+                    }
+                    fs.writeFile(`${userFolder}/profileImg.${imgType}`, base64Img, "base64", (err) => {
+                        if (err)
+                            console.log(err);
+                        else
+                            console.log("File written successfully\n");
+                    });
+                }
                 try {
                     yield newUser.save();
                     return res.status(200).json({ "succMsg": "Klijent uspešno dodat" });

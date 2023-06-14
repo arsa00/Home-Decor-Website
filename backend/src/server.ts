@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import userRouter from './routers/user.router';
+import path from 'path';
 
 const app = express();
 
@@ -22,4 +23,5 @@ router.use("/user", userRouter);
 router.get("/", (req, res) => { res.send("Server working..."); });
 
 app.use("/", router);
+app.use("/images", express.static(path.join(__dirname, "../assets/images")));   // later maybe expand or shrink scope of static folder accessibility 
 app.listen(process.env.PORT || 4005, () => console.log(`Express server running on port ${ process.env.PORT || 4005 }`));
