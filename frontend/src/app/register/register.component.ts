@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GlobalConstants } from '../global-constants';
+import { UserService } from '../services/user.service';
+import { Router } from '@angular/router';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-register',
@@ -41,7 +44,7 @@ export class RegisterComponent implements OnInit {
 
   errMessages: string[] = [];
 
-  constructor() { }
+  constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -100,12 +103,13 @@ export class RegisterComponent implements OnInit {
     let isErrCatched: boolean = false;
     const mailRegEx = new RegExp("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     const phoneRegEx = new RegExp("^[0-9/\\-+ ]{5,25}$");
-    const lChar = "[a-z]";
-    const uChar = "[A-Z]";
+    const lChar = "[a-z]";  // lowercase char
+    const uChar = "[A-Z]";  // uppercase char
     const num = "[0-9]";
     const spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
-    const passwordRegEx = new RegExp(`^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|(${uChar}.*(${num}.*${spec}|${spec}.*${num}))).*$`);
+    const passwordRegEx = new RegExp(`^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|${uChar}.*(${num}.*${spec}|${spec}.*${num})).*$`);
 
+    // console.log(passwordRegEx.toString());
 
     // common fields checkup
     if(!this.username) {
@@ -181,8 +185,54 @@ export class RegisterComponent implements OnInit {
 
     if(isErrCatched) return;
 
-    // form data checkup succeded, continue registration
+    // form data checkup succeeded, continue registration
+    if(this.userType === GlobalConstants.CLIENT_TYPE) {
+      this.userService
+          .registerClient(this.username, this.password, this.phoneNum, this.mail, this.clientFirstname, this.clientLastname)
+          .subscribe({
 
+            next: () => {
+              sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
+              this.router.navigate([""]);
+            },
+
+            error: (res) => {
+              if(res.error.errMsg) {
+                this.errMessages.push(res.error.errMsg);
+              } else {
+                console.log(res);
+                this.errMessages.push("Došlo je do greške. Pokušajte ponovo.");
+              }
+
+              new bootstrap.Toast(document.getElementById("regErr")).show();
+            }
+
+          });
+    } 
+    
+    if(this.userType === GlobalConstants.AGENCY_TYPE) {
+      this.userService
+          .registerAgency(this.username, this.password, this.phoneNum, this.mail, this.agencyName, this.agencyAddr, this.agencyIdNum, this.agencyDesc)
+          .subscribe({
+
+            next: () => {
+              sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
+              this.router.navigate([""]);
+            },
+
+            error: (res) => {
+              if(res.error.errMsg) {
+                this.errMessages.push(res.error.errMsg);
+              } else {
+                console.log(res);
+                this.errMessages.push("Došlo je do greške. Pokušajte ponovo.");
+              }
+
+              new bootstrap.Toast(document.getElementById("regErr")).show();
+            }
+
+          });
+    }
 
   }
 

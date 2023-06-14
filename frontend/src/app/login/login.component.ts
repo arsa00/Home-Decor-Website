@@ -3,6 +3,7 @@ import { UserService } from '../services/user.service';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { Router } from '@angular/router';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,16 @@ export class LoginComponent implements OnInit {
   constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
+    let isRegistrationSucc = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+
+    if(isRegistrationSucc) {
+      if(isRegistrationSucc === "true") {
+        new bootstrap.Toast(document.getElementById("regSucc")).show();
+      }
+
+      sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+    }
+
   }
 
   tooglePassVisibility(): void {

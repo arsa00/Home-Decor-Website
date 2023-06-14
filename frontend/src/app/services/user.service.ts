@@ -11,11 +11,41 @@ export class UserService {
 
   login(username: string, password: string) {
     const dataPayload = {
-      username: username,
-      password: password
+      "username": username,
+      "password": password
     }
 
     return this.http.post(`${ GlobalConstants.URI }/user/login`, dataPayload);
+  }
+
+  registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) {
+    const dataPayload = {
+      "username": username,
+      "password": password,
+      "type": GlobalConstants.CLIENT_TYPE,
+      "phone": phone,
+      "mail": mail,
+      "firstname": firstname,
+      "lastname": lastname
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
+  }
+
+  registerAgency(username: string, password: string, phone: string, mail: string, name: string, address: string, idNumber: string, description: string) {
+    const dataPayload = {
+      "username": username,
+      "password": password,
+      "type": GlobalConstants.AGENCY_TYPE,
+      "phone": phone,
+      "mail": mail,
+      "name": name,
+      "address": address,
+      "idNumber": idNumber,
+      "description": description
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
   }
 
 }
