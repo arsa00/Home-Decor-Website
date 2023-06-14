@@ -19,6 +19,7 @@ export class UserController {
 
         UserModel.findOne({"username": username}, async (err, user) => {
             if(err) {
+                console.log(err);
                 return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
             }
             else {
@@ -83,9 +84,10 @@ export class UserController {
 
             try {
                 await newUser.save();
-                return res.status(200).send("User added successfully");
+                return res.status(200).json({"succMsg": "Agencija uspešno dodata"});
             } catch (err) {
-                return res.status(500).send(err);
+                console.log(err);
+                return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."})
             }
         }
 
@@ -106,13 +108,14 @@ export class UserController {
 
             try {
                 await newUser.save();
-                return res.status(200).send("User added successfully");
+                return res.status(200).json({"succMsg": "Klijent uspešno dodat"});
             } catch (err) {
-                return res.status(500).send(err);
+                console.log(err);
+                return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
             }
         }
 
-        return res.status(400).send("Bad request.");
+        return res.status(400).json({"errMsg": "Loš zahtev"});
     }
 
 }

@@ -19,6 +19,7 @@ class UserController {
             const username = req.body.username;
             user_1.UserModel.findOne({ "username": username }, (err, user) => __awaiter(this, void 0, void 0, function* () {
                 if (err) {
+                    console.log(err);
                     return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
                 }
                 else {
@@ -31,7 +32,7 @@ class UserController {
                         // generating JWT & returning user in JSON format (but with reduced data)
                         const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
                         user.password = null;
-                        // user._id = null;
+                        // user._id = null; // maybe
                         let retType = Object.assign(Object.assign({}, user._doc), { jwt: token });
                         return res.json(retType);
                     }
@@ -67,10 +68,11 @@ class UserController {
                 // MAYBE TODO: add additional validation of data in request body
                 try {
                     yield newUser.save();
-                    return res.status(200).send("User added successfully");
+                    return res.status(200).json({ "succMsg": "Agencija uspešno dodata" });
                 }
                 catch (err) {
-                    return res.status(500).send(err);
+                    console.log(err);
+                    return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
                 }
             }
             if (type === UserController.CLIENT_TYPE) {
@@ -88,13 +90,14 @@ class UserController {
                 // MAYBE TODO: add additional validation of data in request body
                 try {
                     yield newUser.save();
-                    return res.status(200).send("User added successfully");
+                    return res.status(200).json({ "succMsg": "Klijent uspešno dodat" });
                 }
                 catch (err) {
-                    return res.status(500).send(err);
+                    console.log(err);
+                    return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
                 }
             }
-            return res.status(400).send("Bad request.");
+            return res.status(400).json({ "errMsg": "Loš zahtev" });
         });
     }
 }
