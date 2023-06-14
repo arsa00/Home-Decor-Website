@@ -18,7 +18,7 @@ export class UserService {
     return this.http.post(`${ GlobalConstants.URI }/user/login`, dataPayload);
   }
 
-  registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) {
+  registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) { 
     const dataPayload = {
       "username": username,
       "password": password,
@@ -27,7 +27,7 @@ export class UserService {
       "mail": mail,
       "firstname": firstname,
       "lastname": lastname
-    }
+    };
 
     return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
   }
@@ -46,6 +46,15 @@ export class UserService {
     }
 
     return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
+  }
+
+  uploadProfileImage(username: string, image: File) {
+    const formData = new FormData();
+
+    formData.append("profileImg", image);
+    formData.append("username", username);
+
+    return this.http.post(`${ GlobalConstants.URI }/user/uploadProfileImg`, formData);
   }
 
 }

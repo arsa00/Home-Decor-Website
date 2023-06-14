@@ -9,3 +9,12 @@
 .errorText {
     color: red;
 }
+
+#profileImg {
+    width: 85px; 
+    height: 85px; 
+    border-radius: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}

@@ -33,6 +33,20 @@
                     </div>
                 </div>
 
+
+                <div class="mt-3 bg-light shadow shadow-sm" id="profileImg"></div>
+                <div class="mt-1 full-width">
+                    <label for="imgPicker" class="form-label">Odaberite Vašu sliku</label>
+                    <input class="form-control bg-plt1-clr5" [ngClass]="{'is-invalid': imgErr}" type="file" accept="image/png, image/jpeg" id="imgPicker">
+                </div>
+
+                <div class="full-width errorText text-start mt-2">
+                    <ul>
+                        <li *ngFor="let msg of imgErrMessages">{{ msg }}</li>
+                    </ul>
+                </div>
+
+
                 <div class="input-group mt-3" [ngClass]="{'mb-3': usernameErr}">
                     <span class="input-group-text bg-plt1-clr5" id="user-addon"><mat-icon>person</mat-icon></span>
                    

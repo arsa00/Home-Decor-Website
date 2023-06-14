@@ -44,9 +44,68 @@ export class RegisterComponent implements OnInit {
 
   errMessages: string[] = [];
 
+
+  profileImg: any;
+  chosenImgFile: File = null;
+  imgErr: boolean = false;
+  imgErrMessages: string[] = [];
+
+
   constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
+    this.profileImg = document.getElementById("profileImg");
+    this.setProfileImg();
+    document.getElementById("rbClient").addEventListener("change", this.setProfileImg);
+    document.getElementById("rbAgency").addEventListener("change", this.setProfileImg);
+    document.getElementById("imgPicker").addEventListener("change", this.fileChooseImg);
+  }
+
+  fileChooseImg = (e): void => {
+    this.imgErrMessages = [];
+    this.imgErr = false;
+
+    const selectedImg: File = e.target.files[0];
+    console.log(selectedImg);
+    
+    if(selectedImg.type != "image/png" && selectedImg.type != "image/jpeg") {
+      this.chosenImgFile = null;
+      this.setProfileImg();
+      this.imgErr = true;
+      this.imgErrMessages.push("Podržani formati za sliku su PNG i JPG");
+      return;
+    }
+
+    // set chosen image file to currently selected file
+    this.chosenImgFile = selectedImg;
+
+    // create image from selected file (to perform height & width checkup)
+    const image = new Image();
+    image.src = URL.createObjectURL(selectedImg); 
+
+    image.addEventListener("load", () => {
+      
+      if(image.height < 100 || image.width < 100 || image.height > 300 || image.width > 300 /*|| image.width !== image.height*/) {
+        this.chosenImgFile = null;
+        this.setProfileImg();
+        this.imgErr = true;
+        this.imgErrMessages.push("Min. veličina slike je 100x100 piksela, dok je maks. veličina 300x300 piksela");
+        return;
+      } else {
+        this.profileImg.style.backgroundImage = `url(${image.src})`;
+      }
+      
+    });
+  }
+
+  setProfileImg = () => {
+    if(this.chosenImgFile) return;
+
+    if(this.userType === GlobalConstants.CLIENT_TYPE) {
+      this.profileImg.style.backgroundImage = `url('${GlobalConstants.URI}/images/user-default.png')`;
+    } else {
+      this.profileImg.style.backgroundImage = `url('${GlobalConstants.URI}/images/agency-default.png')`;
+    }
   }
 
   tooglePassVisibility(): void {
