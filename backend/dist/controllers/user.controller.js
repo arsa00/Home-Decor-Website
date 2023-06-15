@@ -94,22 +94,25 @@ class UserController {
                     mail: req.body.mail
                 });
                 // MAYBE TODO: add additional validation of data in request body
-                if (req.body.image) {
-                    const userFolder = path_1.default.join(__dirname, "../../assets/images/" + username);
+                /*if(req.body.image) {
+                    const userFolder = path.join(__dirname, "../../assets/images/" + username);
                     let imgType = req.body.image.substring(req.body.image.indexOf("image/"), req.body.image.indexOf(";base64,"));
                     imgType = imgType.replace("image/", "");
                     console.log(imgType);
                     let base64Img = req.body.image.replace(/^data.*;base64,/, "");
-                    if (!fs.existsSync(userFolder)) {
+    
+                    if (!fs.existsSync(userFolder)){
                         fs.mkdirSync(userFolder);
                     }
-                    fs.writeFile(`${userFolder}/profileImg.${imgType}`, base64Img, "base64", (err) => {
-                        if (err)
-                            console.log(err);
-                        else
-                            console.log("File written successfully\n");
-                    });
-                }
+    
+                    fs.writeFile(`${ userFolder }/profileImg.${imgType}`, base64Img, "base64", (err) => {
+                            if (err)
+                                console.log(err);
+                            else
+                                console.log("File written successfully\n");
+                        }
+                    );
+                }*/
                 try {
                     yield newUser.save();
                     return res.status(200).json({ "succMsg": "Klijent uspešno dodat" });
@@ -120,6 +123,18 @@ class UserController {
                 }
             }
             return res.status(400).json({ "errMsg": "Loš zahtev" });
+        });
+        this.profileImgUpload = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const imageType = path_1.default.extname(req["file"].originalname);
+            let user = yield user_1.UserModel.findOne({ "username": req.body.username });
+            const userFolder = path_1.default.join(__dirname, `../../assets/images/${req.body.username}/profileImg${imageType}`);
+            // create user's folder in assets/images/, if it doesn't already exist
+            if (fs.existsSync(userFolder)) {
+                console.log("Image successfuly uploaded");
+                user = yield user_1.UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true });
+                return res.status(200).json(user);
+            }
+            return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
         });
     }
 }

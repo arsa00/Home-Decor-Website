@@ -129,6 +129,9 @@ let User = new schema({
     },
     description: {
         type: String
+    },
+    imageType: {
+        type: String
     }
 
 });

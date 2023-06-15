@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { Request } from 'express';
 import { UserModel } from '../models/user';
 import path from 'path';
@@ -140,6 +140,22 @@ export class UserController {
         }
 
         return res.status(400).json({"errMsg": "Loš zahtev"});
+    }
+
+
+    profileImgUpload = async (req: Request, res: Response, next: NextFunction) => {
+        const imageType = path.extname(req["file"].originalname);
+        const userFolder = path.join(__dirname, `../../assets/images/${req.body.username}/profileImg${imageType}`);
+
+        // create user's folder in assets/images/, if it doesn't already exist
+        if (fs.existsSync(userFolder)){
+            console.log("Image successfuly uploaded");
+            const user = await UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true });
+
+            return res.status(200).json(user);
+        }
+
+        return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
     }
 
 }

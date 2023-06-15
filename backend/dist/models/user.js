@@ -120,6 +120,9 @@ let User = new schema({
     },
     description: {
         type: String
+    },
+    imageType: {
+        type: String
     }
 });
 let UserModel = mongoose_1.default.model("UserModel", User, 'user');
