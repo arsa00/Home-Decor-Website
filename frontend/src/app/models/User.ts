@@ -4,6 +4,7 @@ export class User {
     type:  string;
     jwt: string;
     status?:  string;
+    imageType?: string;
     firstname?:  string;
     lastname?:  string;
     phone?:  string;

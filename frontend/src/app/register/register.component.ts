@@ -3,6 +3,7 @@ import { GlobalConstants } from '../global-constants';
 import { UserService } from '../services/user.service';
 import { Router } from '@angular/router';
 import * as bootstrap from 'bootstrap';
+import { User } from '../models/User';
 
 @Component({
   selector: 'app-register',
@@ -66,7 +67,7 @@ export class RegisterComponent implements OnInit {
     this.imgErr = false;
 
     const selectedImg: File = e.target.files[0];
-    console.log(selectedImg);
+    // console.log(selectedImg);
     
     if(selectedImg.type != "image/png" && selectedImg.type != "image/jpeg") {
       this.chosenImgFile = null;
@@ -251,6 +252,18 @@ export class RegisterComponent implements OnInit {
           .subscribe({
 
             next: () => {
+              if(this.chosenImgFile) {
+                this.userService.uploadProfileImage(this.username, this.chosenImgFile).subscribe({
+                  next: (newUser: User) => {
+                    console.log("Image successfully uploaded");
+                  },
+
+                  error: () => {
+                    console.log("Image upload failed");
+                  }
+                });
+              }
+
               sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
               this.router.navigate([""]);
             },
@@ -275,6 +288,18 @@ export class RegisterComponent implements OnInit {
           .subscribe({
 
             next: () => {
+              if(this.chosenImgFile) {
+                this.userService.uploadProfileImage(this.username, this.chosenImgFile).subscribe({
+                  next: (newUser: User) => {
+                    console.log("Image successfully uploaded");
+                  },
+
+                  error: () => {
+                    console.log("Image upload failed");
+                  }
+                });
+              }
+
               sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
               this.router.navigate([""]);
             },
