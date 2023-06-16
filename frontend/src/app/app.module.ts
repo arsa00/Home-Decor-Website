@@ -8,12 +8,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginComponent } from './login/login.component';
 
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { ClientProfileComponent } from './client-profile/client-profile.component';
 import { GuestPageComponent } from './guest-page/guest-page.component';
 import { RegisterComponent } from './register/register.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { PasswordRecoveryRequestComponent } from './password-recovery-request/password-recovery-request.component';
 
 
 @NgModule({
@@ -24,13 +27,16 @@ import { RegisterComponent } from './register/register.component';
     AdminLoginComponent,
     ClientProfileComponent,
     GuestPageComponent,
-    RegisterComponent
+    RegisterComponent,
+    ResetPasswordComponent,
+    PasswordRecoveryRequestComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     FormsModule,
     HttpClientModule
   ],

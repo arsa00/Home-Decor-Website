@@ -3,6 +3,8 @@ export class GlobalConstants {
 
     static readonly LOCAL_STORAGE_LOGGED_USER = "loggedUser";
     static readonly SESSION_STORAGE_REGISTRATION = "registrationSuccessful";
+    static readonly SESSION_STORAGE_PASS_RESET = "passResetSuccessful";
+    static readonly SESSION_STORAGE_PASS_RESET_REQ = "passResetRequestSuccessful";
 
     static readonly ADMIN_TYPE: string = "admin";
     static readonly AGENCY_TYPE: string = "agency";

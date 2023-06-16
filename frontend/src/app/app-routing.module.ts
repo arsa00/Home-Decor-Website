@@ -5,11 +5,15 @@ import { ClientProfileComponent } from './client-profile/client-profile.componen
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { GuestPageComponent } from './guest-page/guest-page.component';
 import { RegisterComponent } from './register/register.component';
+import { PasswordRecoveryRequestComponent } from './password-recovery-request/password-recovery-request.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
   { path: "", component: LoginComponent },
   { path: "adminLogin", component: AdminLoginComponent },
   { path: "register", component: RegisterComponent },
+  { path: "requestPasswordReset", component: PasswordRecoveryRequestComponent },
+  { path: "resetPassword/:recoveryLink", component: ResetPasswordComponent },
   { path: "clientProfile", component: ClientProfileComponent },
   { path: "guestPage", component: GuestPageComponent },
 ];

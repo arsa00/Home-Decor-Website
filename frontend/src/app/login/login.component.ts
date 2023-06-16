@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
   constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
-    let isRegistrationSucc = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+    const isRegistrationSucc = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
 
     if(isRegistrationSucc) {
       if(isRegistrationSucc === "true") {
@@ -32,6 +32,28 @@ export class LoginComponent implements OnInit {
       }
 
       sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+    }
+
+
+    const isPassReseted = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_PASS_RESET);
+
+    if(isPassReseted) {
+      if(isPassReseted === "true") {
+        new bootstrap.Toast(document.getElementById("passResetSucc")).show();
+      }
+
+      sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_PASS_RESET);
+    }
+
+
+    const isPassResetRequested = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_PASS_RESET_REQ);
+
+    if(isPassResetRequested) {
+      if(isPassResetRequested === "true") {
+        new bootstrap.Toast(document.getElementById("passResetReqSucc")).show();
+      }
+
+      sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_PASS_RESET_REQ);
     }
 
   }

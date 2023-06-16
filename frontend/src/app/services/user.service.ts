@@ -19,6 +19,7 @@ export class UserService {
     return this.http.post(`${ GlobalConstants.URI }/user/login`, dataPayload);
   }
 
+
   registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) { 
     const dataPayload = {
       "username": username,
@@ -32,6 +33,7 @@ export class UserService {
 
     return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
   }
+
 
   registerAgency(username: string, password: string, phone: string, mail: string, name: string, address: string, idNumber: string, description: string) {
     const dataPayload = {
@@ -49,6 +51,7 @@ export class UserService {
     return this.http.post(`${ GlobalConstants.URI }/user/register`, dataPayload);
   }
 
+
   uploadProfileImage(username: string, image: File) {
     const formData = new FormData();
 
@@ -58,12 +61,40 @@ export class UserService {
     return this.http.post(`${ GlobalConstants.URI }/user/uploadProfileImg`, formData);
   }
 
+
   refreshLoggedUser(newData: User) { // TODO: test this
     // if user is logged, refresh saved data
     if(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER)) {
       newData.jwt = (JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER))).jwt; // preserve jwt
       localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(newData)); // update logged user
     }
+  }
+
+
+  resetPassword(recoveryLink: string, password?: string) {
+    let dataPayload;
+
+    if(password) {
+      dataPayload = {
+        "recoveryLink": recoveryLink,
+        "password": password
+      }
+    } else {
+      dataPayload = {
+        "recoveryLink": recoveryLink
+      }
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/resetPassword`, dataPayload);
+  }
+
+
+  requestPasswordReset(mail: string) {
+    const dataPayload = {
+      "mail": mail
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/generateRecoveryLink`, dataPayload);
   }
 
 }
