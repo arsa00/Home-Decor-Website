@@ -35,8 +35,20 @@ class UserController {
                     // hash password before check
                     const isPasswordCorrect = yield bcrypt.compare(req.body.password, user.password);
                     if (isPasswordCorrect) {
+                        // check if user's account is accepted
+                        if (user.status === UserController.STATUS_PENDING) {
+                            return res.status(400).json({ errMsg: "Vaš nalog još uvek nije odobren od strane administratora" });
+                        }
+                        if (user.status === UserController.STATUS_REJECTED) {
+                            return res.status(400).json({ errMsg: "Vaš nalog je blokiran. Kontaktirajte korisničku podršku." });
+                        }
                         // generating JWT & returning user in JSON format (but with reduced data)
-                        const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET);
+                        /*
+                        * NOTE:
+                            - lifespan of JWT should be much less and there should be refresh token
+                            - for demo purposes this is overlooked and there's just regular JWT with 3 hours long lifespan
+                        */
+                        const token = jwt.sign({ _id: user._id, type: user.type }, process.env.TOKEN_SECRET, { expiresIn: '3h' });
                         user.password = null;
                         // user._id = null; // maybe
                         if (user.recoveryLink)
@@ -56,6 +68,9 @@ class UserController {
             const usernameExist = yield user_1.UserModel.findOne({ "username": username });
             if (usernameExist)
                 return res.status(409).json({ errMsg: "Uneto korisničko ime već postoji" });
+            const mailAddrExist = yield user_1.UserModel.findOne({ "mail": req.body.mail });
+            if (mailAddrExist)
+                return res.status(409).json({ errMsg: "Uneta mejl adresa se već koristi" });
             const type = req.body.type;
             // hash password
             const salt = yield bcrypt.genSalt(10);
@@ -130,10 +145,6 @@ class UserController {
             recLink = recLink.replaceAll("/", "\\");
             // save recovery link to database
             yield user_1.UserModel.findOneAndUpdate({ "_id": userExist._id }, { "recoveryLink": recLink, "recoveryLinkTime": new Date().getTime() });
-            // set delayed function (10 min = 600,000 sec) to delete recoveryLink
-            // setTimeout(async () => {
-            //     await UserModel.findOneAndUpdate({ "_id": userExist._id }, { "recoveryLink": null });
-            // }, 600_000);
             // send recovery link to mail
             const emailAddr = "sa_etf@hotmail.com";
             const transporter = nodemailer.createTransport({
@@ -171,6 +182,7 @@ class UserController {
             const userWithLink = yield user_1.UserModel.findOne({ "recoveryLink": req.body.recoveryLink });
             if (!userWithLink)
                 return res.status(400).json({ "errMsg": "Nevalidan link za resetovanje lozinke." });
+            // if recovery link is created more than 10 minutes ago, it's no longer valid ==> delete + return error
             const TIME_THRESHOLD = 600000;
             if (new Date().getTime() - userWithLink.recoveryLinkTime > TIME_THRESHOLD) {
                 yield user_1.UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "recoveryLink": null });
