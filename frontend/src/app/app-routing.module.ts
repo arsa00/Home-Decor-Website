@@ -7,14 +7,16 @@ import { GuestPageComponent } from './guest-page/guest-page.component';
 import { RegisterComponent } from './register/register.component';
 import { PasswordRecoveryRequestComponent } from './password-recovery-request/password-recovery-request.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { AlreadyLoggedGuard } from './guards/already-logged';
+import { LoginRequiredGuard } from './guards/login-required';
 
 const routes: Routes = [
-  { path: "", component: LoginComponent },
-  { path: "adminLogin", component: AdminLoginComponent },
-  { path: "register", component: RegisterComponent },
-  { path: "requestPasswordReset", component: PasswordRecoveryRequestComponent },
+  { path: "", component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: "adminLogin", component: AdminLoginComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: "register", component: RegisterComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: "requestPasswordReset", component: PasswordRecoveryRequestComponent, canActivate: [AlreadyLoggedGuard] },
   { path: "resetPassword/:recoveryLink", component: ResetPasswordComponent },
-  { path: "clientProfile", component: ClientProfileComponent },
+  { path: "clientProfile", component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
   { path: "guestPage", component: GuestPageComponent },
 ];
 
