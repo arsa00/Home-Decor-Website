@@ -26,5 +26,7 @@ const imgStorage = multer.diskStorage({
 });
 const uploadProfileImg = multer({ storage: imgStorage });
 userRouter.route("/uploadProfileImg").post(uploadProfileImg.single("profileImg"), (req, res, next) => new user_controller_1.UserController().profileImgUpload(req, res, next));
+userRouter.route("/generateRecoveryLink").post((req, res) => new user_controller_1.UserController().generateRecoveryLink(req, res));
+userRouter.route("/resetPassword").post((req, res) => new user_controller_1.UserController().resetPassword(req, res));
 exports.default = userRouter;
 //# sourceMappingURL=user.router.js.map

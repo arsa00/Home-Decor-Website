@@ -10,9 +10,11 @@ userRouter.route("/login").post(
     (req, res) => new UserController().login(req, res)
 );
 
+
 userRouter.route("/register").post(
     (req, res) => new UserController().register(req, res)
 );
+
 
 const imgStorage = multer.diskStorage({
     destination: (req, file, callback) => {
@@ -34,6 +36,16 @@ const uploadProfileImg = multer({ storage: imgStorage });
 
 userRouter.route("/uploadProfileImg").post(uploadProfileImg.single("profileImg"), 
     (req, res, next) => new UserController().profileImgUpload(req, res, next)
+);
+
+
+userRouter.route("/generateRecoveryLink").post(
+    (req, res) => new UserController().generateRecoveryLink(req, res)
+);
+
+
+userRouter.route("/resetPassword").post(
+    (req, res) => new UserController().resetPassword(req, res)
 );
 
 export default userRouter;
