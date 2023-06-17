@@ -9,6 +9,7 @@ export class GlobalConstants {
     static readonly ADMIN_TYPE: string = "admin";
     static readonly AGENCY_TYPE: string = "agency";
     static readonly CLIENT_TYPE: string = "client";
+    static readonly NONE_TYPE: string = "guest";
 
     static readonly STATUS_PENDING: string = "PENDING";
     static readonly STATUS_ACCEPTED: string = "ACCEPTED";

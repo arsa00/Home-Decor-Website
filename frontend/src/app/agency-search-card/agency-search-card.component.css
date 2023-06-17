@@ -1,0 +1,8 @@
+#cardImg {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("../../assets/home-decor-logo.png");
+    height: 150px;
+    width: 100%;
+}

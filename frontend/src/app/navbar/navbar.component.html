@@ -1,1 +1,41 @@
-<p>navbar works!</p>
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="/assets/home-decor-logo.png" alt="Logo" height="35" class="d-inline-block align-text-center">
+            <span class="ms-2">Home Decor</span>
+        </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isGuestNav()">
+        <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0 fs-6">
+          <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
+            <a class="nav-link" [ngClass]="{ 'active': activePage == 0 }" aria-current="page" routerLink="guestPage">
+                Agencije
+            </a>
+          </li>
+          <li class="nav-item width-fit-content">
+            <a class="nav-link d-flex justify-content-center align-items-center" [ngClass]="{ 'active': activePage == 1 }" routerLink="">
+                <span class="me-1">Prijava</span>
+                <mat-icon>
+                    login
+                </mat-icon>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isClientNav()">
+        <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0 fs-6">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Poslovi</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Agencije</a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </nav>

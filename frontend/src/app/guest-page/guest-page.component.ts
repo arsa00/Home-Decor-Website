@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { User } from '../models/User';
 
 @Component({
   selector: 'app-guest-page',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./guest-page.component.css']
 })
 export class GuestPageComponent implements OnInit {
+
+  agencySearchResults: User[];
 
   constructor() { }
 

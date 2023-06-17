@@ -103,9 +103,9 @@ export class RegisterComponent implements OnInit {
     if(this.chosenImgFile) return;
 
     if(this.userType === GlobalConstants.CLIENT_TYPE) {
-      this.profileImg.style.backgroundImage = `url('${GlobalConstants.URI}/images/user-default.png')`;
+      this.profileImg.style.backgroundImage = `url('assets/user-default.png')`;
     } else {
-      this.profileImg.style.backgroundImage = `url('${GlobalConstants.URI}/images/agency-default.png')`;
+      this.profileImg.style.backgroundImage = `url('assets/agency-default.png')`;
     }
   }
 

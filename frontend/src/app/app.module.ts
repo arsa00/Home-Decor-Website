@@ -20,6 +20,7 @@ import { PasswordRecoveryRequestComponent } from './password-recovery-request/pa
 import { AgencyProfileComponent } from './agency-profile/agency-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { AgencySearchCardComponent } from './agency-search-card/agency-search-card.component';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import { NavbarComponent } from './navbar/navbar.component';
     PasswordRecoveryRequestComponent,
     AgencyProfileComponent,
     AdminDashboardComponent,
-    NavbarComponent
+    NavbarComponent,
+    AgencySearchCardComponent
   ],
   imports: [
     BrowserModule,
