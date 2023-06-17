@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../models/User';
+import { AgencyService } from '../services/agency.service';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-guest-page',
@@ -39,13 +41,31 @@ export class GuestPageComponent implements OnInit {
   sortParam: string = "name";
   sortDir: number = 1;
 
-  constructor() { }
+  constructor(private agencyService: AgencyService) { }
 
   ngOnInit(): void {
   }
 
   search(): void {
 
+    let searchName: boolean = false;
+    let searchAddress: boolean = false;
+
+    switch(this.searchParam) {
+      case "name": { searchName = true; break; }
+      case "address": { searchAddress = true; break; }
+      case "both": { searchName = true; searchAddress = true; break; }
+    }
+
+    this.agencyService.getAgencies(this.searchTerm, searchName, searchAddress).subscribe({
+      next: (agencies: User[]) => {
+        this.agencySearchResults = agencies;
+      },
+
+      error: () => {
+        new bootstrap.Toast(document.getElementById("searchErr")).show();
+      }
+    });
   }
 
   sort(): void {
