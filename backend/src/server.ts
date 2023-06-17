@@ -3,6 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import userRouter from './routers/user.router';
 import path from 'path';
+import agencyRouter from './routers/agency.router';
 
 const app = express();
 
@@ -20,6 +21,8 @@ connection.once("open", () => {
 
 const router = express.Router();
 router.use("/user", userRouter);
+router.use("/agency", agencyRouter)
+//test
 router.get("/", (req, res) => { res.send("Server working..."); });
 
 app.use("/", router);

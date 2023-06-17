@@ -9,12 +9,12 @@ const fs = require("fs");
 const nodemailer = require("nodemailer");
 
 export class UserController {
-    private static readonly ADMIN_TYPE: string = "admin";
-    private static readonly AGENCY_TYPE: string = "agency";
-    private static readonly CLIENT_TYPE: string = "client";
-    private static readonly STATUS_PENDING: string = "PENDING";
-    private static readonly STATUS_ACCEPTED: string = "ACCEPTED";
-    private static readonly STATUS_REJECTED: string = "REJECTED";
+    static readonly ADMIN_TYPE: string = "admin";
+    static readonly AGENCY_TYPE: string = "agency";
+    static readonly CLIENT_TYPE: string = "client";
+    static readonly STATUS_PENDING: string = "PENDING";
+    static readonly STATUS_ACCEPTED: string = "ACCEPTED";
+    static readonly STATUS_REJECTED: string = "REJECTED";
 
     login = (req: Request, res: Response) => {
 
