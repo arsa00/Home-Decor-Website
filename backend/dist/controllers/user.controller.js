@@ -154,10 +154,22 @@ class UserController {
                     pass: process.env.MAIL_SECRET
                 }
             });
+            let htmlMail;
+            try {
+                htmlMail = fs.readFileSync(path_1.default.resolve(__dirname, "../../src/views/html-mail-pass-reset.html"), 'utf8');
+                htmlMail = htmlMail
+                    .replaceAll("#WEBSITE_URL", process.env.FRONT_URL)
+                    .replaceAll("#FULL_RECOVERY_LINK", `${process.env.FRONT_URL}/resetPassword/${recLink}`);
+            }
+            catch (err) {
+                console.log(err);
+                htmlMail = `Vašu lozinku možete resetovati klikom <a href="${process.env.FRONT_URL}/resetPassword/${recLink}">ovde</a>.`;
+            }
             const mail = {
                 from: emailAddr,
                 to: userExist.mail,
                 subject: "[ Home Decor Website ] Resetovanje lozinke",
+                html: htmlMail,
                 text: `Vašu lozinku možete resetovati na sledećem linku: http://localhost:4200/resetPassword/${recLink}`
             };
             transporter.sendMail(mail, (err, info) => {
