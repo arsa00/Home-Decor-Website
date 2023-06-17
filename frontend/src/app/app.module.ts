@@ -19,6 +19,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { PasswordRecoveryRequestComponent } from './password-recovery-request/password-recovery-request.component';
 import { AgencyProfileComponent } from './agency-profile/agency-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { NavbarComponent } from './navbar/navbar.component';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     ResetPasswordComponent,
     PasswordRecoveryRequestComponent,
     AgencyProfileComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
