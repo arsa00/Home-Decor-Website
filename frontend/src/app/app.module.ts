@@ -17,6 +17,8 @@ import { GuestPageComponent } from './guest-page/guest-page.component';
 import { RegisterComponent } from './register/register.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { PasswordRecoveryRequestComponent } from './password-recovery-request/password-recovery-request.component';
+import { AgencyProfileComponent } from './agency-profile/agency-profile.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 
 
 @NgModule({
@@ -29,7 +31,9 @@ import { PasswordRecoveryRequestComponent } from './password-recovery-request/pa
     GuestPageComponent,
     RegisterComponent,
     ResetPasswordComponent,
-    PasswordRecoveryRequestComponent
+    PasswordRecoveryRequestComponent,
+    AgencyProfileComponent,
+    AdminDashboardComponent
   ],
   imports: [
     BrowserModule,
