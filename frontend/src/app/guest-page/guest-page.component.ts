@@ -11,6 +11,7 @@ import * as bootstrap from 'bootstrap';
 export class GuestPageComponent implements OnInit {
 
   static agency1: User = {
+    _id: "asdas",
     username: "Arsa",
     password: "123",
     type: "agency",
@@ -23,6 +24,7 @@ export class GuestPageComponent implements OnInit {
   }
 
   static agency2: User = {
+    _id: "asdas2",
     username: "Arsa",
     password: "123",
     type: "agency",
@@ -36,7 +38,7 @@ export class GuestPageComponent implements OnInit {
 
   agencySearchResults: User[] = [GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency2, GuestPageComponent.agency2 ];
   searchParam: string = "name";
-  searchTerm: string;
+  searchTerm: string = "";
 
   sortParam: string = "name";
   sortDir: number = 1;

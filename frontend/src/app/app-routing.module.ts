@@ -9,6 +9,7 @@ import { PasswordRecoveryRequestComponent } from './password-recovery-request/pa
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { AlreadyLoggedGuard } from './guards/already-logged';
 import { LoginRequiredGuard } from './guards/login-required';
+import { AgencyDetailsComponent } from './agency-details/agency-details.component';
 
 const routes: Routes = [
   { path: "", component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: "resetPassword/:recoveryLink", component: ResetPasswordComponent },
   { path: "clientProfile", component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
   { path: "guestPage", component: GuestPageComponent },
+  { path: "agencyDetails/:agencyID", component: AgencyDetailsComponent },
 ];
 
 @NgModule({

@@ -18,4 +18,17 @@ export class AgencyService {
     return this.http.get(`${GlobalConstants.URI}/agency/getAgencies`, { params: httpParams });
   }
 
+
+  getAgency(agencyID: string) {
+    const httpParams = new HttpParams().append("agencyID", agencyID);
+
+    return this.http.get(`${GlobalConstants.URI}/agency/getAgency`, { params: httpParams });
+  }
+
+
+  getAllComments(agencyID: string) {
+    const httpParams = new HttpParams().append("agencyID", agencyID);
+
+    return this.http.get(`${GlobalConstants.URI}/agency/getAllComments`, { params: httpParams });
+  }
 }

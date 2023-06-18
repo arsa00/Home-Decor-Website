@@ -1,0 +1,28 @@
+<div class="card">
+    <div class="card-body m-">
+        <div class="row">
+            <div class="col-lg-4 d-flex justify-content-center align-items-center mb-4 mb-lg-0">
+            <img src="{{ imageSrc }}"
+                class="rounded-circle img-fluid shadow-1 shadow-sm" alt="avatar" width="150" height="150" />
+            </div>
+            <div class="col-lg-8 d-flex flex-column">
+                <p class="fw-bold lead mb-2">
+                    <strong *ngIf="!isAnonymous"> {{ comment.authorFirstname }} {{ comment.authorLastname }} </strong>
+                    <strong *ngIf="isAnonymous"> Anonimni korisnik </strong>
+                </p>
+
+                <p class="text-muted fw-light mb-4">
+                    {{ comment.comment }}
+                </p>
+
+                <div class="text-plt1-clr-5">
+                    <mat-icon *ngFor="let i of repeatFor(comment.grade)"> star </mat-icon>
+                    <mat-icon *ngFor="let i of repeatFor(5 - comment.grade)"> star_border </mat-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

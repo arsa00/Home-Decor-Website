@@ -1,0 +1,79 @@
+<app-navbar [activeNav]="'guest'" [activePage]="-1"></app-navbar>
+
+<div class="container rounded mt-5 mb-3" *ngIf="!isLoading && !isErr">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-10 d-flex justify-content-center align-items-center flex-column">
+            <h1 class="text-right fs-2 fw-medium">Podaci agencije</h1>
+            <div class="w-50 bg-plt1-clr6 rounded" style="height: 5px;"></div>
+        </div>
+        <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center text-center p-3">
+                <img class="rounded-circle mt-4 shadow-sm" width="150px" src="{{ imageSrc }}">
+                <span class="fw-medium fs-6 mt-3"> {{ agency.name }} </span>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="p-3">
+                <div class="row mt-3 gy-2">
+                    <div class="col-md-12">
+                        <label class="labels">Naziv</label>
+                        <input type="text" class="form-control" value="{{ agency.name }}" readonly>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Adresa</label>
+                        <input type="text" class="form-control" value="{{ agency.address }}" readonly>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Email</label>
+                        <input type="text" class="form-control" value="{{ agency.mail }}" readonly>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Broj telefona</label>
+                        <input type="text" class="form-control" value="{{ agency.phone }}" readonly>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Opis</label>
+                        <textarea type="text" class="form-control" value="{{ agency.description }}" cols="3" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container rounded mt-5 mb-3" *ngIf="!isLoading && !isErr">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-10 d-flex justify-content-center align-items-center flex-column">
+            <h1 class="text-right fs-2 fw-medium">Komentari i ocene</h1>
+            <div class="w-50 bg-plt1-clr5 rounded" style="height: 5px;"></div>
+        </div>
+
+        <div class="col-md-6 p-3" *ngFor="let comment of allComments">
+            <app-comment [isAnonymous]="true" [comment]="comment"></app-comment>
+        </div>
+
+    </div>
+</div>
+
+<div class="container-fluid h-75" >
+    <div class="row h-75 justify-content-center align-items-center">
+        <div class="col-10 text-center p-5 fs-3" *ngIf="!isLoading && isErr">
+            <mat-icon class="fs-2">
+                    sentiment_dissatisfied
+            </mat-icon>
+        
+            <div class="mt-3"> Došlo je do greške. Pokušajte ponovo.</div>
+        </div>
+
+        <div class="d-flex justify-content-center" *ngIf="isLoading">
+            <mat-spinner></mat-spinner>
+        </div>
+    </div>
+</div>
+
+
+

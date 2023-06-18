@@ -21,6 +21,8 @@ import { AgencyProfileComponent } from './agency-profile/agency-profile.componen
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { AgencySearchCardComponent } from './agency-search-card/agency-search-card.component';
+import { AgencyDetailsComponent } from './agency-details/agency-details.component';
+import { CommentComponent } from './comment/comment.component';
 
 
 @NgModule({
@@ -37,7 +39,9 @@ import { AgencySearchCardComponent } from './agency-search-card/agency-search-ca
     AgencyProfileComponent,
     AdminDashboardComponent,
     NavbarComponent,
-    AgencySearchCardComponent
+    AgencySearchCardComponent,
+    AgencyDetailsComponent,
+    CommentComponent
   ],
   imports: [
     BrowserModule,

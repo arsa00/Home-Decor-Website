@@ -5,6 +5,6 @@
     <div class="card-body">
         <h5 class="card-title fs-5 fw-medium">{{ agency.name }}</h5>
         <p class="card-text"> {{ agency.description }} </p>
-        <a href="#" class="btn btn-primary">Vidi više</a> <!--- TODO: change href in link -->
+        <a routerLink="/agencyDetails/{{ agency._id }}" class="btn btn-primary">Vidi više</a> <!--- TODO: change href in link -->
     </div>
 </div>
