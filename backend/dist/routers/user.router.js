@@ -29,5 +29,6 @@ userRouter.route("/uploadProfileImg").post(uploadProfileImg.single("profileImg")
 userRouter.route("/generateRecoveryLink").post((req, res) => new user_controller_1.UserController().generateRecoveryLink(req, res));
 userRouter.route("/resetPassword").post((req, res) => new user_controller_1.UserController().resetPassword(req, res));
 userRouter.route("/updateData").post((req, res) => new user_controller_1.UserController().updateData(req, res));
+userRouter.route("/changePassword").post((req, res) => new user_controller_1.UserController().changePassword(req, res));
 exports.default = userRouter;
 //# sourceMappingURL=user.router.js.map

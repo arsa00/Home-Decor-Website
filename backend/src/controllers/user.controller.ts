@@ -76,12 +76,21 @@ export class UserController {
         // console.log(req.body);
 
         const username = req.body.username;
-        
-        const usernameExist = await UserModel.findOne({"username": username});
-        if(usernameExist) return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
+        let usernameExist;
 
-        const mailAddrExist = await UserModel.findOne({"mail": req.body.mail});
-        if(mailAddrExist) return res.status(409).json({errMsg: "Uneta mejl adresa se već koristi"});
+        try {
+            usernameExist = await UserModel.findOne({"username": username}).orFail();
+        } catch(err) {
+            return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
+        }
+
+        let mailAddrExist;
+
+        try {
+            mailAddrExist = await UserModel.findOne({"mail": req.body.mail}).orFail();
+        } catch(err) {
+            return res.status(409).json({errMsg: "Uneta mejl adresa se već koristi"});
+        }
 
         const type = req.body.type;
 
@@ -150,19 +159,30 @@ export class UserController {
         // create user's folder in assets/images/, if it doesn't already exist
         if (fs.existsSync(userFolder)){
             console.log("Image successfuly uploaded");
-            const user = await UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true });
+            try{
+                const user = await UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true }).orFail();
+                return res.status(200).json(user);
+            } catch (err) {
+                return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+            }
 
-            return res.status(200).json(user);
+            
         }
 
-        return res.status(400).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
     }
 
 
     generateRecoveryLink = async (req: Request, res: Response) => {
 
-        const userExist = await UserModel.findOne({"mail": req.body.mail});
-        if(!userExist) return res.status(400).json({"errMsg": "Ne postoji korisnik sa unetom email adresom"});
+        let userExist;
+        if(!userExist) 
+
+        try{
+            userExist = await UserModel.findOne({"mail": req.body.mail}).orFail();
+        } catch(err) {
+            return res.status(400).json({"errMsg": "Ne postoji korisnik sa unetom email adresom"});
+        }
 
         // user exist, proceed to creating recovery link
         // console.log(new Date().getTime()); // TODO: delete
@@ -171,10 +191,14 @@ export class UserController {
         recLink = recLink.replaceAll("/", "\\");
 
         // save recovery link to database
-        await UserModel.findOneAndUpdate(
-            { "_id": userExist._id }, 
-            { "recoveryLink": recLink, "recoveryLinkTime": new Date().getTime() }
-        );
+        try {
+            await UserModel.findOneAndUpdate(
+                { "_id": userExist._id }, 
+                { "recoveryLink": recLink, "recoveryLinkTime": new Date().getTime() }
+            ).orFail();
+        } catch(err) {
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
 
         // send recovery link to mail
         const emailAddr = "sa_etf@hotmail.com";
@@ -226,8 +250,13 @@ export class UserController {
     resetPassword = async (req: Request, res: Response) => {
         if(!req.body.recoveryLink) return res.status(400).json({"errMsg": "Loš zahtev. Pošaljite link za resetovanje lozinke."});
         
-        const userWithLink = await UserModel.findOne({"recoveryLink": req.body.recoveryLink})
-        if(!userWithLink) return res.status(400).json({"errMsg": "Nevalidan link za resetovanje lozinke."});
+        let userWithLink;
+
+        try {
+            userWithLink = await UserModel.findOne({"recoveryLink": req.body.recoveryLink}).orFail();
+        } catch(err) {
+            return res.status(400).json({"errMsg": "Nevalidan link za resetovanje lozinke."});
+        }
 
         // if recovery link is created more than 10 minutes ago, it's no longer valid ==> delete + return error
         const TIME_THRESHOLD: number = 600_000;
@@ -243,7 +272,7 @@ export class UserController {
         const newPassword = await bcrypt.hash(req.body.password, salt);
 
         try {
-            await UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "password": newPassword });
+            await UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "password": newPassword }).orFail();
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
@@ -255,7 +284,7 @@ export class UserController {
     }
 
 
-    updateData = async (req: Request, res: Response) => { // TODO: check why it is not working
+    updateData = async (req: Request, res: Response) => {
         const username = mongoSanitaze(req.body.username);
         const firstname = mongoSanitaze(req.body.firstname);
         const lastname = mongoSanitaze(req.body.lastname);
@@ -274,11 +303,48 @@ export class UserController {
         if(!updateQuery) return res.status(400).json({"errMsg": "Loš zahtev. Pošaljite nove podatke."});
 
         try {
-            const newUser = await UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true });
+            const newUser = await UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
             return res.status(200).json(newUser);
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+        }
+    }
+
+
+    changePassword = async (req: Request, res: Response) => {
+        const username = mongoSanitaze(req.body.username);
+        const oldPassword = req.body.oldPassword; // can have '$' so sanitaze can't be performed (it's being hashed anyway)
+        const newPassword = req.body.newPassword;
+
+        if(!username || !oldPassword || !newPassword) {
+            return res.status(400).json({"errMsg": "Loš zahtev. Pošaljite sve neophodne podatke."});
+        }
+
+        let user;
+
+        try {
+            user = await UserModel.findOne({ "username": username }).orFail();
+        } catch(err) {
+            console.log(err);
+            return res.status(400).json({"errMsg": "Loš zahtev. Pošaljite ispavne podatke."});
+        }
+
+        // hash and check password
+        const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+
+        if(!isPasswordCorrect) {
+            return res.status(400).json({"errMsg": "Loš zahtev. Pogrešna stara lozinka."});
+        }
+
+        try {
+            const salt = await bcrypt.genSalt(10);
+            const newHashedPassword = await bcrypt.hash(newPassword, salt);
+            await UserModel.findOneAndUpdate({ "_id": user._id }, { "password": newHashedPassword }).orFail();
+            return res.status(200).json({"succMsg": "Lozinka uspešno promenjena."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."})
         }
     }
 

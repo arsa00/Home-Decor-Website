@@ -66,12 +66,20 @@ class UserController {
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             // console.log(req.body);
             const username = req.body.username;
-            const usernameExist = yield user_1.UserModel.findOne({ "username": username });
-            if (usernameExist)
+            let usernameExist;
+            try {
+                usernameExist = yield user_1.UserModel.findOne({ "username": username }).orFail();
+            }
+            catch (err) {
                 return res.status(409).json({ errMsg: "Uneto korisničko ime već postoji" });
-            const mailAddrExist = yield user_1.UserModel.findOne({ "mail": req.body.mail });
-            if (mailAddrExist)
+            }
+            let mailAddrExist;
+            try {
+                mailAddrExist = yield user_1.UserModel.findOne({ "mail": req.body.mail }).orFail();
+            }
+            catch (err) {
                 return res.status(409).json({ errMsg: "Uneta mejl adresa se već koristi" });
+            }
             const type = req.body.type;
             // hash password
             const salt = yield bcrypt.genSalt(10);
@@ -130,22 +138,37 @@ class UserController {
             // create user's folder in assets/images/, if it doesn't already exist
             if (fs.existsSync(userFolder)) {
                 console.log("Image successfuly uploaded");
-                const user = yield user_1.UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true });
-                return res.status(200).json(user);
+                try {
+                    const user = yield user_1.UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true }).orFail();
+                    return res.status(200).json(user);
+                }
+                catch (err) {
+                    return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+                }
             }
-            return res.status(400).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
         });
         this.generateRecoveryLink = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const userExist = yield user_1.UserModel.findOne({ "mail": req.body.mail });
+            let userExist;
             if (!userExist)
-                return res.status(400).json({ "errMsg": "Ne postoji korisnik sa unetom email adresom" });
+                try {
+                    userExist = yield user_1.UserModel.findOne({ "mail": req.body.mail }).orFail();
+                }
+                catch (err) {
+                    return res.status(400).json({ "errMsg": "Ne postoji korisnik sa unetom email adresom" });
+                }
             // user exist, proceed to creating recovery link
             // console.log(new Date().getTime()); // TODO: delete
             const salt = yield bcrypt.genSalt(10);
             let recLink = yield bcrypt.hash(`${userExist.password}#${new Date().getTime()}#${userExist._id}`, salt);
             recLink = recLink.replaceAll("/", "\\");
             // save recovery link to database
-            yield user_1.UserModel.findOneAndUpdate({ "_id": userExist._id }, { "recoveryLink": recLink, "recoveryLinkTime": new Date().getTime() });
+            try {
+                yield user_1.UserModel.findOneAndUpdate({ "_id": userExist._id }, { "recoveryLink": recLink, "recoveryLinkTime": new Date().getTime() }).orFail();
+            }
+            catch (err) {
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
             // send recovery link to mail
             const emailAddr = "sa_etf@hotmail.com";
             const transporter = nodemailer.createTransport({
@@ -192,9 +215,13 @@ class UserController {
         this.resetPassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
             if (!req.body.recoveryLink)
                 return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite link za resetovanje lozinke." });
-            const userWithLink = yield user_1.UserModel.findOne({ "recoveryLink": req.body.recoveryLink });
-            if (!userWithLink)
+            let userWithLink;
+            try {
+                userWithLink = yield user_1.UserModel.findOne({ "recoveryLink": req.body.recoveryLink }).orFail();
+            }
+            catch (err) {
                 return res.status(400).json({ "errMsg": "Nevalidan link za resetovanje lozinke." });
+            }
             // if recovery link is created more than 10 minutes ago, it's no longer valid ==> delete + return error
             const TIME_THRESHOLD = 600000;
             if (new Date().getTime() - userWithLink.recoveryLinkTime > TIME_THRESHOLD) {
@@ -207,7 +234,7 @@ class UserController {
             const salt = yield bcrypt.genSalt(10);
             const newPassword = yield bcrypt.hash(req.body.password, salt);
             try {
-                yield user_1.UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "password": newPassword });
+                yield user_1.UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "password": newPassword }).orFail();
             }
             catch (err) {
                 console.log(err);
@@ -236,8 +263,39 @@ class UserController {
             if (!updateQuery)
                 return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite nove podatke." });
             try {
-                const newUser = yield user_1.UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true });
+                const newUser = yield user_1.UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
                 return res.status(200).json(newUser);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+            }
+        });
+        this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const username = mongoSanitaze(req.body.username);
+            const oldPassword = req.body.oldPassword; // can have '$' so sanitaze can't be performed (it's being hashed anyway)
+            const newPassword = req.body.newPassword;
+            if (!username || !oldPassword || !newPassword) {
+                return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite sve neophodne podatke." });
+            }
+            let user;
+            try {
+                user = yield user_1.UserModel.findOne({ "username": username }).orFail();
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite ispavne podatke." });
+            }
+            // hash and check password
+            const isPasswordCorrect = yield bcrypt.compare(oldPassword, user.password);
+            if (!isPasswordCorrect) {
+                return res.status(400).json({ "errMsg": "Loš zahtev. Pogrešna stara lozinka." });
+            }
+            try {
+                const salt = yield bcrypt.genSalt(10);
+                const newHashedPassword = yield bcrypt.hash(newPassword, salt);
+                yield user_1.UserModel.findOneAndUpdate({ "_id": user._id }, { "password": newHashedPassword }).orFail();
+                return res.status(200).json({ "succMsg": "Lozinka uspešno promenjena." });
             }
             catch (err) {
                 console.log(err);
