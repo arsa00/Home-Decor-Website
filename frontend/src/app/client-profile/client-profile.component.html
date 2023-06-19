@@ -12,10 +12,33 @@
     </div>
 </div>
 
+<!-- successful password changed toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="passResetSucc" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Lozinka uspešno promenjena.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <div class="container rounded mt-5 mb-3 d-flex justify-content-center">
-    <div class="row w-75 justify-content-center align-items-center shadow pb-2">
+    
+
+    <div class="row w-75 justify-content-center align-items-center shadow pb-2 position-relative">
+        <div class="position-absolute top-0 d-flex justify-content-end mt-3">
+            <button type="button" class="btn btn-outline-plt1-clr11 fw-medium d-flex" (click)="logout()">
+                Odjavite se
+                <mat-icon>
+                    logout
+                </mat-icon>
+            </button>
+        </div>
+
         <div class="col-md-10 d-flex justify-content-center align-items-center flex-column mt-3">
-            <h1 class="text-right fs-2 fw-medium">Profil</h1>
+            <h1 class="text-right fs-2 fw-medium mt-5 pt-3 m-md-0 p-md-0">Profil</h1>
             <div class="w-50 bg-plt1-clr6 rounded" style="height: 5px;"></div>
         </div>
         <div class="col-md-3">
@@ -66,7 +89,7 @@
         </div>
 
         <div class="col-md-5 text-center text-md-start" *ngIf="!editMode">
-            <button type="button" class="btn btn-plt1-clr5 fs-5 fw-medium my-2 w-75">Promenite lozinku</button>
+            <button type="button" class="btn btn-plt1-clr5 fs-5 fw-medium my-2 w-75" (click)="openChangePassDialog()">Promenite lozinku</button>
         </div>
 
         <div class="col-md-5 text-center text-md-end" *ngIf="editMode">
@@ -94,4 +117,11 @@
             <button type="button" class="btn btn-plt1-clr1 fs-5 fw-medium my-2 w-50 ms-2" (click)="discardChagnes()">Otkažite</button>
         </div> -->
     </div>
+</div>
+
+<div class="container-fluid h-100 w-100 position-fixed top-0" *ngIf="changePassMode" style="z-index: 3;">
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+    <app-change-password style="position: relative; z-index: 5;" [user]="loggedUser" 
+                [closeDialogFunc]="closeChangePassDialog" [changeSuccessful]="passChangeSucc">
+    </app-change-password>
 </div>

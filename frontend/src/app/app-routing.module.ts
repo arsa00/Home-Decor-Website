@@ -17,9 +17,9 @@ const routes: Routes = [
   { path: "register", component: RegisterComponent, canActivate: [AlreadyLoggedGuard] },
   { path: "requestPasswordReset", component: PasswordRecoveryRequestComponent, canActivate: [AlreadyLoggedGuard] },
   { path: "resetPassword/:recoveryLink", component: ResetPasswordComponent },
-  { path: "clientProfile", component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
   { path: "guestPage", component: GuestPageComponent },
   { path: "agencyDetails/:agencyID", component: AgencyDetailsComponent },
+  { path: "clientProfile", component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
 ];
 
 @NgModule({

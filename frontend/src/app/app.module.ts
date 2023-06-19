@@ -23,6 +23,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { AgencySearchCardComponent } from './agency-search-card/agency-search-card.component';
 import { AgencyDetailsComponent } from './agency-details/agency-details.component';
 import { CommentComponent } from './comment/comment.component';
+import { ChangePasswordComponent } from './change-password/change-password.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { CommentComponent } from './comment/comment.component';
     NavbarComponent,
     AgencySearchCardComponent,
     AgencyDetailsComponent,
-    CommentComponent
+    CommentComponent,
+    ChangePasswordComponent
   ],
   imports: [
     BrowserModule,

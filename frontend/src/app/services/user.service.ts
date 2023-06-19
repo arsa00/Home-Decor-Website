@@ -20,6 +20,11 @@ export class UserService {
   }
 
 
+  logout() {
+    localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER);
+  }
+
+
   registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) { 
     const dataPayload = {
       "username": username,
@@ -132,5 +137,17 @@ export class UserService {
     }
 
     return this.http.post(`${ GlobalConstants.URI }/user/updateData`, dataPayload);
+  }
+
+
+  changePassword(username: string, jwt: string, oldPassword: string, newPassword: string) {
+    const dataPayload = {
+      "username": username,
+      "jwt": jwt,
+      "oldPassword": oldPassword,
+      "newPassword": newPassword
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/changePassword`, dataPayload);
   }
 }

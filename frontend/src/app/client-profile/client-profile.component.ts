@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { UserService } from '../services/user.service';
 import * as bootstrap from 'bootstrap';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-client-profile',
@@ -13,6 +14,7 @@ export class ClientProfileComponent implements OnInit {
 
   loggedUser: User;
   editMode: boolean = false
+  changePassMode: boolean = false;
 
   profileImg: any;
   chosenImgFile: File = null;
@@ -25,7 +27,7 @@ export class ClientProfileComponent implements OnInit {
   errMessages: string[] = [];
   imgErrMessages: string[] = [];
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private router: Router) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -162,6 +164,23 @@ export class ClientProfileComponent implements OnInit {
     } else {
       this.profileImg.src = "assets/user-default.png";
     }
+  }
+
+  openChangePassDialog(): void {
+    this.changePassMode = true;
+  }
+
+  closeChangePassDialog = () => {
+    this.changePassMode = false;
+  }
+
+  passChangeSucc = () => {
+    new bootstrap.Toast(document.getElementById("passResetSucc")).show();
+  }
+
+  logout() {
+    this.userService.logout();
+    this.router.navigate([""]);
   }
 
 }
