@@ -1,3 +1,97 @@
-<p>client-profile works!</p>
+<app-navbar [activeNav]="'client'" [activePage]="0"></app-navbar>
 
-{{ loggedUser.username }}
+<!-- error toast -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="updateErr" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Došlo je do greške prilikom ažuriranja profila. Pokušajte ponovo.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="container rounded mt-5 mb-3 d-flex justify-content-center">
+    <div class="row w-75 justify-content-center align-items-center shadow pb-2">
+        <div class="col-md-10 d-flex justify-content-center align-items-center flex-column mt-3">
+            <h1 class="text-right fs-2 fw-medium">Profil</h1>
+            <div class="w-50 bg-plt1-clr6 rounded" style="height: 5px;"></div>
+        </div>
+        <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center text-center p-3" *ngIf="!editMode">
+                <img class="rounded-circle mt-3 shadow-sm" width="150px" src="{{ imageSrc }}" id="profileImg">
+                <span class="fw-medium fs-6 mt-2"> {{ loggedUser.firstname }} </span>
+            </div>
+            <div class="d-flex flex-column align-items-center text-center p-3" *ngIf="editMode">
+                <img class="rounded-circle mt-3 shadow-sm bg-gray-plt-clr5" width="150px" src="{{ imageSrc }}" style="opacity: 0.7;" id="profileImg">
+                <button type="button" class="btn btn-outline-plt1-clr9 fs-6 fw-medium mt-3" onclick="document.getElementById('imgPicker').click();">Izaberite sliku</button>
+                <input type="file" accept="image/png, image/jpeg" name="imgPicker" id="imgPicker" class="d-none">
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="p-3">
+                <div class="row mt-3 gy-2">
+                    <div class="col-md-12">
+                        <label class="labels">Ime</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.firstname }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" [(ngModel)]="loggedUser.firstname" value="{{ loggedUser.firstname }}" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Prezime</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.lastname }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" [(ngModel)]="loggedUser.lastname" value="{{ loggedUser.lastname }}" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Email</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.mail }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" [(ngModel)]="loggedUser.mail" [ngClass]="{'is-invalid': mailErr}"
+                                (click)="mailInputClicked()" value="{{ loggedUser.mail }}" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Kontakt telefon</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.phone }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" [(ngModel)]="loggedUser.phone" [ngClass]="{'is-invalid': phoneErr}"
+                                (click)="phoneNumInputClicked()" value="{{ loggedUser.phone }}" *ngIf="editMode">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 text-center text-md-end" *ngIf="!editMode">
+            <button type="button" class="btn btn-plt1-clr4 fs-5 fw-medium my-2 w-75" (click)="startEdit()">Promenite informacije</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-start" *ngIf="!editMode">
+            <button type="button" class="btn btn-plt1-clr5 fs-5 fw-medium my-2 w-75">Promenite lozinku</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-end" *ngIf="editMode">
+            <button type="button" class="btn btn-plt1-clr6 fs-5 fw-medium my-2 w-75" (click)="saveChagnes()">Potvrdite</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-start" *ngIf="editMode">
+            <button type="button" class="btn btn-plt1-clr1 fs-5 fw-medium my-2 w-75" (click)="discardChagnes()">Otkažite</button>
+        </div>
+
+        <div class="col-10 text-center errorText fw-medium fs-6 mt-3" *ngIf="editMode">
+            <ul style="list-style-type: none;">
+                <li *ngFor="let msg of errMessages">* {{ msg }}</li>
+                <li *ngFor="let msg of imgErrMessages">* {{ msg }}</li>
+            </ul>
+        </div>
+
+        <!-- <div class="col-md-8 d-flex justify-content-center d-none" *ngIf="!editMode">
+            <button type="button" class="btn btn-plt1-clr4 fs-5 fw-medium my-2 w-50 me-2" (click)="startEdit()">Promenite informacije</button>
+            <button type="button" class="btn btn-plt1-clr5 fs-5 fw-medium my-2 w-50 ms-2">Promenite lozinku</button>
+        </div> -->
+
+        <!-- <div class="col-md-8 d-flex justify-content-center" *ngIf="editMode">
+            <button type="button" class="btn btn-plt1-clr6 fs-5 fw-medium my-2 w-50 me-2" (click)="saveChagnes()">Potvrdite</button>
+            <button type="button" class="btn btn-plt1-clr1 fs-5 fw-medium my-2 w-50 ms-2" (click)="discardChagnes()">Otkažite</button>
+        </div> -->
+    </div>
+</div>

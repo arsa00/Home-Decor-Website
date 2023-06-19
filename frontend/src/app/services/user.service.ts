@@ -97,4 +97,40 @@ export class UserService {
     return this.http.post(`${ GlobalConstants.URI }/user/generateRecoveryLink`, dataPayload);
   }
 
+
+  updateUserData(username: string, jwt: string, phone?: string, mail?: string, firstname?: string, lastname?: string, ) {
+    let dataPayload;
+
+    dataPayload  = {"username": username, "jwt": jwt };
+
+    if(phone) {
+      dataPayload = {
+        ...dataPayload,
+        "phone": phone
+      }
+    }
+
+    if(mail) {
+      dataPayload = {
+        ...dataPayload,
+        "mail": mail
+      }
+    }
+
+    if(firstname) {
+      dataPayload = {
+        ...dataPayload,
+        "firstname": firstname
+      }
+    }
+
+    if(lastname) {
+      dataPayload = {
+        ...dataPayload,
+        "lastname": lastname
+      }
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/updateData`, dataPayload);
+  }
 }

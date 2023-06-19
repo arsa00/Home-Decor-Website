@@ -57,12 +57,7 @@ export class ResetPasswordComponent implements OnInit {
   changePass(): void {
     this.errMessages = [];
 
-    const lChar = "[a-z]";  // lowercase char
-    const uChar = "[A-Z]";  // uppercase char
-    const num = "[0-9]";
-    const spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
-    const passwordRegEx = new RegExp(`^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|${uChar}.*(${num}.*${spec}|${spec}.*${num})).*$`);
-
+    const passwordRegEx = new RegExp(GlobalConstants.REGEX_PASSWORD);
     let isErrCatched: boolean = false;
 
     if(!this.password || !passwordRegEx.test(this.password) || this.password.length < 7 || this.password.length > 12) {

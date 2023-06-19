@@ -161,13 +161,13 @@ export class RegisterComponent implements OnInit {
     this.errMessages = [];
 
     let isErrCatched: boolean = false;
-    const mailRegEx = new RegExp("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
-    const phoneRegEx = new RegExp("^[0-9/\\-+ ]{5,25}$");
-    const lChar = "[a-z]";  // lowercase char
-    const uChar = "[A-Z]";  // uppercase char
-    const num = "[0-9]";
-    const spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
-    const passwordRegEx = new RegExp(`^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|${uChar}.*(${num}.*${spec}|${spec}.*${num})).*$`);
+    const mailRegEx = new RegExp(GlobalConstants.REGEX_MAIL); // "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+    const phoneRegEx = new RegExp(GlobalConstants.REGEX_PHONE); // "^[0-9/\\-+ ]{5,25}$"
+    // const lChar = "[a-z]";  // lowercase char
+    // const uChar = "[A-Z]";  // uppercase char
+    // const num = "[0-9]";
+    // const spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
+    const passwordRegEx = new RegExp(GlobalConstants.REGEX_PASSWORD); // `^(${lChar}.*(${uChar}.*${num}.*${spec}|${uChar}.*${spec}.*${num}|${spec}.*${uChar}.*${num}|${spec}.*${num}.*${uChar}|${num}.*${spec}.*${uChar}|${num}.*${uChar}.*${spec})|${uChar}.*(${num}.*${spec}|${spec}.*${num})).*$`
 
     // console.log(passwordRegEx.toString());
 

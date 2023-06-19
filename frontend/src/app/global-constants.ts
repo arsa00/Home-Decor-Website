@@ -14,4 +14,13 @@ export class GlobalConstants {
     static readonly STATUS_PENDING: string = "PENDING";
     static readonly STATUS_ACCEPTED: string = "ACCEPTED";
     static readonly STATUS_REJECTED: string = "REJECTED";
+
+    static readonly REGEX_MAIL: string = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    static readonly REGEX_PHONE: string = "^[0-9/\\-+ ]{5,25}$";
+
+    private static readonly lChar = "[a-z]";  // lowercase char
+    private static readonly uChar = "[A-Z]";  // uppercase char
+    private static readonly num = "[0-9]";
+    private static readonly spec = "[\\\\\\-*+.,&^%$#@!?~`/()_=[\\]{};:'\"><|]";
+    static readonly REGEX_PASSWORD: string = `^(${GlobalConstants.lChar}.*(${GlobalConstants.uChar}.*${GlobalConstants.num}.*${GlobalConstants.spec}|${GlobalConstants.uChar}.*${GlobalConstants.spec}.*${GlobalConstants.num}|${GlobalConstants.spec}.*${GlobalConstants.uChar}.*${GlobalConstants.num}|${GlobalConstants.spec}.*${GlobalConstants.num}.*${GlobalConstants.uChar}|${GlobalConstants.num}.*${GlobalConstants.spec}.*${GlobalConstants.uChar}|${GlobalConstants.num}.*${GlobalConstants.uChar}.*${GlobalConstants.spec})|${GlobalConstants.uChar}.*(${GlobalConstants.num}.*${GlobalConstants.spec}|${GlobalConstants.spec}.*${GlobalConstants.num})).*$`;
 }
