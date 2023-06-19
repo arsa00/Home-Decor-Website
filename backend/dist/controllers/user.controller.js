@@ -19,6 +19,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+const mongoSanitaze = require("mongo-sanitize");
 class UserController {
     constructor() {
         this.login = (req, res) => {
@@ -215,6 +216,33 @@ class UserController {
             // password successfully changed
             yield user_1.UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "recoveryLink": null });
             return res.status(200).json({ "succMsg": "Lozinka uspešno promenjena." });
+        });
+        this.updateData = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const username = mongoSanitaze(req.body.username);
+            const firstname = mongoSanitaze(req.body.firstname);
+            const lastname = mongoSanitaze(req.body.lastname);
+            const phone = mongoSanitaze(req.body.phone);
+            const mail = mongoSanitaze(req.body.mail);
+            let updateQuery;
+            if (firstname)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "firstname": firstname });
+            if (lastname)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "lastname": lastname });
+            if (phone)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "phone": phone });
+            if (mail)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "mail": mail });
+            // console.log( updateQuery );
+            if (!updateQuery)
+                return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite nove podatke." });
+            try {
+                const newUser = yield user_1.UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true });
+                return res.status(200).json(newUser);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+            }
         });
     }
 }

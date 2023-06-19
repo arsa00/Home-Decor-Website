@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
+const mongoSanitaze = require("mongo-sanitize");
 
 export class UserController {
     static readonly ADMIN_TYPE: string = "admin";
@@ -251,6 +252,34 @@ export class UserController {
         // password successfully changed
         await UserModel.findOneAndUpdate({ "_id": userWithLink._id }, { "recoveryLink": null });
         return res.status(200).json({"succMsg": "Lozinka uspešno promenjena."});
+    }
+
+
+    updateData = async (req: Request, res: Response) => { // TODO: check why it is not working
+        const username = mongoSanitaze(req.body.username);
+        const firstname = mongoSanitaze(req.body.firstname);
+        const lastname = mongoSanitaze(req.body.lastname);
+        const phone = mongoSanitaze(req.body.phone);
+        const mail = mongoSanitaze(req.body.mail);
+
+        let updateQuery;
+
+        if(firstname) updateQuery = { ...updateQuery, "firstname": firstname };
+        if(lastname) updateQuery = { ...updateQuery, "lastname": lastname };
+        if(phone) updateQuery = { ...updateQuery, "phone": phone };
+        if(mail) updateQuery = { ...updateQuery, "mail": mail };
+
+        // console.log( updateQuery );
+
+        if(!updateQuery) return res.status(400).json({"errMsg": "Loš zahtev. Pošaljite nove podatke."});
+
+        try {
+            const newUser = await UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true });
+            return res.status(200).json(newUser);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+        }
     }
 
 }

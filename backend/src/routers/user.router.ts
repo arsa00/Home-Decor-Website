@@ -48,4 +48,9 @@ userRouter.route("/resetPassword").post(
     (req, res) => new UserController().resetPassword(req, res)
 );
 
+
+userRouter.route("/updateData").post(
+    (req, res) => new UserController().updateData(req, res)
+);
+
 export default userRouter;
