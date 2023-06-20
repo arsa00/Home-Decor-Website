@@ -137,8 +137,8 @@ export class ApartmentSketchComponent implements OnInit {
 		doorX *= ApartmentSketchComponent.ratio;
 		doorY *= ApartmentSketchComponent.ratio;
 		
-		let x = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2;
-		let y = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2;
+		let x = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2;
+		let y = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2;
 		
 		// check if new room crossed border of canvas
 		if(x < 0) x = 0;
@@ -296,7 +296,7 @@ export class ApartmentSketchComponent implements OnInit {
 			clientY: e.touches[0].clientY
 		});
 
-		ApartmentSketchComponent.startPosition(mouseEvt);
+		ApartmentSketchComponent.startPosition(mouseEvt, e.touches[0].pageX, e.touches[0].pageY);
 	}
 
 	static moveRoomMob(e): void {
@@ -310,10 +310,10 @@ export class ApartmentSketchComponent implements OnInit {
 			clientY: e.touches[0].clientY
 		});
 
-		ApartmentSketchComponent.moveRoom(mouseEvt);
+		ApartmentSketchComponent.moveRoom(mouseEvt, e.touches[0].pageX, e.touches[0].pageY);
 	}
 
-	static startPosition(e): void {
+	static startPosition(e, mobilePageX?, mobilePageY?): void {
 		if(!ApartmentSketchComponent.editMode) return;
 
 		if(ApartmentSketchComponent.isNewRoomAdded) {
@@ -322,15 +322,21 @@ export class ApartmentSketchComponent implements OnInit {
 			return;
 		}
 
-		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		let mouseCurrX: number;
+		let mouseCurrY: number;
 
-		// console.log(mouseCurrX, mouseCurrY, ApartmentSketchComponent.sketchCanvasClientRect.left, e.clientX);
+		if(mobilePageX && mobilePageY) {
+			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		} else {
+			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		}
+
+		// console.log(mouseCurrX, mouseCurrY, ApartmentSketchComponent.sketchCanvasClientRect.left, ApartmentSketchComponent.sketchCanvasClientRect.top, e.pageX, e.pageY);
 
 		ApartmentSketchComponent.mousePosX = mouseCurrX;
 		ApartmentSketchComponent.mousePosY = mouseCurrY;
-
-		// console.log(mouseCurrX, mouseCurrY);
 
 		// going backwards through array, because sketch that was drawn later is showed on top, 
 		// so when clicked on intersection between two sketches, the one with higher index should be selecteed
@@ -379,11 +385,20 @@ export class ApartmentSketchComponent implements OnInit {
 		}
 	}
 
-	static moveRoom(e): void {
+	static moveRoom(e, mobilePageX?, mobilePageY?): void {
 		if(!ApartmentSketchComponent.editMode || !ApartmentSketchComponent.selectedRoom) return;
 
-		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		let mouseCurrX: number;
+		let mouseCurrY: number;
+
+		if(mobilePageX && mobilePageY) {
+			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		} else {
+			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
+			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+		}
+		 
 		const threshold: number = ApartmentSketchComponent.CHANGE_DOOR_POSITION_THRESHOLD;
 
 		// moving door within selected room sketch (if door is selected)
