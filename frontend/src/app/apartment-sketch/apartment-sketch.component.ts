@@ -10,8 +10,8 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
 	static readonly BORDER_FILL_OFFSET: number = 2;
 	static readonly AUTOFIX_OFFSET: number = 7;
-	static  DOOR_HEIGHT: number = 1.2;
-    static  DOOR_WIDTH: number = 1.2;
+	static  DOOR_HEIGHT: number = 1.2; // in meters
+    static  DOOR_WIDTH: number = 1.2; // in meters
 	static readonly CHANGE_DOOR_POSITION_THRESHOLD: number = 10;
 	static readonly DOOR_TOP_SRC: string = "/assets/appartment-sketch-component/doorTop.png";
 	static readonly DOOR_BOTTOM_SRC: string = "/assets/appartment-sketch-component/doorBottom.png";
@@ -28,12 +28,19 @@ export class ApartmentSketchComponent implements OnInit {
 	static sketchCanvasClientRect;
 
 	static apartmentSketch?: ApartmentSketch;
+	static showProgress: boolean = false;
+	static editMode: boolean = true;
+
+	static isNewRoomAdded: boolean = true;
+	static newRoomWidth: number = 10;
+	static newRoomHeight: number = 3;
+
 
 	static mousePosX: number;
 	static mousePosY: number;
 	static selectedRoomIndex: number = -1;
 	static selectedRoom?: RoomSketch;
-	static isDoorSelected: boolean = false;
+	static isDoorSelected: boolean = true;
 
 	static screenSmallerSize: number;
 	static ratio: number = 1;
@@ -67,30 +74,25 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.screenSmallerSize 
 								= (window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight) * 0.95;
 
-		const screenSize = ApartmentSketchComponent.screenSmallerSize;
-		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
-		const firstRsProjectWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].projectWidth;
-		ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsProjectWidth;
 
-		// console.log(screenSize + " / " + firstRsScreenUsage + " / " + firstRsProjectWidth + " / " + ApartmentSketchComponent.ratio);
+		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
+			const screenSize = ApartmentSketchComponent.screenSmallerSize;
+			const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
+			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
+			ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
+			ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
+			ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+		}
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
 			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
 			rs.y = rs.savedY * ApartmentSketchComponent.ratio;
 
-			rs.width = rs.projectWidth * ApartmentSketchComponent.ratio;
-			rs.height = rs.projectHeight * ApartmentSketchComponent.ratio;
+			rs.width *= ApartmentSketchComponent.ratio;
+			rs.height *= ApartmentSketchComponent.ratio;
 			rs.doorX *= ApartmentSketchComponent.ratio;
 			rs.doorY *= ApartmentSketchComponent.ratio;
 		}
-
-		ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-		ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
-
-		// ApartmentSketchComponent.sketchCanvas.height = "700";
-		// ApartmentSketchComponent.sketchCanvas.style.height = "700px";
-		// ApartmentSketchComponent.sketchCanvas.width = "800";
-		// ApartmentSketchComponent.sketchCanvas.style.width = "800px";
 
 		ApartmentSketchComponent.sketchCanvas.height = ApartmentSketchComponent.screenSmallerSize;
 		ApartmentSketchComponent.sketchCanvas.style.height = `${ApartmentSketchComponent.screenSmallerSize}px`;
@@ -109,6 +111,67 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas.addEventListener("touchmove", ApartmentSketchComponent.moveRoomMob);
 		ApartmentSketchComponent.sketchCanvas.addEventListener("touchcancel", ApartmentSketchComponent.endPosition);
 		ApartmentSketchComponent.sketchCanvas.addEventListener("touchend", ApartmentSketchComponent.endPosition);
+	}
+
+	static addNewRoom(e): void {
+		// values in meters
+		let width = ApartmentSketchComponent.newRoomWidth;
+		let heigth = ApartmentSketchComponent.newRoomHeight;
+		let doorX = (width - ApartmentSketchComponent.DOOR_WIDTH/ApartmentSketchComponent.ratio) / 2;
+
+		if(!ApartmentSketchComponent.apartmentSketch 
+				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches 
+				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches.length) {
+			const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
+			const screenSize = ApartmentSketchComponent.screenSmallerSize;
+			ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / width;
+			ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
+			ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+		}	
+		
+		width *= ApartmentSketchComponent.ratio;
+		heigth *= ApartmentSketchComponent.ratio;
+		doorX *= ApartmentSketchComponent.ratio;
+		
+		let x = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2;
+		let y = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2;
+		
+		// check if new room crossed border of canvas
+		if(x < 0) x = 0;
+		if(x + width > ApartmentSketchComponent.sketchCanvas.width) x = (ApartmentSketchComponent.sketchCanvas.width - width);
+		if(y < 0) y = 0;
+		if(y + heigth > ApartmentSketchComponent.sketchCanvas.height) y = (ApartmentSketchComponent.sketchCanvas.height - heigth);
+
+		// console.log(width, heigth, x, y, doorX);
+
+		let newRS: RoomSketch = new RoomSketch(width, heigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, 0, DoorPosition.BOTTOM);
+		newRS.x = x;
+		newRS.y = y;
+		newRS.isSet = false;
+
+		// console.log(newRS);
+
+		ApartmentSketchComponent.apartmentSketch.roomSketches.push(newRS);
+
+		// check if new room is colliding with some other room
+		const index = ApartmentSketchComponent.apartmentSketch.roomSketches.length - 1;
+		ApartmentSketchComponent.selectedRoom = ApartmentSketchComponent.apartmentSketch.roomSketches[index];
+		ApartmentSketchComponent.selectedRoomIndex = index;
+		ApartmentSketchComponent.isDoorSelected = false;
+		ApartmentSketchComponent.mousePosX = x + width/2;
+		ApartmentSketchComponent.mousePosY = y + heigth/2;
+
+		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
+			
+			if(i == ApartmentSketchComponent.selectedRoomIndex 
+				|| ApartmentSketchComponent.apartmentSketch.roomSketches[i].isCollided) continue;
+
+			const rs = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
+			if(ApartmentSketchComponent.checkForCollision(rs)) break;
+		}
+
+		ApartmentSketchComponent.drawAllRoomSketches();
+
 	}
 
 	static clearCanvas():  void {
@@ -141,13 +204,16 @@ export class ApartmentSketchComponent implements OnInit {
 			// return;
 		} else {
 
-			if(rs.progress == ProgressState.IN_PROGRESS) {
-				ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.IN_PROGRESS_FILL_COLOR;
-				ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
-			} else if(rs.progress == ProgressState.FINISHED) {
-				ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.FINISHED_FILL_COLOR;
+			if(ApartmentSketchComponent.showProgress) {
+				switch(rs.progress) {
+					case ProgressState.IN_PROGRESS: ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.IN_PROGRESS_FILL_COLOR; break;
+					case ProgressState.FINISHED: ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.FINISHED_FILL_COLOR; break;
+					default: ApartmentSketchComponent.sketchCanvasContext.fillStyle = "rgba(0, 0, 0, 0)";
+				}
+
 				ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
 			}
+
 
 			ApartmentSketchComponent.sketchCanvasContext.fillStyle = 'black';
 			ApartmentSketchComponent.sketchCanvasContext.strokeRect(rs.x, rs.y, rs.width, rs.height);
@@ -188,6 +254,8 @@ export class ApartmentSketchComponent implements OnInit {
 			}
 		}
 
+		// console.log(doorX, doorY);
+
 		if(doorImg == null) return;
 
 		if(doorImg.complete) {
@@ -208,11 +276,14 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.apartmentSketch.roomSketches.forEach((rs, roomIndex) => {
 			if(roomIndex != ApartmentSketchComponent.selectedRoomIndex) {
 				ApartmentSketchComponent.drawRoomSketch(rs);
+				// console.log(rs);
 			}
 		});		
 	}
 
 	static startPositionMob(e): void {
+		if(!ApartmentSketchComponent.editMode) return;
+
 		let mouseEvt = new MouseEvent("click", {
 			bubbles: true,
 			cancelable: true,
@@ -225,6 +296,8 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static moveRoomMob(e): void {
+		if(!ApartmentSketchComponent.editMode) return;
+
 		let mouseEvt = new MouseEvent("click", {
 			bubbles: true,
 			cancelable: true,
@@ -237,7 +310,14 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e): void {
-		console.log(e);
+		if(!ApartmentSketchComponent.editMode) return;
+
+		if(ApartmentSketchComponent.isNewRoomAdded) {
+			ApartmentSketchComponent.addNewRoom(e);
+			ApartmentSketchComponent.isNewRoomAdded = false;
+			return;
+		}
+
 		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
 		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
 
@@ -296,7 +376,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static moveRoom(e): void {
-		if(!ApartmentSketchComponent.selectedRoom) return;
+		if(!ApartmentSketchComponent.editMode || !ApartmentSketchComponent.selectedRoom) return;
 
 		const mouseCurrX: number = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left;
 		const mouseCurrY: number = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top;
@@ -571,13 +651,15 @@ export class ApartmentSketchComponent implements OnInit {
 			// don't check for collision with non-set room sketches
 			if(!rs.isSet) continue;
 
-			if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
-			   ((ApartmentSketchComponent.selectedRoom.x <= rs.x && ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width > rs.x)  || (ApartmentSketchComponent.selectedRoom.x >= rs.x && ApartmentSketchComponent.selectedRoom.x < rs.x + rs.width))) {
-				ApartmentSketchComponent.selectedRoom.isCollided = true;
-				break;
-			}
-			else
-				ApartmentSketchComponent.selectedRoom.isCollided = false;
+			// if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
+			//    ((ApartmentSketchComponent.selectedRoom.x <= rs.x && ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width > rs.x)  || (ApartmentSketchComponent.selectedRoom.x >= rs.x && ApartmentSketchComponent.selectedRoom.x < rs.x + rs.width))) {
+			// 	ApartmentSketchComponent.selectedRoom.isCollided = true;
+			// 	break;
+			// }
+			// else
+			// 	ApartmentSketchComponent.selectedRoom.isCollided = false;
+
+			if(ApartmentSketchComponent.checkForCollision(rs)) break;
 		}
 
 		// draw room sketch and update (last) mouse position
@@ -586,7 +668,21 @@ export class ApartmentSketchComponent implements OnInit {
 		if(!autofixedY) ApartmentSketchComponent.mousePosY = mouseCurrY;
 	}
 
+	static checkForCollision(rs: RoomSketch): boolean {
+		if(((ApartmentSketchComponent.selectedRoom.y >= rs.y && ApartmentSketchComponent.selectedRoom.y < rs.y + rs.height) || (ApartmentSketchComponent.selectedRoom.y <= rs.y && ApartmentSketchComponent.selectedRoom.y + ApartmentSketchComponent.selectedRoom.height > rs.y)) && 
+			   ((ApartmentSketchComponent.selectedRoom.x <= rs.x && ApartmentSketchComponent.selectedRoom.x + ApartmentSketchComponent.selectedRoom.width > rs.x)  || (ApartmentSketchComponent.selectedRoom.x >= rs.x && ApartmentSketchComponent.selectedRoom.x < rs.x + rs.width))) {
+			ApartmentSketchComponent.selectedRoom.isCollided = true;
+			return true;
+		}
+		else {
+			ApartmentSketchComponent.selectedRoom.isCollided = false;
+			return false;
+		}
+	}
+
 	static endPosition(): void {
+		if(!ApartmentSketchComponent.editMode) return;
+
 		if(ApartmentSketchComponent.selectedRoom) {
 			if(ApartmentSketchComponent.selectedRoom.isCollided) {
 				ApartmentSketchComponent.selectedRoom.isSet = false;
