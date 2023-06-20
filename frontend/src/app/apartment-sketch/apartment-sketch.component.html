@@ -1,4 +1,52 @@
 
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;" *ngIf="addNewRoomMode">
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+    
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addNewRoomMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-4 fs-2 cursor-pointer"  (click)="addNewRoomDeactivate()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4">Dodajte novu prostoriju</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-3">
+                        <label class="labels">Širina</label>
+                        <input type="num" class="form-control" placeholder="5 (metara)" name="roomWidth" id="roomWidth" 
+                                    [(ngModel)]="newRoomW" [ngClass]="{'is-invalid': newRoomWErr}">
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="labels">Visina</label>
+                        <input type="num" class="form-control" placeholder="3 (metra)" name="roomHeight" id="roomHeight"  
+                                    [(ngModel)]="newRoomH" [ngClass]="{'is-invalid': newRoomHErr}">
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="doorPos">Pozicija vrata</label>
+                        <select class="form-select" name="doorPos" id="doorPos" [(ngModel)]="newRoomDoorPos">
+                            <option value="top">Gore</option>
+                            <option value="right">Desno</option>
+                            <option value="bottom">Dole</option>
+                            <option value="left">Levo</option>
+                        </select>    
+                    </div>
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewRoomWrapper()">Dodajte prostoriju</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+
+
+</div>
+    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="addNewRoomActivate()">Dodajte novu prostoriju</button>
+<div>
+
+</div>
+
 <div class="d-flex justify-content-center my-2">
     <canvas id="apartmentCanvas"></canvas>
 </div>

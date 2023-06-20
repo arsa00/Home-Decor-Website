@@ -34,7 +34,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static isNewRoomAdded: boolean = true;
 	static newRoomWidth: number = 10;
 	static newRoomHeight: number = 3;
-
+	static newRoomDoorPos: DoorPosition = DoorPosition.BOTTOM;
 
 	static mousePosX: number;
 	static mousePosY: number;
@@ -44,6 +44,8 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static screenSmallerSize: number;
 	static ratio: number = 1;
+
+	
 
 	constructor() {}
 
@@ -118,6 +120,7 @@ export class ApartmentSketchComponent implements OnInit {
 		let width = ApartmentSketchComponent.newRoomWidth;
 		let heigth = ApartmentSketchComponent.newRoomHeight;
 		let doorX = (width - ApartmentSketchComponent.DOOR_WIDTH/ApartmentSketchComponent.ratio) / 2;
+		let doorY = (heigth - ApartmentSketchComponent.DOOR_HEIGHT/ApartmentSketchComponent.ratio) / 2;
 
 		if(!ApartmentSketchComponent.apartmentSketch 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches 
@@ -132,6 +135,7 @@ export class ApartmentSketchComponent implements OnInit {
 		width *= ApartmentSketchComponent.ratio;
 		heigth *= ApartmentSketchComponent.ratio;
 		doorX *= ApartmentSketchComponent.ratio;
+		doorY *= ApartmentSketchComponent.ratio;
 		
 		let x = e.clientX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2;
 		let y = e.clientY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2;
@@ -144,7 +148,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// console.log(width, heigth, x, y, doorX);
 
-		let newRS: RoomSketch = new RoomSketch(width, heigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, 0, DoorPosition.BOTTOM);
+		let newRS: RoomSketch = new RoomSketch(width, heigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, doorY, ApartmentSketchComponent.newRoomDoorPos);
 		newRS.x = x;
 		newRS.y = y;
 		newRS.isSet = false;
@@ -701,4 +705,54 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.drawAllRoomSketches();
 	}
 
+
+	// html page fields and methods
+	addNewRoomMode: boolean = false;
+	newRoomW: number;
+	newRoomH: number;
+	newRoomDoorPos: string = "bottom";
+
+	newRoomWErr: boolean = false;
+	newRoomHErr: boolean = false;
+
+	addNewRoomActivate() {
+		this.addNewRoomMode = true;
+	}
+
+	addNewRoomDeactivate() {
+		this.addNewRoomMode = false;
+	}
+
+	addNewRoomWrapper() {
+		let isErrCatched = false;
+
+		this.newRoomH = Number.parseInt(`${this.newRoomH}`);
+		this.newRoomW = Number.parseInt(`${this.newRoomW}`);
+
+		if(!this.newRoomH || typeof this.newRoomH != "number") {
+			this.newRoomHErr = true;
+			isErrCatched = true;
+			this.newRoomH = undefined;
+		}
+
+		if(!this.newRoomW || typeof this.newRoomW != "number") {
+			this.newRoomWErr = true;
+			isErrCatched = true;
+			this.newRoomW = undefined;
+		}
+
+		switch(this.newRoomDoorPos) {
+			case "top": ApartmentSketchComponent.newRoomDoorPos = DoorPosition.TOP; break;
+			case "right": ApartmentSketchComponent.newRoomDoorPos = DoorPosition.RIGHT; break;
+			case "bottom": ApartmentSketchComponent.newRoomDoorPos = DoorPosition.BOTTOM; break;
+			case "left": ApartmentSketchComponent.newRoomDoorPos = DoorPosition.LEFT; break;
+		}
+
+		if(isErrCatched) return;
+
+		ApartmentSketchComponent.newRoomWidth = this.newRoomW;
+		ApartmentSketchComponent.newRoomHeight = this.newRoomH;
+		this.addNewRoomMode = false;
+		ApartmentSketchComponent.isNewRoomAdded = true;
+	}
 }

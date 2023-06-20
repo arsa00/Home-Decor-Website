@@ -3,3 +3,7 @@
     background-color: white;
     touch-action: none;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
