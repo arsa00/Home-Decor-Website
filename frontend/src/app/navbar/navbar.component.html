@@ -11,12 +11,12 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isGuestNav()">
         <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0 fs-6">
           <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
-            <a class="nav-link" [ngClass]="{ 'active': activePage == 0 }" aria-current="page" routerLink="/guestPage">
+            <a class="nav-link" [ngClass]="{ 'active': activePage == 1 }" aria-current="page" routerLink="/guestPage">
                 Agencije
             </a>
           </li>
-          <li class="nav-item width-fit-content">
-            <a class="nav-link d-flex justify-content-center align-items-center" [ngClass]="{ 'active': activePage == 1 }" routerLink="">
+          <li class="nav-item width-fit-content ms-3">
+            <a class="nav-link d-flex justify-content-center align-items-center" [ngClass]="{ 'active': activePage == 0 }" routerLink="">
                 <span class="me-1">Prijava</span>
                 <mat-icon>
                     login
@@ -26,13 +26,22 @@
         </ul>
       </div>
 
+
+      
       <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isClientNav()">
         <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0 fs-6">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Poslovi</a>
+          <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
+            <a class="nav-link" [ngClass]="{ 'active': activePage == 1 }" aria-current="page" routerLink="/clientProfile">
+                Profil
+            </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Agencije</a>
+          <li class="nav-item width-fit-content ms-3">
+            <a class="nav-link d-flex justify-content-center align-items-center" [ngClass]="{ 'active': activePage == 0 }" routerLink="" (click)="logout()">
+                <span class="me-1">Odjava</span>
+                <mat-icon>
+                    logout
+                </mat-icon>
+            </a>
           </li>
         </ul>
       </div>
