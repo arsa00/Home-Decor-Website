@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ApartmentSketch, DoorPosition, ProgressState, RoomSketch } from '../models/ApartmentSketch';
 
 @Component({
@@ -18,6 +18,12 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly DOOR_RIGHT_SRC: string = "/assets/appartment-sketch-component/doorRight.png";
 	static readonly DOOR_LEFT_SRC: string = "/assets/appartment-sketch-component/doorLeft.png";
 
+	// inputs
+	@Input() showProgressIn: boolean = true;
+	@Input() editModeIn: boolean = true;
+	@Input() updateProgressModeIn: boolean = false;
+
+	// static variables
 	static doorTopImg: HTMLImageElement;
 	static doorBottomImg: HTMLImageElement;
 	static doorRightImg: HTMLImageElement;
@@ -55,6 +61,10 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas = document.querySelector("#apartmentCanvas");
 		ApartmentSketchComponent.sketchCanvasContext = ApartmentSketchComponent.sketchCanvas.getContext("2d");
 
+		ApartmentSketchComponent.updateProgressMode = this.updateProgressModeIn;
+		ApartmentSketchComponent.editMode = this.editModeIn;
+		ApartmentSketchComponent.showProgress = this.showProgressIn;
+
 		if(ApartmentSketchComponent.updateProgressMode) {
 			ApartmentSketchComponent.editMode = false;
 			ApartmentSketchComponent.showProgress = true;
@@ -80,8 +90,9 @@ export class ApartmentSketchComponent implements OnInit {
 
 
 		ApartmentSketchComponent.screenSmallerSize 
-								= (window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight) * 0.95;
+								= (window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight) * 0.90;
 
+		document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 
 		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
 			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].projectWidth);
@@ -102,6 +113,7 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas.width = ApartmentSketchComponent.screenSmallerSize;
 		ApartmentSketchComponent.sketchCanvas.style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 		ApartmentSketchComponent.sketchCanvasClientRect = ApartmentSketchComponent.sketchCanvas.getBoundingClientRect();
+		// ApartmentSketchComponent.sketchCanvasClientRect = document.getElementById("wrap").getBoundingClientRect();
 
 		ApartmentSketchComponent.drawAllRoomSketches();
 
@@ -187,8 +199,8 @@ export class ApartmentSketchComponent implements OnInit {
 		doorX *= ApartmentSketchComponent.ratio;
 		doorY *= ApartmentSketchComponent.ratio;
 		
-		let x = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2;
-		let y = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2;
+		let x = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left - width/2 - window.scrollX;
+		let y = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top - heigth/2 - window.scrollY;
 		
 		// check if new room crossed border of canvas
 		if(x < 0) x = 0;
@@ -366,19 +378,22 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static startPosition(e, mobilePageX?, mobilePageY?): void {
 		ApartmentSketchComponent.isClicked = true;
+		ApartmentSketchComponent.sketchCanvasClientRect = ApartmentSketchComponent.sketchCanvas.getBoundingClientRect();
 
 		let mouseCurrX: number;
 		let mouseCurrY: number;
 
 		if(mobilePageX && mobilePageY) {
-			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left - window.scrollX;
+			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top - window.scrollY;
 		} else {
-			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left - window.scrollX;
+			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top - window.scrollY;
 		}
 
-		// console.log(mouseCurrX, mouseCurrY, ApartmentSketchComponent.sketchCanvasClientRect.left, ApartmentSketchComponent.sketchCanvasClientRect.top, e.pageX, e.pageY);
+		// console.log(mouseCurrY, ApartmentSketchComponent.sketchCanvasClientRect.top, e.pageY, window.scrollY);
+		// console.log(mouseCurrY, document.getElementById("wrap").getBoundingClientRect().top, e.pageY, window.scrollY);
+		// console.log("");
 
 		ApartmentSketchComponent.mousePosX = mouseCurrX;
 		ApartmentSketchComponent.mousePosY = mouseCurrY;
@@ -449,11 +464,11 @@ export class ApartmentSketchComponent implements OnInit {
 		let mouseCurrY: number;
 
 		if(mobilePageX && mobilePageY) {
-			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+			mouseCurrX = mobilePageX - ApartmentSketchComponent.sketchCanvasClientRect.left - window.scrollX;
+			mouseCurrY = mobilePageY - ApartmentSketchComponent.sketchCanvasClientRect.top - window.scrollY;
 		} else {
-			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left;
-			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
+			mouseCurrX = e.pageX - ApartmentSketchComponent.sketchCanvasClientRect.left - window.scrollX;
+			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top - window.scrollY;
 		}
 		 
 		if(ApartmentSketchComponent.isClicked && !ApartmentSketchComponent.selectedRoom && ApartmentSketchComponent.mousePosX && ApartmentSketchComponent.mousePosY) {
