@@ -66,8 +66,8 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.showProgress = this.showProgressIn;
 
 		if(ApartmentSketchComponent.updateProgressMode) {
-			ApartmentSketchComponent.editMode = false;
-			ApartmentSketchComponent.showProgress = true;
+			ApartmentSketchComponent.editMode = this.editModeIn = false;
+			ApartmentSketchComponent.showProgress = this.showProgressIn = true;
 		}
 
 		if(!ApartmentSketchComponent.apartmentSketch){
@@ -169,7 +169,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	zoomOut(): void {
-		if(ApartmentSketchComponent.ratio - ApartmentSketchComponent.ratioResizeChunk == 0)
+		if(ApartmentSketchComponent.ratio - ApartmentSketchComponent.ratioResizeChunk <= 0)
 			return;
 
 		const oldRatio = ApartmentSketchComponent.ratio;
@@ -349,7 +349,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPositionMob(e): void {
-		if(!ApartmentSketchComponent.editMode) return;
+		// if(!ApartmentSketchComponent.editMode) return;
 
 		let mouseEvt = new MouseEvent("click", {
 			bubbles: true,
@@ -363,7 +363,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static moveRoomMob(e): void {
-		if(!ApartmentSketchComponent.editMode) return;
+		// if(!ApartmentSketchComponent.editMode) return;
 
 		let mouseEvt = new MouseEvent("click", {
 			bubbles: true,
@@ -377,6 +377,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e, mobilePageX?, mobilePageY?): void {
+		// console.log("clicked");
 		ApartmentSketchComponent.isClicked = true;
 		ApartmentSketchComponent.sketchCanvasClientRect = ApartmentSketchComponent.sketchCanvas.getBoundingClientRect();
 
@@ -459,7 +460,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static moveRoom(e, mobilePageX?, mobilePageY?): void {
-
+		// console.log("move");
 		let mouseCurrX: number;
 		let mouseCurrY: number;
 

@@ -89,24 +89,21 @@
 </div> -->
 
 <div class="d-flex flex-column justify-content-center align-items-center my-2">
-    <div class="d-flex mb-2 justify-content-between" id="apartmentCanvasTools">
+    <div class="d-flex mb-2 " [ngClass]="{'justify-content-end': !editModeIn, 'justify-content-between': editModeIn}" id="apartmentCanvasTools">
         <button type="button" class="btn btn-plt1-clr5 fw-medium" (click)="showAddNewRoom()" *ngIf="editModeIn">Dodajte novu prostoriju</button>
         <button type="button" class="d-none" (click)="showUpdateProgress()" id="showUpdateProgresBtn" *ngIf="updateProgressModeIn"></button>
 
-        <div class="d-flex">
-            <mat-icon class="fs-1 mx-3 cursor-pointer" (click)="zoomIn()">
+        <div class="d-flex py-1">
+            <mat-icon class="fs-1 mx-md-3 mx-2 cursor-pointer" (click)="zoomIn()">
                 zoom_in
             </mat-icon>
     
-            <mat-icon class="fs-1 mx-3 cursor-pointer" (click)="zoomOut()">
+            <mat-icon class="fs-1 mx-md-3 mx-2 cursor-pointer" (click)="zoomOut()">
                 zoom_out
             </mat-icon>
         </div>
         
     </div>
 
-    <div id="wrap">
-        <canvas id="apartmentCanvas"></canvas>
-    </div>
-    
+    <canvas id="apartmentCanvas"></canvas>
 </div>
