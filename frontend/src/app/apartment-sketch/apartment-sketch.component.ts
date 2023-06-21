@@ -10,8 +10,8 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
 	static readonly BORDER_FILL_OFFSET: number = 2;
 	static readonly AUTOFIX_OFFSET: number = 7;
-	static  DOOR_HEIGHT: number = 1.2; // in meters
-    static  DOOR_WIDTH: number = 1.2; // in meters
+	static  DOOR_HEIGHT: number = 0.95; // in meters
+    static  DOOR_WIDTH: number = 0.95; // in meters
 	static readonly CHANGE_DOOR_POSITION_THRESHOLD: number = 10;
 	static readonly DOOR_TOP_SRC: string = "/assets/appartment-sketch-component/doorTop.png";
 	static readonly DOOR_BOTTOM_SRC: string = "/assets/appartment-sketch-component/doorBottom.png";
@@ -28,10 +28,10 @@ export class ApartmentSketchComponent implements OnInit {
 	static sketchCanvasClientRect;
 
 	static apartmentSketch?: ApartmentSketch;
-	static showProgress: boolean = false;
+	static showProgress: boolean = true;
 	static editMode: boolean = true;
 
-	static isNewRoomAdded: boolean = true;
+	static isNewRoomAdded: boolean = false;
 	static newRoomWidth: number = 10;
 	static newRoomHeight: number = 3;
 	static newRoomDoorPos: DoorPosition = DoorPosition.BOTTOM;
@@ -44,7 +44,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static screenSmallerSize: number;
 	static ratio: number = 1;
-
+	static ratioResizeChunk: number = 0.1;
 	
 
 	constructor() {}
@@ -78,12 +78,14 @@ export class ApartmentSketchComponent implements OnInit {
 
 
 		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
-			const screenSize = ApartmentSketchComponent.screenSmallerSize;
-			const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
-			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
-			ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
-			ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-			ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+			// const screenSize = ApartmentSketchComponent.screenSmallerSize;
+			// const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
+			// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
+			// ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
+			// ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
+			// ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+
+			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].width);
 		}
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
@@ -115,6 +117,56 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas.addEventListener("touchend", ApartmentSketchComponent.endPosition);
 	}
 
+	static setMeterToPixelRatio(firstRsWidth: number): void {
+		const screenSize = ApartmentSketchComponent.screenSmallerSize;
+		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
+		// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
+		ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
+		ApartmentSketchComponent.ratioResizeChunk = ApartmentSketchComponent.ratio / 10;
+		ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+	}
+
+	static zoomHelper(oldRatio: number): void {
+		ApartmentSketchComponent.DOOR_WIDTH *= (ApartmentSketchComponent.ratio / oldRatio);
+		ApartmentSketchComponent.DOOR_HEIGHT *= (ApartmentSketchComponent.ratio / oldRatio);
+
+		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
+			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
+			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = firstRsWidth / ApartmentSketchComponent.screenSmallerSize;
+		}
+
+		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
+			rs.x = rs.x * ApartmentSketchComponent.ratio / oldRatio;
+			rs.y = rs.y * ApartmentSketchComponent.ratio / oldRatio;
+
+			rs.width *= ApartmentSketchComponent.ratio / oldRatio;
+			rs.height *= ApartmentSketchComponent.ratio / oldRatio;
+			rs.doorX *= ApartmentSketchComponent.ratio / oldRatio;
+			rs.doorY *= ApartmentSketchComponent.ratio / oldRatio;
+		}
+
+		ApartmentSketchComponent.clearCanvas();
+		ApartmentSketchComponent.drawAllRoomSketches();
+	}
+
+	zoomIn(): void {
+		const oldRatio = ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.ratio += ApartmentSketchComponent.ratioResizeChunk;
+
+		ApartmentSketchComponent.zoomHelper(oldRatio);
+	}
+
+	zoomOut(): void {
+		if(ApartmentSketchComponent.ratio - ApartmentSketchComponent.ratioResizeChunk == 0)
+			return;
+
+		const oldRatio = ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.ratio -= ApartmentSketchComponent.ratioResizeChunk;
+
+		ApartmentSketchComponent.zoomHelper(oldRatio);
+	}
+
 	static addNewRoom(e): void {
 		// values in meters
 		let width = ApartmentSketchComponent.newRoomWidth;
@@ -125,13 +177,17 @@ export class ApartmentSketchComponent implements OnInit {
 		if(!ApartmentSketchComponent.apartmentSketch 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches.length) {
-			const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
-			const screenSize = ApartmentSketchComponent.screenSmallerSize;
-			ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / width;
-			ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-			ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+			// const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
+			// const screenSize = ApartmentSketchComponent.screenSmallerSize;
+			// ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / width;
+			// ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
+			// ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+			
+			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
+			ApartmentSketchComponent.setMeterToPixelRatio(width);
 		}	
 		
+		// calculate values in pixels
 		width *= ApartmentSketchComponent.ratio;
 		heigth *= ApartmentSketchComponent.ratio;
 		doorX *= ApartmentSketchComponent.ratio;
@@ -175,7 +231,6 @@ export class ApartmentSketchComponent implements OnInit {
 		}
 
 		ApartmentSketchComponent.drawAllRoomSketches();
-
 	}
 
 	static clearCanvas():  void {

@@ -5,7 +5,7 @@
     <div class="container position-relative" style="z-index: 3;" *ngIf="addNewRoomMode">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
-                <mat-icon class="position-absolute top-0 end-0 mt-3 me-4 fs-2 cursor-pointer"  (click)="addNewRoomDeactivate()">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="addNewRoomDeactivate()">
                     cancel
                 </mat-icon>
 
@@ -42,9 +42,11 @@
 
 
 </div>
-    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="addNewRoomActivate()">Dodajte novu prostoriju</button>
-<div>
 
+<div class="d-flex">
+    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="addNewRoomActivate()">Dodajte novu prostoriju</button>
+    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="zoomIn()">Zumirajte +</button>
+    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="zoomOut()">Zumirajte -</button>
 </div>
 
 <div class="d-flex justify-content-center my-2">
