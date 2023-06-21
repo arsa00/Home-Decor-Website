@@ -1,11 +1,12 @@
 
-<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;" *ngIf="addNewRoomMode">
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;" *ngIf="addNewRoomMode || isUpdateProgressShown">
     <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
     
+    <!-- add new room dialog -->
     <div class="container position-relative" style="z-index: 3;" *ngIf="addNewRoomMode">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
-                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="addNewRoomDeactivate()">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewRoom()">
                     cancel
                 </mat-icon>
 
@@ -40,11 +41,49 @@
        
     </div>
 
+    <!-- update progress of room -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="isUpdateProgressShown">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-2 me-2 mt-sm-3 me-sm-4 fs-2 cursor-pointer"  (click)="hideUpdateProgress()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 mt-2">Ažurirajte status prostorije</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-3">
+                        <label class="labels">Širina</label>
+                        <input type="num" class="form-control" name="roomWidth" id="roomWidth" readonly
+                                    [(ngModel)]="rsToUpdate.projectWidth">
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="labels">Visina</label>
+                        <input type="num" class="form-control" name="roomHeight" id="roomHeight" readonly
+                                    [(ngModel)]="rsToUpdate.projectHeight">
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="rsProgress">Status</label>
+                        <select class="form-select" name="rsProgress" id="rsProgress" [(ngModel)]="rsProgress">
+                            <option value="1">Nije započeto</option>
+                            <option value="2">Radovi u toku</option>
+                            <option value="3">Završeno</option>
+                        </select>    
+                    </div>
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="updateRoomProgressWrapper()">Ažurirajte</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
 
 </div>
 
 <div class="d-flex">
-    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="addNewRoomActivate()">Dodajte novu prostoriju</button>
+    <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="showAddNewRoom()">Dodajte novu prostoriju</button>
+    <button type="button" class="d-none" (click)="showUpdateProgress()" id="showUpdateProgresBtn"></button>
     <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="zoomIn()">Zumirajte +</button>
     <button type="button" class="btn btn-plt1-clr5 fw-medium my-2 mx-2" (click)="zoomOut()">Zumirajte -</button>
 </div>

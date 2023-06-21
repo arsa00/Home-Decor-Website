@@ -30,6 +30,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static apartmentSketch?: ApartmentSketch;
 	static showProgress: boolean = true;
 	static editMode: boolean = true;
+	static updateProgressMode: boolean = true;
 
 	static isNewRoomAdded: boolean = false;
 	static newRoomWidth: number = 10;
@@ -40,7 +41,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static mousePosY: number;
 	static selectedRoomIndex: number = -1;
 	static selectedRoom?: RoomSketch;
-	static isDoorSelected: boolean = true;
+	static isDoorSelected: boolean = false;
 
 	static screenSmallerSize: number;
 	static ratio: number = 1;
@@ -52,7 +53,11 @@ export class ApartmentSketchComponent implements OnInit {
 	ngOnInit(): void {
 		ApartmentSketchComponent.sketchCanvas = document.querySelector("#apartmentCanvas");
 		ApartmentSketchComponent.sketchCanvasContext = ApartmentSketchComponent.sketchCanvas.getContext("2d");
-		
+
+		if(ApartmentSketchComponent.updateProgressMode) {
+			ApartmentSketchComponent.editMode = false;
+			ApartmentSketchComponent.showProgress = true;
+		}
 
 		if(!ApartmentSketchComponent.apartmentSketch){
 			ApartmentSketchComponent.apartmentSketch = new ApartmentSketch(0.3125);
@@ -78,22 +83,15 @@ export class ApartmentSketchComponent implements OnInit {
 
 
 		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
-			// const screenSize = ApartmentSketchComponent.screenSmallerSize;
-			// const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
-			// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
-			// ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
-			// ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-			// ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
-
-			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].width);
+			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].projectWidth);
 		}
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
 			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
 			rs.y = rs.savedY * ApartmentSketchComponent.ratio;
 
-			rs.width *= ApartmentSketchComponent.ratio;
-			rs.height *= ApartmentSketchComponent.ratio;
+			rs.width = rs.projectWidth * ApartmentSketchComponent.ratio;
+			rs.height = rs.projectHeight * ApartmentSketchComponent.ratio;
 			rs.doorX *= ApartmentSketchComponent.ratio;
 			rs.doorY *= ApartmentSketchComponent.ratio;
 		}
@@ -118,10 +116,10 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static setMeterToPixelRatio(firstRsWidth: number): void {
-		const screenSize = ApartmentSketchComponent.screenSmallerSize;
+		const canvasSize = ApartmentSketchComponent.screenSmallerSize;
 		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
 		// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
-		ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / firstRsWidth;
+		ApartmentSketchComponent.ratio = (firstRsScreenUsage * canvasSize) / firstRsWidth;
 		ApartmentSketchComponent.ratioResizeChunk = ApartmentSketchComponent.ratio / 10;
 		ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
 		ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
@@ -169,27 +167,22 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static addNewRoom(e): void {
 		// values in meters
-		let width = ApartmentSketchComponent.newRoomWidth;
-		let heigth = ApartmentSketchComponent.newRoomHeight;
-		let doorX = (width - ApartmentSketchComponent.DOOR_WIDTH/ApartmentSketchComponent.ratio) / 2;
-		let doorY = (heigth - ApartmentSketchComponent.DOOR_HEIGHT/ApartmentSketchComponent.ratio) / 2;
+		const projWidth = ApartmentSketchComponent.newRoomWidth;
+		const projHeigth = ApartmentSketchComponent.newRoomHeight;
+		let doorX = (projWidth - ApartmentSketchComponent.DOOR_WIDTH/ApartmentSketchComponent.ratio) / 2;
+		let doorY = (projHeigth - ApartmentSketchComponent.DOOR_HEIGHT/ApartmentSketchComponent.ratio) / 2;
 
 		if(!ApartmentSketchComponent.apartmentSketch 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches.length) {
-			// const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
-			// const screenSize = ApartmentSketchComponent.screenSmallerSize;
-			// ApartmentSketchComponent.ratio = (firstRsScreenUsage * screenSize) / width;
-			// ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-			// ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
 			
 			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = 0.5;
-			ApartmentSketchComponent.setMeterToPixelRatio(width);
+			ApartmentSketchComponent.setMeterToPixelRatio(projWidth);
 		}	
 		
 		// calculate values in pixels
-		width *= ApartmentSketchComponent.ratio;
-		heigth *= ApartmentSketchComponent.ratio;
+		let width = projWidth * ApartmentSketchComponent.ratio;
+		let heigth = projHeigth * ApartmentSketchComponent.ratio;
 		doorX *= ApartmentSketchComponent.ratio;
 		doorY *= ApartmentSketchComponent.ratio;
 		
@@ -204,7 +197,9 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// console.log(width, heigth, x, y, doorX);
 
-		let newRS: RoomSketch = new RoomSketch(width, heigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, doorY, ApartmentSketchComponent.newRoomDoorPos);
+		let newRS: RoomSketch = new RoomSketch(projWidth, projHeigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, doorY, ApartmentSketchComponent.newRoomDoorPos);
+		newRS.width = width;
+		newRS.height = heigth;
 		newRS.x = x;
 		newRS.y = y;
 		newRS.isSet = false;
@@ -369,14 +364,6 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e, mobilePageX?, mobilePageY?): void {
-		if(!ApartmentSketchComponent.editMode) return;
-
-		if(ApartmentSketchComponent.isNewRoomAdded) {
-			ApartmentSketchComponent.addNewRoom(e);
-			ApartmentSketchComponent.isNewRoomAdded = false;
-			return;
-		}
-
 		let mouseCurrX: number;
 		let mouseCurrY: number;
 
@@ -403,6 +390,19 @@ export class ApartmentSketchComponent implements OnInit {
 				ApartmentSketchComponent.selectedRoom.isSet = false;
 				break;
 			}
+		}
+
+		if(ApartmentSketchComponent.updateProgressMode) {
+			document.getElementById("showUpdateProgresBtn").click();
+			return;
+		}
+
+		if(!ApartmentSketchComponent.editMode) return;
+
+		if(ApartmentSketchComponent.isNewRoomAdded) {
+			ApartmentSketchComponent.addNewRoom(e);
+			ApartmentSketchComponent.isNewRoomAdded = false;
+			return;
 		}
 
 		if(!ApartmentSketchComponent.selectedRoom) return;
@@ -755,7 +755,7 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static endPosition(): void {
-		if(!ApartmentSketchComponent.editMode) return;
+		// if(!ApartmentSketchComponent.editMode) return;
 
 		if(ApartmentSketchComponent.selectedRoom) {
 			if(ApartmentSketchComponent.selectedRoom.isCollided) {
@@ -785,11 +785,16 @@ export class ApartmentSketchComponent implements OnInit {
 	newRoomWErr: boolean = false;
 	newRoomHErr: boolean = false;
 
-	addNewRoomActivate() {
+	isUpdateProgressShown: boolean = false;
+	rsToUpdate: RoomSketch;
+	rsProgress: string;
+
+	showAddNewRoom() {
 		this.addNewRoomMode = true;
+		ApartmentSketchComponent.updateProgressMode
 	}
 
-	addNewRoomDeactivate() {
+	hideAddNewRoom() {
 		this.addNewRoomMode = false;
 	}
 
@@ -824,5 +829,29 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.newRoomHeight = this.newRoomH;
 		this.addNewRoomMode = false;
 		ApartmentSketchComponent.isNewRoomAdded = true;
+	}
+
+	showUpdateProgress(): void {
+		if(!ApartmentSketchComponent.selectedRoom) return
+		
+		this.rsToUpdate = ApartmentSketchComponent.selectedRoom;
+		this.rsProgress = `${this.rsToUpdate.progress}`;
+		this.isUpdateProgressShown = true;
+	}
+
+	hideUpdateProgress(): void {
+		this.isUpdateProgressShown = false;
+	}
+
+	updateRoomProgressWrapper(): void {
+
+		switch(this.rsProgress) {
+			case `${ProgressState.NOT_STARTED}`: this.rsToUpdate.progress = ProgressState.NOT_STARTED; break; 
+			case `${ProgressState.IN_PROGRESS}`: this.rsToUpdate.progress = ProgressState.IN_PROGRESS; break; 
+			case `${ProgressState.FINISHED}`: this.rsToUpdate.progress = ProgressState.FINISHED; break; 
+		}
+
+		ApartmentSketchComponent.drawAllRoomSketches();
+		this.isUpdateProgressShown = false;
 	}
 }

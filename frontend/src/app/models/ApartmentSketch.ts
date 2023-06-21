@@ -17,6 +17,8 @@ class RoomSketch {
 
     height: number;
     width: number;
+    projectHeight: number;
+    projectWidth: number;
     savedX: number;
     savedY: number;
     x: number;
@@ -31,9 +33,9 @@ class RoomSketch {
     isSet?: boolean = false;
 
 
-    constructor(width: number, height: number, savedX: number = 0, savedY: number = 0, doorX: number = 0, doorY: number = 0, doorPosition: DoorPosition = DoorPosition.TOP, progress = ProgressState.NOT_STARTED) {
-        this.width = width;
-        this.height = height;
+    constructor(projectWidth: number, projectHeight: number, savedX: number = 0, savedY: number = 0, doorX: number = 0, doorY: number = 0, doorPosition: DoorPosition = DoorPosition.TOP, progress = ProgressState.NOT_STARTED) {
+        this.projectWidth = projectWidth;
+        this.projectHeight = projectHeight;
         this.savedX = savedX;
         this.savedY = savedY;
         this.progress = progress;
