@@ -30,7 +30,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static apartmentSketch?: ApartmentSketch;
 	static showProgress: boolean = true;
 	static editMode: boolean = true;
-	static updateProgressMode: boolean = true;
+	static updateProgressMode: boolean = false;
 
 	static isNewRoomAdded: boolean = false;
 	static newRoomWidth: number = 10;
@@ -46,6 +46,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static screenSmallerSize: number;
 	static ratio: number = 1;
 	static ratioResizeChunk: number = 0.1;
+	static isClicked: boolean = false;
 	
 
 	constructor() {}
@@ -364,6 +365,8 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e, mobilePageX?, mobilePageY?): void {
+		ApartmentSketchComponent.isClicked = true;
+
 		let mouseCurrX: number;
 		let mouseCurrY: number;
 
@@ -441,7 +444,6 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static moveRoom(e, mobilePageX?, mobilePageY?): void {
-		if(!ApartmentSketchComponent.editMode || !ApartmentSketchComponent.selectedRoom) return;
 
 		let mouseCurrX: number;
 		let mouseCurrY: number;
@@ -454,6 +456,23 @@ export class ApartmentSketchComponent implements OnInit {
 			mouseCurrY = e.pageY - ApartmentSketchComponent.sketchCanvasClientRect.top;
 		}
 		 
+		if(ApartmentSketchComponent.isClicked && !ApartmentSketchComponent.selectedRoom && ApartmentSketchComponent.mousePosX && ApartmentSketchComponent.mousePosY) {
+	
+			for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
+				rs.x += (mouseCurrX - ApartmentSketchComponent.mousePosX);
+				rs.y += (mouseCurrY - ApartmentSketchComponent.mousePosY);
+			}
+
+			ApartmentSketchComponent.mousePosX = mouseCurrX;
+			ApartmentSketchComponent.mousePosY = mouseCurrY;
+
+			ApartmentSketchComponent.clearCanvas();
+			ApartmentSketchComponent.drawAllRoomSketches();
+			return;
+		}
+
+		if(!ApartmentSketchComponent.editMode || !ApartmentSketchComponent.selectedRoom) return;
+
 		const threshold: number = ApartmentSketchComponent.CHANGE_DOOR_POSITION_THRESHOLD;
 
 		// moving door within selected room sketch (if door is selected)
@@ -756,6 +775,8 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static endPosition(): void {
 		// if(!ApartmentSketchComponent.editMode) return;
+
+		ApartmentSketchComponent.isClicked = false;
 
 		if(ApartmentSketchComponent.selectedRoom) {
 			if(ApartmentSketchComponent.selectedRoom.isCollided) {
