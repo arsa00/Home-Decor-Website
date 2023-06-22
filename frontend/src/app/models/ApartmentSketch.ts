@@ -60,6 +60,7 @@ class RoomSketch {
 }
 
 class ApartmentSketch {
+    _id?: string;
     firstRoomScreenUsage: number;
     type: ObjectType;
     address: string;

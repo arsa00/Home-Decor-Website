@@ -89,7 +89,8 @@ export class ApartmentSketchComponent implements OnInit {
 
 		document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 
-		this.loadApartmentSketch();
+		if(this.apartmentSkecthIn)
+			this.loadApartmentSketch();
 
 		ApartmentSketchComponent.sketchCanvas.height = ApartmentSketchComponent.screenSmallerSize;
 		ApartmentSketchComponent.sketchCanvas.style.height = `${ApartmentSketchComponent.screenSmallerSize}px`;
@@ -121,7 +122,7 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.showProgress = true;
 		}
 
-		// console.log(this.apartmentSkecthIn);
+		console.log(this.apartmentSkecthIn);
 
 		if(!ApartmentSketchComponent.screenSmallerSize) {
 			ApartmentSketchComponent.screenSmallerSize 
@@ -130,7 +131,8 @@ export class ApartmentSketchComponent implements OnInit {
 			document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 		}
 
-		this.loadApartmentSketch();
+		if(this.apartmentSkecthIn)
+			this.loadApartmentSketch();
 
 		if(!ApartmentSketchComponent.sketchCanvasContext) return;
 

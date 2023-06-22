@@ -24,6 +24,7 @@ import { AgencySearchCardComponent } from './agency-search-card/agency-search-ca
 import { AgencyDetailsComponent } from './agency-details/agency-details.component';
 import { CommentComponent } from './comment/comment.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
+import { ClientObjectsComponent } from './client-objects/client-objects.component';
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
     AgencySearchCardComponent,
     AgencyDetailsComponent,
     CommentComponent,
-    ChangePasswordComponent
+    ChangePasswordComponent,
+    ClientObjectsComponent
   ],
   imports: [
     BrowserModule,
