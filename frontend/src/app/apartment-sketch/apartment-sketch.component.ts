@@ -10,8 +10,8 @@ export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
 	static readonly BORDER_FILL_OFFSET: number = 2;
 	static readonly AUTOFIX_OFFSET: number = 7;
-	static  DOOR_HEIGHT: number = 0.95; // in meters
-    static  DOOR_WIDTH: number = 0.95; // in meters
+	static readonly DOOR_HEIGHT: number = 0.95; // in meters
+    static readonly DOOR_WIDTH: number = 0.95; // in meters
 	static readonly CHANGE_DOOR_POSITION_THRESHOLD: number = 10;
 	static readonly DOOR_TOP_SRC: string = "/assets/appartment-sketch-component/doorTop.png";
 	static readonly DOOR_BOTTOM_SRC: string = "/assets/appartment-sketch-component/doorBottom.png";
@@ -22,12 +22,15 @@ export class ApartmentSketchComponent implements OnInit {
 	@Input() showProgressIn: boolean = true;
 	@Input() editModeIn: boolean = true;
 	@Input() updateProgressModeIn: boolean = false;
+	@Input() apartmentSkecthIn: ApartmentSketch;
 
 	// static variables
 	static doorTopImg: HTMLImageElement;
 	static doorBottomImg: HTMLImageElement;
 	static doorRightImg: HTMLImageElement;
 	static doorLeftImg: HTMLImageElement;
+	static doorHeight: number;
+	static doorWidth: number;
 
 	static sketchCanvas;
 	static sketchCanvasContext;
@@ -66,22 +69,14 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.showProgress = this.showProgressIn;
 
 		if(ApartmentSketchComponent.updateProgressMode) {
-			ApartmentSketchComponent.editMode = this.editModeIn = false;
-			ApartmentSketchComponent.showProgress = this.showProgressIn = true;
+			ApartmentSketchComponent.editMode = false;
+			ApartmentSketchComponent.showProgress = true;
 		}
 
-		if(!ApartmentSketchComponent.apartmentSketch){
-			ApartmentSketchComponent.apartmentSketch = new ApartmentSketch(0.3125);
-
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(5, 3, 10, 6, 1, 1, DoorPosition.LEFT, ProgressState.IN_PROGRESS));
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(5, 3, 2, 10, 2, 1, DoorPosition.BOTTOM, ProgressState.FINISHED));
-			ApartmentSketchComponent.apartmentSketch.roomSketches.push(new RoomSketch(8, 4));
-		}
-
-		ApartmentSketchComponent.doorTopImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
-		ApartmentSketchComponent.doorBottomImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
-		ApartmentSketchComponent.doorRightImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
-		ApartmentSketchComponent.doorLeftImg = new Image(ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+		ApartmentSketchComponent.doorTopImg = new Image(ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
+		ApartmentSketchComponent.doorBottomImg = new Image(ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
+		ApartmentSketchComponent.doorRightImg = new Image(ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
+		ApartmentSketchComponent.doorLeftImg = new Image(ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
 
 		ApartmentSketchComponent.doorTopImg.src = ApartmentSketchComponent.DOOR_TOP_SRC;
 		ApartmentSketchComponent.doorBottomImg.src = ApartmentSketchComponent.DOOR_BOTTOM_SRC;
@@ -94,19 +89,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 		document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 
-		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
-			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].projectWidth);
-		}
-
-		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
-			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
-			rs.y = rs.savedY * ApartmentSketchComponent.ratio;
-
-			rs.width = rs.projectWidth * ApartmentSketchComponent.ratio;
-			rs.height = rs.projectHeight * ApartmentSketchComponent.ratio;
-			rs.doorX *= ApartmentSketchComponent.ratio;
-			rs.doorY *= ApartmentSketchComponent.ratio;
-		}
+		this.loadApartmentSketch();
 
 		ApartmentSketchComponent.sketchCanvas.height = ApartmentSketchComponent.screenSmallerSize;
 		ApartmentSketchComponent.sketchCanvas.style.height = `${ApartmentSketchComponent.screenSmallerSize}px`;
@@ -128,26 +111,78 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.sketchCanvas.addEventListener("touchend", ApartmentSketchComponent.endPosition);
 	}
 
+	ngOnChanges() {
+		ApartmentSketchComponent.updateProgressMode = this.updateProgressModeIn;
+		ApartmentSketchComponent.editMode = this.editModeIn;
+		ApartmentSketchComponent.showProgress = this.showProgressIn;
+
+		if(ApartmentSketchComponent.updateProgressMode) {
+			ApartmentSketchComponent.editMode = false;
+			ApartmentSketchComponent.showProgress = true;
+		}
+
+		// console.log(this.apartmentSkecthIn);
+
+		if(!ApartmentSketchComponent.screenSmallerSize) {
+			ApartmentSketchComponent.screenSmallerSize 
+								= (window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight) * 0.90;
+
+			document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
+		}
+
+		this.loadApartmentSketch();
+
+		if(!ApartmentSketchComponent.sketchCanvasContext) return;
+
+		ApartmentSketchComponent.clearCanvas();
+		ApartmentSketchComponent.drawAllRoomSketches();
+	}
+
+	loadApartmentSketch(): void {
+		ApartmentSketchComponent.apartmentSketch = this.apartmentSkecthIn;
+
+		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
+			ApartmentSketchComponent.setMeterToPixelRatio(ApartmentSketchComponent.apartmentSketch.roomSketches[0].projectWidth);
+		} else {
+			// reset to default
+			ApartmentSketchComponent.ratio = 1;
+			ApartmentSketchComponent.ratioResizeChunk = 0.1;
+			ApartmentSketchComponent.doorWidth = ApartmentSketchComponent.DOOR_WIDTH;
+			ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT;
+		}
+
+		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
+			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
+			rs.y = rs.savedY * ApartmentSketchComponent.ratio;
+
+			rs.width = rs.projectWidth * ApartmentSketchComponent.ratio;
+			rs.height = rs.projectHeight * ApartmentSketchComponent.ratio;
+			rs.doorX *= ApartmentSketchComponent.ratio;
+			rs.doorY *= ApartmentSketchComponent.ratio;
+		}
+	}
+
 	static setMeterToPixelRatio(firstRsWidth: number): void {
 		const canvasSize = ApartmentSketchComponent.screenSmallerSize;
-		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage;
+		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch?.firstRoomScreenUsage;
 		// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
 		ApartmentSketchComponent.ratio = (firstRsScreenUsage * canvasSize) / firstRsWidth;
 		ApartmentSketchComponent.ratioResizeChunk = ApartmentSketchComponent.ratio / 10;
-		ApartmentSketchComponent.DOOR_WIDTH *= ApartmentSketchComponent.ratio;
-		ApartmentSketchComponent.DOOR_HEIGHT *= ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.doorWidth = ApartmentSketchComponent.DOOR_WIDTH * ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT * ApartmentSketchComponent.ratio;
 	}
 
 	static zoomHelper(oldRatio: number): void {
-		ApartmentSketchComponent.DOOR_WIDTH *= (ApartmentSketchComponent.ratio / oldRatio);
-		ApartmentSketchComponent.DOOR_HEIGHT *= (ApartmentSketchComponent.ratio / oldRatio);
+		ApartmentSketchComponent.doorWidth *= (ApartmentSketchComponent.ratio / oldRatio);
+		ApartmentSketchComponent.doorHeight *= (ApartmentSketchComponent.ratio / oldRatio);
 
+		// update how much portion of canvas first room takes (in width)
 		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
 			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
 			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = firstRsWidth / ApartmentSketchComponent.screenSmallerSize;
 		}
 
-		for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
+		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
 			rs.x = rs.x * ApartmentSketchComponent.ratio / oldRatio;
 			rs.y = rs.y * ApartmentSketchComponent.ratio / oldRatio;
 
@@ -182,8 +217,8 @@ export class ApartmentSketchComponent implements OnInit {
 		// values in meters
 		const projWidth = ApartmentSketchComponent.newRoomWidth;
 		const projHeigth = ApartmentSketchComponent.newRoomHeight;
-		let doorX = (projWidth - ApartmentSketchComponent.DOOR_WIDTH/ApartmentSketchComponent.ratio) / 2;
-		let doorY = (projHeigth - ApartmentSketchComponent.DOOR_HEIGHT/ApartmentSketchComponent.ratio) / 2;
+		let doorX = (projWidth - ApartmentSketchComponent.DOOR_WIDTH) / 2;
+		let doorY = (projHeigth - ApartmentSketchComponent.DOOR_HEIGHT) / 2;
 
 		if(!ApartmentSketchComponent.apartmentSketch 
 				|| !ApartmentSketchComponent.apartmentSketch?.roomSketches 
@@ -219,22 +254,22 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// console.log(newRS);
 
-		ApartmentSketchComponent.apartmentSketch.roomSketches.push(newRS);
+		ApartmentSketchComponent.apartmentSketch?.roomSketches.push(newRS);
 
 		// check if new room is colliding with some other room
-		const index = ApartmentSketchComponent.apartmentSketch.roomSketches.length - 1;
-		ApartmentSketchComponent.selectedRoom = ApartmentSketchComponent.apartmentSketch.roomSketches[index];
+		const index = ApartmentSketchComponent.apartmentSketch?.roomSketches.length - 1;
+		ApartmentSketchComponent.selectedRoom = ApartmentSketchComponent.apartmentSketch?.roomSketches[index];
 		ApartmentSketchComponent.selectedRoomIndex = index;
 		ApartmentSketchComponent.isDoorSelected = false;
 		ApartmentSketchComponent.mousePosX = x + width/2;
 		ApartmentSketchComponent.mousePosY = y + heigth/2;
 
-		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
+		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch?.roomSketches.length; i++) {
 			
 			if(i == ApartmentSketchComponent.selectedRoomIndex 
-				|| ApartmentSketchComponent.apartmentSketch.roomSketches[i].isCollided) continue;
+				|| ApartmentSketchComponent.apartmentSketch?.roomSketches[i].isCollided) continue;
 
-			const rs = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
+			const rs = ApartmentSketchComponent.apartmentSketch?.roomSketches[i];
 			if(ApartmentSketchComponent.checkForCollision(rs)) break;
 		}
 
@@ -243,12 +278,12 @@ export class ApartmentSketchComponent implements OnInit {
 
 	static clearCanvas():  void {
 		ApartmentSketchComponent.sketchCanvasContext
-			.clearRect(0, 0, ApartmentSketchComponent.sketchCanvas.width, ApartmentSketchComponent.sketchCanvas.height);
+			?.clearRect(0, 0, ApartmentSketchComponent.sketchCanvas.width, ApartmentSketchComponent.sketchCanvas.height);
 	}
 
 	static clearRoomSketch(rs: RoomSketch): void {
 		let bOff: number = ApartmentSketchComponent.BORDER_FILL_OFFSET;
-		ApartmentSketchComponent.sketchCanvasContext.clearRect(rs.x - bOff, rs.y - bOff, rs.width + 2*bOff, rs.height + 2*bOff);
+		ApartmentSketchComponent.sketchCanvasContext?.clearRect(rs.x - bOff, rs.y - bOff, rs.width + 2*bOff, rs.height + 2*bOff);
 	}
 
 	static drawRoomSketch(rs: RoomSketch): void {
@@ -301,13 +336,13 @@ export class ApartmentSketchComponent implements OnInit {
 
 			case DoorPosition.BOTTOM: {
 				doorX = rs.x + rs.doorX;
-				doorY = rs.y + rs.height - ApartmentSketchComponent.DOOR_HEIGHT;
+				doorY = rs.y + rs.height - ApartmentSketchComponent.doorHeight;
 				doorImg = ApartmentSketchComponent.doorBottomImg;
 				break;
 			}
 
 			case DoorPosition.RIGHT: {
-				doorX = rs.x + rs.width - ApartmentSketchComponent.DOOR_WIDTH;
+				doorX = rs.x + rs.width - ApartmentSketchComponent.doorWidth;
 				doorY = rs.y + rs.doorY;
 				doorImg = ApartmentSketchComponent.doorRightImg;
 				break;
@@ -328,19 +363,19 @@ export class ApartmentSketchComponent implements OnInit {
 		if(doorImg.complete) {
 			// console.log("COMPLETED");
 			ApartmentSketchComponent.sketchCanvasContext.drawImage(doorImg, doorX, doorY, 
-											ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+											ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
 		}
 		else {
 			// console.log("NOT-COMPLETED");
 			doorImg.addEventListener("load", () => {
 				ApartmentSketchComponent.sketchCanvasContext.drawImage(doorImg, doorX, doorY, 
-											ApartmentSketchComponent.DOOR_WIDTH, ApartmentSketchComponent.DOOR_HEIGHT);
+											ApartmentSketchComponent.doorWidth, ApartmentSketchComponent.doorHeight);
 			});
 		}
 	}
 
 	static drawAllRoomSketches(): void {
-		ApartmentSketchComponent.apartmentSketch.roomSketches.forEach((rs, roomIndex) => {
+		ApartmentSketchComponent.apartmentSketch?.roomSketches.forEach((rs, roomIndex) => {
 			if(roomIndex != ApartmentSketchComponent.selectedRoomIndex) {
 				ApartmentSketchComponent.drawRoomSketch(rs);
 				// console.log(rs);
@@ -401,8 +436,8 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// going backwards through array, because sketch that was drawn later is showed on top, 
 		// so when clicked on intersection between two sketches, the one with higher index should be selecteed
-		for(let i: number = ApartmentSketchComponent.apartmentSketch.roomSketches.length - 1; i >= 0; i--) {
-			let currRS: RoomSketch = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
+		for(let i: number = ApartmentSketchComponent.apartmentSketch?.roomSketches.length - 1; i >= 0; i--) {
+			let currRS: RoomSketch = ApartmentSketchComponent.apartmentSketch?.roomSketches[i];
 			if(mouseCurrX >= currRS.x && mouseCurrX <= currRS.x + currRS.width && mouseCurrY >= currRS.y && mouseCurrY <= currRS.y + currRS.height) {
 				ApartmentSketchComponent.selectedRoomIndex = i;
 				ApartmentSketchComponent.selectedRoom = currRS;
@@ -431,16 +466,16 @@ export class ApartmentSketchComponent implements OnInit {
 		const mouseWithinRoomY: number = mouseCurrY - ApartmentSketchComponent.selectedRoom.y;
 
 		const doorStartX: number = ApartmentSketchComponent.selectedRoom.doorX;
-		const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.DOOR_WIDTH;
+		const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.doorWidth;
 		const doorStartY: number = ApartmentSketchComponent.selectedRoom.doorY;
-		const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.DOOR_HEIGHT;
+		const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.doorHeight;
 
 		if(mouseWithinRoomX >= doorStartX && mouseWithinRoomX <= doorEndX && 
 			(
-				(mouseWithinRoomY <= ApartmentSketchComponent.DOOR_HEIGHT 
+				(mouseWithinRoomY <= ApartmentSketchComponent.doorHeight 
 				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP)
 			||
-				(mouseWithinRoomY >= ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT 
+				(mouseWithinRoomY >= ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.doorHeight 
 				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM)
 			)
 		) {
@@ -448,10 +483,10 @@ export class ApartmentSketchComponent implements OnInit {
 		} else 
 		if(mouseWithinRoomY >= doorStartY && mouseWithinRoomY <= doorEndY && 
 			(
-				(mouseWithinRoomX <= ApartmentSketchComponent.DOOR_WIDTH 
+				(mouseWithinRoomX <= ApartmentSketchComponent.doorWidth 
 				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT)
 			||
-				(mouseWithinRoomX >= ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH 
+				(mouseWithinRoomX >= ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.doorWidth 
 				&& ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT)
 			)
 		) {
@@ -474,7 +509,7 @@ export class ApartmentSketchComponent implements OnInit {
 		 
 		if(ApartmentSketchComponent.isClicked && !ApartmentSketchComponent.selectedRoom && ApartmentSketchComponent.mousePosX && ApartmentSketchComponent.mousePosY) {
 	
-			for(let rs of ApartmentSketchComponent.apartmentSketch.roomSketches) {
+			for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
 				rs.x += (mouseCurrX - ApartmentSketchComponent.mousePosX);
 				rs.y += (mouseCurrY - ApartmentSketchComponent.mousePosY);
 			}
@@ -510,9 +545,9 @@ export class ApartmentSketchComponent implements OnInit {
 					ApartmentSketchComponent.selectedRoom.doorX = 0;
 					errorX = true;
 				}
-				if(doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX) + ApartmentSketchComponent.DOOR_WIDTH > ApartmentSketchComponent.selectedRoom.width)
+				if(doorX + (mouseCurrX - ApartmentSketchComponent.mousePosX) + ApartmentSketchComponent.doorWidth > ApartmentSketchComponent.selectedRoom.width)
 				{
-					ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.width- ApartmentSketchComponent.DOOR_WIDTH;
+					ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.width- ApartmentSketchComponent.doorWidth;
 					errorX = true;
 				}
 
@@ -520,13 +555,13 @@ export class ApartmentSketchComponent implements OnInit {
 
 
 				const doorStartX: number = ApartmentSketchComponent.selectedRoom.doorX;
-				const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.DOOR_WIDTH;
+				const doorEndX: number = ApartmentSketchComponent.selectedRoom.doorX + ApartmentSketchComponent.doorWidth;
 				const mouseWithinRoomY: number = mouseCurrY - ApartmentSketchComponent.selectedRoom.y;
 
 				// if door is near edges of room sketch and user is trying to move door vertically, change door position accordingly
 				if(
 					(
-						mouseWithinRoomY > ApartmentSketchComponent.DOOR_HEIGHT + threshold 
+						mouseWithinRoomY > ApartmentSketchComponent.doorHeight + threshold 
 					&& 
 						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP
 					)
@@ -534,7 +569,7 @@ export class ApartmentSketchComponent implements OnInit {
 					||
 					
 					(
-						mouseWithinRoomY < ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT - threshold 
+						mouseWithinRoomY < ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.doorHeight - threshold 
 					&& 
 						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.BOTTOM
 					)
@@ -542,14 +577,14 @@ export class ApartmentSketchComponent implements OnInit {
 
 					if(doorStartX < threshold) {
 						ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP 
-																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT;
+																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.doorHeight;
 
 						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.LEFT;
 					}
 
 					if(doorEndX > ApartmentSketchComponent.selectedRoom.width - threshold) {
 						ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.TOP 
-																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.DOOR_HEIGHT;
+																	? 0 : ApartmentSketchComponent.selectedRoom.height - ApartmentSketchComponent.doorHeight;
 
 						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.RIGHT;
 					}
@@ -570,9 +605,9 @@ export class ApartmentSketchComponent implements OnInit {
 					ApartmentSketchComponent.selectedRoom.doorY = 0;
 					errorY = true;
 				}
-				if(doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY) + ApartmentSketchComponent.DOOR_HEIGHT > ApartmentSketchComponent.selectedRoom.height)
+				if(doorY + (mouseCurrY - ApartmentSketchComponent.mousePosY) + ApartmentSketchComponent.doorHeight > ApartmentSketchComponent.selectedRoom.height)
 				{
-					ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.height- ApartmentSketchComponent.DOOR_HEIGHT;
+					ApartmentSketchComponent.selectedRoom.doorY = ApartmentSketchComponent.selectedRoom.height- ApartmentSketchComponent.doorHeight;
 					errorY = true;
 				}
 
@@ -580,13 +615,13 @@ export class ApartmentSketchComponent implements OnInit {
 
 
 				const doorStartY: number = ApartmentSketchComponent.selectedRoom.doorY;
-				const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.DOOR_HEIGHT;
+				const doorEndY: number = ApartmentSketchComponent.selectedRoom.doorY + ApartmentSketchComponent.doorHeight;
 				const mouseWithinRoomX: number = mouseCurrX - ApartmentSketchComponent.selectedRoom.x;
 
 				// if door is near edges of room sketch and user is trying to move door horizontally, change door position accordingly
 				if(
 					(
-						mouseWithinRoomX > ApartmentSketchComponent.DOOR_WIDTH + threshold 
+						mouseWithinRoomX > ApartmentSketchComponent.doorWidth + threshold 
 					&& 
 						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT
 					)
@@ -594,7 +629,7 @@ export class ApartmentSketchComponent implements OnInit {
 					||
 					
 					(
-						mouseWithinRoomX < ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH - threshold 
+						mouseWithinRoomX < ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.doorWidth - threshold 
 					&& 
 						ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.RIGHT
 					)
@@ -602,7 +637,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 					if(doorStartY < threshold) {
 						ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT 
-																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH;
+																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.doorWidth;
 
 						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.TOP;
 						
@@ -610,7 +645,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 					if(doorEndY > ApartmentSketchComponent.selectedRoom.height - threshold) {
 						ApartmentSketchComponent.selectedRoom.doorX = ApartmentSketchComponent.selectedRoom.doorPosition == DoorPosition.LEFT 
-																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.DOOR_WIDTH;
+																	? 0 : ApartmentSketchComponent.selectedRoom.width - ApartmentSketchComponent.doorWidth;
 
 						ApartmentSketchComponent.selectedRoom.doorPosition = DoorPosition.BOTTOM;
 					}
@@ -656,7 +691,7 @@ export class ApartmentSketchComponent implements OnInit {
 		// auto-align functionality & detection of collision with other room sketches
 		let autofixedX: boolean = false;
 		let autofixedY: boolean = false;
-		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch.roomSketches.length; i++) {
+		for(let i = 0; i < ApartmentSketchComponent.apartmentSketch?.roomSketches.length; i++) {
 			if(i == ApartmentSketchComponent.selectedRoomIndex) continue;
 
 			let rs: RoomSketch = ApartmentSketchComponent.apartmentSketch.roomSketches[i];
@@ -825,6 +860,8 @@ export class ApartmentSketchComponent implements OnInit {
 	isUpdateProgressShown: boolean = false;
 	rsToUpdate: RoomSketch;
 	rsProgress: string;
+
+	isEditModeActive(): boolean { return ApartmentSketchComponent.editMode; }
 
 	showAddNewRoom() {
 		this.addNewRoomMode = true;

@@ -89,8 +89,8 @@
 </div> -->
 
 <div class="d-flex flex-column justify-content-center align-items-center my-2">
-    <div class="d-flex mb-2 " [ngClass]="{'justify-content-end': !editModeIn, 'justify-content-between': editModeIn}" id="apartmentCanvasTools">
-        <button type="button" class="btn btn-plt1-clr5 fw-medium" (click)="showAddNewRoom()" *ngIf="editModeIn">Dodajte novu prostoriju</button>
+    <div class="d-flex mb-2 " [ngClass]="{'justify-content-end': !isEditModeActive(), 'justify-content-between': isEditModeActive()}" id="apartmentCanvasTools">
+        <button type="button" class="btn btn-plt1-clr5 fw-medium" (click)="showAddNewRoom()" *ngIf="isEditModeActive()">Dodajte novu prostoriju</button>
         <button type="button" class="d-none" (click)="showUpdateProgress()" id="showUpdateProgresBtn" *ngIf="updateProgressModeIn"></button>
 
         <div class="d-flex py-1">

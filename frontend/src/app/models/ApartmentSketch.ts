@@ -11,6 +11,11 @@ enum DoorPosition {
     LEFT
 }
 
+enum ObjectType {
+    APARTMENT = "Stan",
+    HOUSE = "Kuca"
+}
+
 class RoomSketch {
     static readonly FINISHED_FILL_COLOR: string = "#a6fa57";
     static readonly IN_PROGRESS_FILL_COLOR: string = "#fa5757";
@@ -30,7 +35,7 @@ class RoomSketch {
     doorY: number;
     doorPosition: DoorPosition;
 
-    isSet?: boolean = false;
+    isSet: boolean = false;
 
 
     constructor(projectWidth: number, projectHeight: number, savedX: number = 0, savedY: number = 0, doorX: number = 0, doorY: number = 0, doorPosition: DoorPosition = DoorPosition.TOP, progress = ProgressState.NOT_STARTED) {
@@ -46,16 +51,36 @@ class RoomSketch {
 
         this.isSet = true;
         this.isCollided = false;
+
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
     }
 }
 
 class ApartmentSketch {
     firstRoomScreenUsage: number;
+    type: ObjectType;
+    address: string;
+    squareFootage: number;
     roomSketches: RoomSketch[] = [];
 
-    constructor(firstRoomScreenUsage: number) {
+    constructor(firstRoomScreenUsage?: number) {
         this.firstRoomScreenUsage = firstRoomScreenUsage;
+    }
+
+
+    static clone(apartmentSketch: ApartmentSketch): ApartmentSketch {
+        let newAS = new ApartmentSketch(apartmentSketch.firstRoomScreenUsage);
+
+        for(let rs of apartmentSketch.roomSketches) {
+            let newRS = new RoomSketch(rs.projectWidth, rs.projectHeight, rs.savedX, rs.savedY, rs.doorX, rs.doorY, rs.doorPosition, rs.progress);
+            newAS.roomSketches.push(newRS);
+        }
+
+        return newAS;
     }
 }
 
-export { ApartmentSketch, RoomSketch, ProgressState, DoorPosition };
+export { ApartmentSketch, RoomSketch, ProgressState, DoorPosition, ObjectType };
