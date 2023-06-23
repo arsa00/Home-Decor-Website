@@ -60,6 +60,8 @@ class RoomSketch {
 }
 
 class ApartmentSketch {
+    private static readonly MAX_ROOMS: number = 3;
+
     _id?: string;
     firstRoomScreenUsage: number;
     type: ObjectType;
@@ -92,6 +94,10 @@ class ApartmentSketch {
         }
 
         return newAS;
+    }
+
+    static checkRoomAvailability(roomCnt: number): boolean {
+        return roomCnt < ApartmentSketch.MAX_ROOMS;
     }
 }
 

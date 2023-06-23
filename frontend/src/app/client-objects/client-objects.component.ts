@@ -9,52 +9,50 @@ import { ApartmentSketchComponent } from '../apartment-sketch/apartment-sketch.c
 })
 export class ClientObjectsComponent implements OnInit {
 
-  allApartmens: ApartmentSketch[] = [];
+  allApartments: ApartmentSketch[] = [];
   selectedIndex: number;
-  selectedApartmen: ApartmentSketch;
+  selectedApartment: ApartmentSketch;
 
   editMode: boolean = false;
 
   constructor() { }
 
   ngOnInit(): void {
-    this.allApartmens.push(new ApartmentSketch(0.5, ObjectType.APARTMENT, "Adresa stana 1/2, Beograd 11000", 52));
-    this.allApartmens.push(new ApartmentSketch(0.5, ObjectType.HOUSE, "Adresa stana 2/2, Beograd 11000", 92));
+    this.allApartments.push(new ApartmentSketch(0.5, ObjectType.APARTMENT, "Adresa stana 1/2, Beograd 11000", 52));
+    this.allApartments.push(new ApartmentSketch(0.5, ObjectType.HOUSE, "Adresa stana 2/2, Beograd 11000", 92));
   }
 
   setActive(index): void {
     if(this.selectedIndex == index) {
       if(!this.editMode) {
         this.selectedIndex = null;
-        this.selectedApartmen = null;
+        this.selectedApartment = null;
       }
 
       return;
     }
 
     this.selectedIndex = index;
-    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[index]);
+    this.selectedApartment = ApartmentSketch.clone(this.allApartments[index]);
   }
 
   activateEditMode() { 
     if(this.selectedIndex == undefined || this.selectedIndex == null) return;
 
-    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
+    this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
     this.editMode = true;
   }
 
   submitEdit() {
     this.editMode = false;
     
-    this.allApartmens[this.selectedIndex] = ApartmentSketchComponent.getCurrentAsInPixels();
-    console.log("received", this.allApartmens[this.selectedIndex]);
-    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
-    
+    this.allApartments[this.selectedIndex] = ApartmentSketchComponent.getCurrentAsInPixels();
+    this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
   }
 
   discardEdit() {
     this.editMode = false;
-    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
+    this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
   }
 
   showEditField(index): boolean {

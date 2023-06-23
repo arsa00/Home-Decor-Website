@@ -131,8 +131,13 @@ export class ApartmentSketchComponent implements OnInit {
 			document.getElementById("apartmentCanvasTools").style.width = `${ApartmentSketchComponent.screenSmallerSize}px`;
 		}
 
-		if(this.apartmentSkecthIn)
+		if(this.apartmentSkecthIn) {
 			this.loadApartmentSketch();
+		}
+		else {
+			ApartmentSketchComponent.clearCanvas();
+			return;
+		}
 
 		if(!ApartmentSketchComponent.sketchCanvasContext) return;
 
@@ -153,7 +158,7 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT;
 		}
 
-		console.log("before load", ApartmentSketchComponent.apartmentSketch);
+		// console.log("before load", ApartmentSketchComponent.apartmentSketch);
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
 			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
@@ -165,7 +170,7 @@ export class ApartmentSketchComponent implements OnInit {
 			rs.doorY *= ApartmentSketchComponent.ratio;
 		}
 
-		console.log("after load", ApartmentSketchComponent.apartmentSketch);
+		// console.log("after load", ApartmentSketchComponent.apartmentSketch);
 	}
 
 	static setMeterToPixelRatio(firstRsWidth: number): void {
@@ -181,7 +186,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static getCurrentAsInPixels(): ApartmentSketch {
 		if(!ApartmentSketchComponent.apartmentSketch) return null; // or undefined
 
-		console.log("before save", ApartmentSketchComponent.apartmentSketch);
+		// console.log("before save", ApartmentSketchComponent.apartmentSketch);
 
 		const ratio = ApartmentSketchComponent.ratio;
 		const asClone = ApartmentSketch.clone(ApartmentSketchComponent.apartmentSketch);
@@ -193,7 +198,7 @@ export class ApartmentSketchComponent implements OnInit {
 			rs.savedY = rs.y / ratio;
 		}
 
-		console.log("after save", asClone);
+		// console.log("after save", asClone);
 
 		return asClone;
 	}
@@ -201,12 +206,6 @@ export class ApartmentSketchComponent implements OnInit {
 	static zoomHelper(oldRatio: number): void {
 		ApartmentSketchComponent.doorWidth *= (ApartmentSketchComponent.ratio / oldRatio);
 		ApartmentSketchComponent.doorHeight *= (ApartmentSketchComponent.ratio / oldRatio);
-
-		// update how much portion of canvas first room takes (in width)
-		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
-			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
-			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = firstRsWidth / ApartmentSketchComponent.screenSmallerSize;
-		}
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
 			rs.x = rs.x * ApartmentSketchComponent.ratio / oldRatio;
@@ -216,6 +215,12 @@ export class ApartmentSketchComponent implements OnInit {
 			rs.height *= ApartmentSketchComponent.ratio / oldRatio;
 			rs.doorX *= ApartmentSketchComponent.ratio / oldRatio;
 			rs.doorY *= ApartmentSketchComponent.ratio / oldRatio;
+		}
+
+		// update how much portion of canvas first room takes (in width)
+		if(ApartmentSketchComponent.apartmentSketch?.roomSketches.length > 0) {
+			const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
+			ApartmentSketchComponent.apartmentSketch.firstRoomScreenUsage = firstRsWidth / ApartmentSketchComponent.screenSmallerSize;
 		}
 
 		ApartmentSketchComponent.clearCanvas();
@@ -279,8 +284,8 @@ export class ApartmentSketchComponent implements OnInit {
 		newRS.isSet = false;
 
 		// console.log(newRS);
-
 		ApartmentSketchComponent.apartmentSketch?.roomSketches.push(newRS);
+		ApartmentSketchComponent.apartmentSketch.squareFootage += newRS.projectWidth * newRS.projectHeight;
 
 		// check if new room is colliding with some other room
 		const index = ApartmentSketchComponent.apartmentSketch?.roomSketches.length - 1;
@@ -896,6 +901,10 @@ export class ApartmentSketchComponent implements OnInit {
 
 	hideAddNewRoom() {
 		this.addNewRoomMode = false;
+	}
+
+	isAddNewRoomEnabled(): boolean {
+		return ApartmentSketch.checkRoomAvailability(ApartmentSketchComponent.apartmentSketch?.roomSketches.length);
 	}
 
 	addNewRoomWrapper() {
