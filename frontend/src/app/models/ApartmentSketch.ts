@@ -70,17 +70,18 @@ class ApartmentSketch {
     ownerId: string;
     roomSketches: RoomSketch[] = [];
 
-    constructor(firstRoomScreenUsage?: number, type?: ObjectType, address?: string, squareFootage?: number, ownerId?: string) {
+    constructor(firstRoomScreenUsage?: number, type?: ObjectType, address?: string, squareFootage?: number, ownerId?: string, _id?: string) {
         this.firstRoomScreenUsage = firstRoomScreenUsage;
         this.type = type;
         this.address = address;
         this.squareFootage = squareFootage;
         this.ownerId = ownerId;
+        this._id = _id;
     }
 
 
     static clone(apartmentSketch: ApartmentSketch): ApartmentSketch {
-        let newAS = new ApartmentSketch(apartmentSketch.firstRoomScreenUsage, apartmentSketch.type, apartmentSketch.address, apartmentSketch.squareFootage, apartmentSketch.ownerId);
+        let newAS = new ApartmentSketch(apartmentSketch.firstRoomScreenUsage, apartmentSketch.type, apartmentSketch.address, apartmentSketch.squareFootage, apartmentSketch.ownerId, apartmentSketch._id);
 
         for(let rs of apartmentSketch.roomSketches) {
             let newRS = new RoomSketch(rs.projectWidth, rs.projectHeight, rs.savedX, rs.savedY, rs.doorX, rs.doorY, rs.doorPosition, rs.progress);

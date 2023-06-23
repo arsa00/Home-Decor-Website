@@ -4,6 +4,8 @@ import { ApartmentSketchComponent } from '../apartment-sketch/apartment-sketch.c
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { ViewportScroller } from '@angular/common';
+import { ApartmentSketchService } from '../services/apartment-sketch.service';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-client-objects',
@@ -31,13 +33,18 @@ export class ClientObjectsComponent implements OnInit {
   newObjectAddressErr: boolean = false;
   newObjectSquareFootageErr: boolean = false;
 
-  constructor(private scroller: ViewportScroller) { }
+  constructor(private scroller: ViewportScroller, private apartmentSketchService: ApartmentSketchService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
 
-    this.allApartments.push(new ApartmentSketch(0.5, ObjectType.APARTMENT, "Adresa stana 1/2, Beograd 11000", 52));
-    this.allApartments.push(new ApartmentSketch(0.5, ObjectType.HOUSE, "Adresa stana 2/2, Beograd 11000", 92));
+    this.apartmentSketchService.getAllOwnersApartmentSketches(this.loggedUser.jwt, this.loggedUser._id).subscribe({
+      next: (allApartmentSketches: ApartmentSketch[]) => {
+        this.allApartments = allApartmentSketches;
+        console.log(allApartmentSketches);
+      },
+      error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+    });
   }
 
   setActive(index): void {
@@ -87,8 +94,19 @@ export class ClientObjectsComponent implements OnInit {
     if(firstRoomWidthInMeters) 
       ApartmentSketchComponent.recalculateFirstRoomScreenUsage(firstRoomWidthInMeters, editedAS);
 
-    this.allApartments[this.selectedIndex] = editedAS;
-    this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
+    // potentionally here it could be checked what exactly was changed & to update only that fields, not whole object
+    this.apartmentSketchService
+        .updateApartmentSketch(this.loggedUser.jwt, editedAS._id, editedAS.roomSketches, 
+                              editedAS.firstRoomScreenUsage, editedAS.type, editedAS.address, editedAS.squareFootage)
+        .subscribe({
+          next: (apartmentSketchDb: ApartmentSketch) => {
+            this.allApartments[this.selectedIndex] = apartmentSketchDb;
+            this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
+          },
+          error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+        });
+
+    
   }
 
   discardEdit() {
@@ -144,17 +162,21 @@ export class ClientObjectsComponent implements OnInit {
     if(isErrCatched) return;
 
     // insert to db; fetch from db; append allApartments list;
+    const newAS = new ApartmentSketch(0.5, this.newObjectType, this.newObjectAddress, this.newObjectSquareFootage, this.loggedUser._id);
+    this.apartmentSketchService.addApartmentSketch(this.loggedUser.jwt, newAS).subscribe({
+      next: (apartmentSketchDb: ApartmentSketch) => {
+        this.allApartments.push(apartmentSketchDb);
+        this.selectedIndex = this.allApartments.length - 1;
+        this.activateEditMode();
+        this.addNewObjectMode = false;
+        this.continueAddingObject = true;
+      },
+      error: () => { 
+        new bootstrap.Toast(document.getElementById("err")).show(); 
+        this.addNewObjectMode = false;
+      }
+    });
 
-    // mock appending
-    this.allApartments.push(
-      new ApartmentSketch(0.5, this.newObjectType, this.newObjectAddress, this.newObjectSquareFootage, this.loggedUser._id)
-    );
-
-    this.selectedIndex = this.allApartments.length - 1;
-    this.activateEditMode();
-    this.addNewObjectMode = false;
-    this.continueAddingObject = true;
-
-    console.log(this.selectedApartment)
+    // console.log(this.selectedApartment)
   }
 }
