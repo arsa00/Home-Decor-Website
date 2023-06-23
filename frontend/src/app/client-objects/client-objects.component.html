@@ -12,7 +12,12 @@
                     <div class="d-flex justify-content-between align-items-center mb-4 fs-5">
                         <span class="mx-3 fw-medium">Tip objekta:</span>
                         <span class="text-end" *ngIf="!showEditField(i)"> {{ allApartmens[i].type }} </span>
-                        <input type="text" class="form-control" value="" [(ngModel)]="selectedApartmen.type" *ngIf="showEditField(i)">
+                        <!-- <input type="text" class="form-control" value="" [(ngModel)]="selectedApartmen.type" *ngIf="showEditField(i)"> -->
+
+                        <select class="form-select"  [(ngModel)]="selectedApartmen.type" *ngIf="showEditField(i)">
+                            <option value="Stan">Stan</option>
+                            <option value="Kuca">Kuca</option>
+                        </select>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-4 fs-5">
@@ -30,7 +35,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4 fs-5">
                         <span class="mx-3 fw-medium">Broj prostorija:</span>
                         <span class="text-end" *ngIf="!showEditField(i)"> {{ allApartmens[i].roomSketches.length }} </span>
-                        <input type="text" class="form-control" value="" [(ngModel)]="selectedApartmen.roomSketches.length" *ngIf="showEditField(i)">
+                        <input type="text" class="form-control" value="" [(ngModel)]="selectedApartmen.roomSketches.length" *ngIf="showEditField(i)" readonly>
                     </div>
                 </div>
             </div>
@@ -51,14 +56,14 @@
 </div>
 
 <div class="editButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
-            (click)="submitEdit()">
+            (click)="discardEdit()">
     <mat-icon class="circleIcon">
         close
     </mat-icon>
 </div>
 
 <div class="editButton bg-plt1-clr6 d-flex justify-content-center align-items-center cursor-pointer" style="right: 110px;" *ngIf="editMode"
-            (click)="discardEdit()">
+            (click)="submitEdit()">
     <mat-icon class="circleIcon">
         check
     </mat-icon>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApartmentSketch, ObjectType } from '../models/ApartmentSketch';
+import { ApartmentSketchComponent } from '../apartment-sketch/apartment-sketch.component';
 
 @Component({
   selector: 'app-client-objects',
@@ -22,18 +23,38 @@ export class ClientObjectsComponent implements OnInit {
   }
 
   setActive(index): void {
-    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[index]);
+    if(this.selectedIndex == index) {
+      if(!this.editMode) {
+        this.selectedIndex = null;
+        this.selectedApartmen = null;
+      }
+
+      return;
+    }
+
     this.selectedIndex = index;
+    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[index]);
   }
 
-  activateEditMode() { this.editMode = true; }
+  activateEditMode() { 
+    if(this.selectedIndex == undefined || this.selectedIndex == null) return;
+
+    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
+    this.editMode = true;
+  }
 
   submitEdit() {
     this.editMode = false;
+    
+    this.allApartmens[this.selectedIndex] = ApartmentSketchComponent.getCurrentAsInPixels();
+    console.log("received", this.allApartmens[this.selectedIndex]);
+    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
+    
   }
 
   discardEdit() {
     this.editMode = false;
+    this.selectedApartmen = ApartmentSketch.clone(this.allApartmens[this.selectedIndex]);
   }
 
   showEditField(index): boolean {

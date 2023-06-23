@@ -122,7 +122,7 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.showProgress = true;
 		}
 
-		console.log(this.apartmentSkecthIn);
+		// console.log(this.apartmentSkecthIn);
 
 		if(!ApartmentSketchComponent.screenSmallerSize) {
 			ApartmentSketchComponent.screenSmallerSize 
@@ -153,6 +153,8 @@ export class ApartmentSketchComponent implements OnInit {
 			ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT;
 		}
 
+		console.log("before load", ApartmentSketchComponent.apartmentSketch);
+
 		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
 			rs.x = rs.savedX * ApartmentSketchComponent.ratio;
 			rs.y = rs.savedY * ApartmentSketchComponent.ratio;
@@ -162,6 +164,8 @@ export class ApartmentSketchComponent implements OnInit {
 			rs.doorX *= ApartmentSketchComponent.ratio;
 			rs.doorY *= ApartmentSketchComponent.ratio;
 		}
+
+		console.log("after load", ApartmentSketchComponent.apartmentSketch);
 	}
 
 	static setMeterToPixelRatio(firstRsWidth: number): void {
@@ -172,6 +176,26 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.ratioResizeChunk = ApartmentSketchComponent.ratio / 10;
 		ApartmentSketchComponent.doorWidth = ApartmentSketchComponent.DOOR_WIDTH * ApartmentSketchComponent.ratio;
 		ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT * ApartmentSketchComponent.ratio;
+	}
+
+	static getCurrentAsInPixels(): ApartmentSketch {
+		if(!ApartmentSketchComponent.apartmentSketch) return null; // or undefined
+
+		console.log("before save", ApartmentSketchComponent.apartmentSketch);
+
+		const ratio = ApartmentSketchComponent.ratio;
+		const asClone = ApartmentSketch.clone(ApartmentSketchComponent.apartmentSketch);
+
+		for(let rs of asClone.roomSketches) {
+			rs.doorX /= ratio;
+			rs.doorY /= ratio;
+			rs.savedX = rs.x / ratio;
+			rs.savedY = rs.y / ratio;
+		}
+
+		console.log("after save", asClone);
+
+		return asClone;
 	}
 
 	static zoomHelper(oldRatio: number): void {
