@@ -89,6 +89,8 @@ class ApartmentSketch {
             newRS.y = rs.y;
             newRS.width = rs.width;
             newRS.height = rs.height;
+            newRS.isCollided = rs.isCollided;
+            newRS.isSet = rs.isSet;
             
             newAS.roomSketches.push(newRS);
         }

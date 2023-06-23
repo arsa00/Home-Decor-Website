@@ -32,6 +32,12 @@
                             <option value="left">Levo</option>
                         </select>    
                     </div>
+                    <div class="col-lg-8 form-check d-flex justify-content-center">
+                        <input class="form-check-input" type="checkbox" id="updateSquareFootage" [(ngModel)]="updateSquareFootage">
+                        <label class="form-check-label fs-6 ms-3" for="flexCheckDefault">
+                          Ažuriranje kvadrature objekta nakon dodavanja prostorije
+                        </label>
+                      </div>
                     <div class="col-lg-5">
                         <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewRoomWrapper()">Dodajte prostoriju</button>
                     </div>

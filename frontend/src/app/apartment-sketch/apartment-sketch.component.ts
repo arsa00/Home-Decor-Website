@@ -45,6 +45,7 @@ export class ApartmentSketchComponent implements OnInit {
 	static newRoomWidth: number = 10;
 	static newRoomHeight: number = 3;
 	static newRoomDoorPos: DoorPosition = DoorPosition.BOTTOM;
+	static updateSquareFootage: boolean;
 
 	static mousePosX: number;
 	static mousePosY: number;
@@ -135,6 +136,7 @@ export class ApartmentSketchComponent implements OnInit {
 			this.loadApartmentSketch();
 		}
 		else {
+			ApartmentSketchComponent.apartmentSketch = undefined;
 			ApartmentSketchComponent.clearCanvas();
 			return;
 		}
@@ -173,17 +175,17 @@ export class ApartmentSketchComponent implements OnInit {
 		// console.log("after load", ApartmentSketchComponent.apartmentSketch);
 	}
 
-	static setMeterToPixelRatio(firstRsWidth: number): void {
+	static setMeterToPixelRatio(firstRsWidthMeters: number): void {
 		const canvasSize = ApartmentSketchComponent.screenSmallerSize;
 		const firstRsScreenUsage = ApartmentSketchComponent.apartmentSketch?.firstRoomScreenUsage;
 		// const firstRsWidth = ApartmentSketchComponent.apartmentSketch.roomSketches[0].width;
-		ApartmentSketchComponent.ratio = (firstRsScreenUsage * canvasSize) / firstRsWidth;
+		ApartmentSketchComponent.ratio = (firstRsScreenUsage * canvasSize) / firstRsWidthMeters;
 		ApartmentSketchComponent.ratioResizeChunk = ApartmentSketchComponent.ratio / 10;
 		ApartmentSketchComponent.doorWidth = ApartmentSketchComponent.DOOR_WIDTH * ApartmentSketchComponent.ratio;
 		ApartmentSketchComponent.doorHeight = ApartmentSketchComponent.DOOR_HEIGHT * ApartmentSketchComponent.ratio;
 	}
 
-	static getCurrentAsInPixels(): ApartmentSketch {
+	static getCurrentAsInMeters(): ApartmentSketch {
 		if(!ApartmentSketchComponent.apartmentSketch) return null; // or undefined
 
 		// console.log("before save", ApartmentSketchComponent.apartmentSketch);
@@ -203,18 +205,47 @@ export class ApartmentSketchComponent implements OnInit {
 		return asClone;
 	}
 
-	static zoomHelper(oldRatio: number): void {
-		ApartmentSketchComponent.doorWidth *= (ApartmentSketchComponent.ratio / oldRatio);
-		ApartmentSketchComponent.doorHeight *= (ApartmentSketchComponent.ratio / oldRatio);
+	static recalculateFirstRoomScreenUsage(oldFirstRoomWidthInMeters: number, apartmentSketch: ApartmentSketch) {
+		if(!apartmentSketch || !apartmentSketch.roomSketches  || !apartmentSketch.roomSketches.length) return;
+
+		// calculate old ratio
+		ApartmentSketchComponent.setMeterToPixelRatio(oldFirstRoomWidthInMeters);
+		const oldRatio = ApartmentSketchComponent.ratio;
+
+		// calculate new ratio
+		const firstRsWidth = apartmentSketch.roomSketches[0].width; // in pixels
+		apartmentSketch.firstRoomScreenUsage = firstRsWidth / ApartmentSketchComponent.screenSmallerSize;
+		ApartmentSketchComponent.setMeterToPixelRatio(apartmentSketch.roomSketches[0].projectWidth);
+
+		 // calculate values in meters, but with new ratio
+		const k = oldRatio / ApartmentSketchComponent.ratio;
+		ApartmentSketchComponent.doorWidth *= k;
+		ApartmentSketchComponent.doorHeight *= k;
 
 		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
-			rs.x = rs.x * ApartmentSketchComponent.ratio / oldRatio;
-			rs.y = rs.y * ApartmentSketchComponent.ratio / oldRatio;
+			rs.x *= k;
+			rs.y *= k;
+			rs.doorX *= k;
+			rs.doorY *= k;
+		}
 
-			rs.width *= ApartmentSketchComponent.ratio / oldRatio;
-			rs.height *= ApartmentSketchComponent.ratio / oldRatio;
-			rs.doorX *= ApartmentSketchComponent.ratio / oldRatio;
-			rs.doorY *= ApartmentSketchComponent.ratio / oldRatio;
+		// return ApartmentSketchComponent.getCurrentAsInMeters();
+	}
+
+	static zoomHelper(oldRatio: number): void {
+		const k = ApartmentSketchComponent.ratio / oldRatio;
+
+		ApartmentSketchComponent.doorWidth *= k;
+		ApartmentSketchComponent.doorHeight *= k;
+
+		for(let rs of ApartmentSketchComponent.apartmentSketch?.roomSketches) {
+			rs.x *= k;
+			rs.y *= k;
+
+			rs.width *= k;
+			rs.height *= k;
+			rs.doorX *= k;
+			rs.doorY *= k;
 		}
 
 		// update how much portion of canvas first room takes (in width)
@@ -285,7 +316,8 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// console.log(newRS);
 		ApartmentSketchComponent.apartmentSketch?.roomSketches.push(newRS);
-		ApartmentSketchComponent.apartmentSketch.squareFootage += newRS.projectWidth * newRS.projectHeight;
+		if(ApartmentSketchComponent.updateSquareFootage)
+			ApartmentSketchComponent.apartmentSketch.squareFootage += newRS.projectWidth * newRS.projectHeight;
 
 		// check if new room is colliding with some other room
 		const index = ApartmentSketchComponent.apartmentSketch?.roomSketches.length - 1;
@@ -443,7 +475,13 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	static startPosition(e, mobilePageX?, mobilePageY?): void {
-		// console.log("clicked");
+
+		if(ApartmentSketchComponent.isNewRoomAdded) {
+			ApartmentSketchComponent.addNewRoom(e);
+			ApartmentSketchComponent.isNewRoomAdded = false;
+			return;
+		}
+
 		ApartmentSketchComponent.isClicked = true;
 		ApartmentSketchComponent.sketchCanvasClientRect = ApartmentSketchComponent.sketchCanvas.getBoundingClientRect();
 
@@ -482,15 +520,7 @@ export class ApartmentSketchComponent implements OnInit {
 			return;
 		}
 
-		if(!ApartmentSketchComponent.editMode) return;
-
-		if(ApartmentSketchComponent.isNewRoomAdded) {
-			ApartmentSketchComponent.addNewRoom(e);
-			ApartmentSketchComponent.isNewRoomAdded = false;
-			return;
-		}
-
-		if(!ApartmentSketchComponent.selectedRoom) return;
+		if(!ApartmentSketchComponent.editMode || !ApartmentSketchComponent.selectedRoom) return;
 
 		// check if click was on door within selected room
 		const mouseWithinRoomX: number = mouseCurrX - ApartmentSketchComponent.selectedRoom.x;
@@ -881,6 +911,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 	// html page fields and methods
 	addNewRoomMode: boolean = false;
+	updateSquareFootage: boolean = true;
 	newRoomW: number;
 	newRoomH: number;
 	newRoomDoorPos: string = "bottom";
@@ -913,13 +944,13 @@ export class ApartmentSketchComponent implements OnInit {
 		this.newRoomH = Number.parseInt(`${this.newRoomH}`);
 		this.newRoomW = Number.parseInt(`${this.newRoomW}`);
 
-		if(!this.newRoomH || typeof this.newRoomH != "number") {
+		if(!this.newRoomH || typeof this.newRoomH != "number" || this.newRoomH < 1) {
 			this.newRoomHErr = true;
 			isErrCatched = true;
 			this.newRoomH = undefined;
 		}
 
-		if(!this.newRoomW || typeof this.newRoomW != "number") {
+		if(!this.newRoomW || typeof this.newRoomW != "number" || this.newRoomW < 1) {
 			this.newRoomWErr = true;
 			isErrCatched = true;
 			this.newRoomW = undefined;
@@ -936,6 +967,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 		ApartmentSketchComponent.newRoomWidth = this.newRoomW;
 		ApartmentSketchComponent.newRoomHeight = this.newRoomH;
+		ApartmentSketchComponent.updateSquareFootage = this.updateSquareFootage;
 		this.addNewRoomMode = false;
 		ApartmentSketchComponent.isNewRoomAdded = true;
 	}
