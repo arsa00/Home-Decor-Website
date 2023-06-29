@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApartmentSketch, ObjectType } from '../models/ApartmentSketch';
+import { ApartmentSketch, ObjectType, RoomSketch } from '../models/ApartmentSketch';
 import { ApartmentSketchComponent } from '../apartment-sketch/apartment-sketch.component';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
@@ -21,6 +21,7 @@ export class ClientObjectsComponent implements OnInit {
   selectedApartment: ApartmentSketch;
 
   editMode: boolean = false;
+  deleteRoomSketchMode: boolean = false;
 
   addNewObjectMode: boolean = false;
   continueAddingObject: boolean = false;
@@ -28,10 +29,14 @@ export class ClientObjectsComponent implements OnInit {
   newObjectAddress: string;
   newObjectSquareFootage: number;
 
-  
   newObjectTypeErr: boolean = false;
   newObjectAddressErr: boolean = false;
   newObjectSquareFootageErr: boolean = false;
+
+  // editing global vars
+  editedAS: ApartmentSketch;
+  conflictDialogActive: boolean = false;
+  updateSquareFootage: boolean = true;
 
   constructor(private scroller: ViewportScroller, private apartmentSketchService: ApartmentSketchService) { }
 
@@ -41,7 +46,7 @@ export class ClientObjectsComponent implements OnInit {
     this.apartmentSketchService.getAllOwnersApartmentSketches(this.loggedUser.jwt, this.loggedUser._id).subscribe({
       next: (allApartmentSketches: ApartmentSketch[]) => {
         this.allApartments = allApartmentSketches;
-        console.log(allApartmentSketches);
+        // console.log(allApartmentSketches);
       },
       error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
     });
@@ -69,44 +74,108 @@ export class ClientObjectsComponent implements OnInit {
   }
 
   submitEdit() {
-    this.editMode = false;
-    
-    const editedAS = ApartmentSketchComponent.getCurrentAsInMeters();
+    this.editedAS = ApartmentSketchComponent.getCurrentAsInMeters();
     // console.log(editedAS);
 
-    // delete all unset rooms (overlapping ones)
-    let firstRoomWidthInMeters: number;
+    // check if there's any unset room (overlapping one)
     let cnt: number = 0;
-    while(cnt < editedAS.roomSketches.length) {
-      if(!editedAS.roomSketches[cnt].isSet) {
-
-        if(cnt == 0) {
-          firstRoomWidthInMeters = editedAS.roomSketches[0].projectWidth;
-        }
-
-        editedAS.roomSketches.splice(cnt, 1);
-
+    let isOverlapping: boolean = false;
+    while(cnt < this.editedAS.roomSketches.length) {
+      if(!this.editedAS.roomSketches[cnt].isSet) {
+        isOverlapping = true;
+        break;
       } else {
         cnt++;
       }
     }
 
-    if(firstRoomWidthInMeters) 
-      ApartmentSketchComponent.recalculateFirstRoomScreenUsage(firstRoomWidthInMeters, editedAS);
+    if(isOverlapping) {
+      // ask user if overlapping rooms should be deleted or edit discarded
+      this.conflictDialogActive = true;
+      return;
+    }
 
+    this.editMode = false;    
+    this.updateEditedSketch();    
+  }
+
+  conflictResponse(resp: number): void {
+    switch(resp) {
+      case 1: { // delete overlapping rooms
+        let cnt: number = 0;
+        let firstRoomWidthInMeters: number;
+        while(cnt < this.editedAS.roomSketches.length) {
+          if(!this.editedAS.roomSketches[cnt].isSet) {
+            if(cnt == 0) {
+              firstRoomWidthInMeters = this.editedAS.roomSketches[0].projectWidth;
+            }
+    
+            if(this.updateSquareFootage) {
+              this.editedAS.squareFootage -= this.editedAS.roomSketches[cnt].projectHeight 
+                                              * this.editedAS.roomSketches[cnt].projectWidth;
+            }
+            
+            this.editedAS.roomSketches.splice(cnt, 1);
+          } else {
+            cnt++;
+          }
+        }
+
+        if(firstRoomWidthInMeters) {
+          ApartmentSketchComponent.recalculateFirstRoomScreenUsage(firstRoomWidthInMeters, this.editedAS);
+        }
+
+        this.editMode = false;
+        this.updateEditedSketch();
+      } break;
+
+      case 2: { // discard edit
+        this.discardEdit();
+      } break;
+
+      case 3: { // continue edit
+        this.selectedApartment = ApartmentSketch.clone(this.editedAS);
+        this.editMode = true;
+      } break;
+    }
+
+    this.conflictDialogActive = false;
+  }
+
+  updateEditedSketch() {
     // potentionally here it could be checked what exactly was changed & to update only that fields, not whole object
     this.apartmentSketchService
-        .updateApartmentSketch(this.loggedUser.jwt, editedAS._id, editedAS.roomSketches, 
-                              editedAS.firstRoomScreenUsage, editedAS.type, editedAS.address, editedAS.squareFootage)
-        .subscribe({
-          next: (apartmentSketchDb: ApartmentSketch) => {
-            this.allApartments[this.selectedIndex] = apartmentSketchDb;
-            this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
-          },
-          error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
-        });
+      .updateApartmentSketch(this.loggedUser.jwt, this.editedAS._id, this.editedAS.roomSketches, 
+        this.editedAS.firstRoomScreenUsage, this.editedAS.type, this.editedAS.address, this.editedAS.squareFootage)
+      .subscribe({
+        next: (apartmentSketchDb: ApartmentSketch) => {
+          this.allApartments[this.selectedIndex] = apartmentSketchDb;
+          this.selectedApartment = ApartmentSketch.clone(apartmentSketchDb);
+        },
+        error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+      });
+  }
 
-    
+  deleteSketch() {
+    this.deleteRoomSketchMode = false;
+
+    this.apartmentSketchService.deleteApartmentSketch(this.loggedUser.jwt, this.selectedApartment._id)
+    .subscribe({
+      next: () => {
+        this.allApartments.splice(this.selectedIndex, 1);
+        this.selectedIndex = null;
+        this.selectedApartment = null;
+      },
+      error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+    });
+  }
+
+  hideDeleteDialog() {
+    this.deleteRoomSketchMode = false;
+  }
+
+  showDeleteDialog() {
+    this.deleteRoomSketchMode = true;
   }
 
   discardEdit() {
@@ -118,6 +187,9 @@ export class ClientObjectsComponent implements OnInit {
     return this.editMode && this.selectedIndex == index;
   }
 
+  showActionButtons() {
+    return !this.editMode && this.selectedIndex != null && this.selectedIndex != undefined;
+  }
 
   showAddNewobject() {
     this.addNewObjectMode = true;
@@ -130,6 +202,14 @@ export class ClientObjectsComponent implements OnInit {
 
   hideContinueAddingAndScroll() {
     this.continueAddingObject = false;
+    this.scroller.scrollToAnchor("apartmentSketchCanvas");
+  }
+
+  scrollToCanvas(index: number) {
+    if(this.selectedIndex == index) {
+      this.setActive(index);
+    }
+
     this.scroller.scrollToAnchor("apartmentSketchCanvas");
   }
 

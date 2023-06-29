@@ -11,7 +11,8 @@
 </div>
 
 <!-- menu interfaces -->
-<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;" *ngIf="addNewObjectMode || continueAddingObject">
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
+        *ngIf="addNewObjectMode || continueAddingObject || conflictDialogActive || deleteRoomSketchMode">
     <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
     
     <!-- add new room dialog -->
@@ -71,8 +72,77 @@
                 </div>
             </div>
         </div>
-       
     </div>
+
+
+    <!-- delete overlapping rooms or edit discarded -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="conflictDialogActive">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <h1 class="text-center fw-medium mb-4">Konflikt</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-12 text-center">
+                        <p class="fs-5">
+                            Izmena nije moguća dok se ne reši konflikt nastao usled preklapanja prostorija.
+                            Šta želite da uradite?
+                        </p>
+                    </div>
+                    <div class="col-lg-10 form-check d-flex justify-content-center">
+                        <input class="form-check-input" type="checkbox" id="updateSquareFootage" [(ngModel)]="updateSquareFootage">
+                        <label class="form-check-label fs-6 ms-3" for="flexCheckDefault">
+                          Ažuriranje kvadrature objekta prilikom brisanja prostorija
+                        </label>
+                    </div>
+                    <div class="col-lg-4">
+                        <button class="btn btn-plt1-clr1 fw-medium w-100 my-2" (click)="conflictResponse(1)">
+                            Obriši problematične prostorije
+                        </button>
+                    </div>
+                    <div class="col-lg-4">
+                        <button class="btn btn-plt1-clr2 fw-medium w-100 my-2" (click)="conflictResponse(2)">
+                            Odbaci sve izmene
+                        </button>
+                    </div>
+                    <div class="col-lg-4">
+                        <button class="btn btn-plt1-clr7 fw-medium w-100 my-2" (click)="conflictResponse(3)">
+                            Nastavi sa izmenama
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- delete room sketch -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="deleteRoomSketchMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <h1 class="text-center fw-medium mb-4">Brisanje prostorije</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-12 text-center">
+                        <p class="fs-5">
+                            Da li ste sigurni da želite da izbrišete ovu prostoriju?
+                        </p>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-plt1-clr6 fw-medium w-100 my-2" (click)="deleteSketch()">
+                            Da
+                        </button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-plt1-clr1 fw-medium w-100 my-2" (click)="hideDeleteDialog()">
+                            Ne
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
 
 </div>
 
@@ -117,6 +187,10 @@
                         <span class="text-end" *ngIf="!showEditField(i)"> {{ allApartments[i].roomSketches.length }} </span>
                         <input type="text" class="form-control" value="" [(ngModel)]="selectedApartment.roomSketches.length" *ngIf="showEditField(i)" readonly>
                     </div>
+
+                    <button class="btn btn-plt1-clr10 fw-medium w-100 my-2" (click)="scrollToCanvas(i)">
+                        Pogledaj skicu
+                    </button>
                 </div>
             </div>
         </div>
@@ -128,21 +202,28 @@
 <app-apartment-sketch id="apartmentSketchCanvas" [updateProgressModeIn]="false" [showProgressIn]="false" [editModeIn]="editMode" [apartmentSkecthIn]="selectedApartment"></app-apartment-sketch>
 
 
-<div class="editButton bg-plt1-clr10 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="!editMode"
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="showActionButtons()"
+            (click)="showDeleteDialog()">
+    <mat-icon class="circleIcon">
+        delete
+    </mat-icon>
+</div>
+
+<div class="fixedButton secondButton bg-plt1-clr10 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="showActionButtons()"
             (click)="activateEditMode()">
     <mat-icon class="circleIcon">
         edit
     </mat-icon>
 </div>
 
-<div class="editButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
             (click)="discardEdit()">
     <mat-icon class="circleIcon">
         close
     </mat-icon>
 </div>
 
-<div class="editButton bg-plt1-clr6 d-flex justify-content-center align-items-center cursor-pointer" style="right: 110px;" *ngIf="editMode"
+<div class="fixedButton secondButton bg-plt1-clr6 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
             (click)="submitEdit()">
     <mat-icon class="circleIcon">
         check

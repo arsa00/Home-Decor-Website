@@ -10,13 +10,17 @@
     box-shadow:  5px 10px 15px rgba(0, 0, 0, 0.25);
 }
 
-.editButton {
+.fixedButton {
     width: 55px;
     height: 55px;
     border-radius: 100%;
     position: fixed;
     bottom: 25px;
     right: 25px;
+}
+
+.secondButton {
+    right: 110px;
 }
 
 .cursor-pointer {
