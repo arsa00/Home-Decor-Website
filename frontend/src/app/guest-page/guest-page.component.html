@@ -11,26 +11,36 @@
     </div>
 </div>
 
-<div class="container mt-5">
-    <div class="row justify-content-center align-items-center py-4">
-        <div class="col-10 fs-3 fw-medium text-center">Pretraga</div>
+<div class="container mt-5 bg-gray-plt-clr rounded shadow-sm" style="background-color: #ffe44a;">
+    <div class="row justify-content-center align-items-center py-4 gy-3">
+        <div class="col-12 fs-2 fw-medium text-center">Pretraga</div>
 
-        <div class="col-lg-7 d-flex justify-content-around mt-4">
+        <div class="col-lg-9 my-3 d-flex justify-content-center">
+            <div class="w-50 bg-gray-plt-clr8 rounded" style="height: 5px;"></div>
+        </div>
+
+        <div class="col-lg-4 d-flex justify-content-center">
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="rbSearchParam" [(ngModel)]="searchParam" value="name" id="rbName" role="button">
-                <label class="form-check-label fs-5" for="rbClient" role="button">
+                <label class="form-check-label fs-4" for="rbName" role="button">
                     Po nazivu
                 </label>
             </div>
-            <div class="form-check ps-5 ms-4">
+        </div>
+
+        <div class="col-lg-4 d-flex justify-content-center">
+            <div class="form-check pe-lg-3">
                 <input class="form-check-input" type="radio" name="rbSearchParam" [(ngModel)]="searchParam" value="address" id="rbAddress" role="button">
-                <label class="form-check-label fs-5" for="rbAgency" role="button">
+                <label class="form-check-label fs-4" for="rbAddress" role="button">
                     Po adresi
                 </label>
             </div>
-            <div class="form-check ps-5 ms-4">
+        </div>
+
+        <div class="col-lg-4 d-flex justify-content-center">
+            <div class="form-check">
                 <input class="form-check-input" type="radio" name="rbSearchParam" [(ngModel)]="searchParam" value="both" id="rbBoth" role="button">
-                <label class="form-check-label fs-5" for="rbAgency" role="button">
+                <label class="form-check-label fs-4" for="rbBoth" role="button">
                     Po oba parametra
                 </label>
             </div>
@@ -38,7 +48,7 @@
 
         <div class="col-lg-6 d-flex mt-3" role="search">
             <input class="form-control me-2" type="search" name="searchTerm" [(ngModel)]="searchTerm" placeholder="Tekst za pretragu" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit" (click)="search()">Pretraži</button>
+            <button class="btn btn-success" type="submit" (click)="search()">Pretraži</button>
         </div>
     </div>
 </div>
@@ -46,8 +56,8 @@
 
 
 <div class="container-fluid my-5 px-4">
-    <div class="row gy-4">
-        <div class="col-3">
+    <div class="row gy-4 justify-content-center">
+        <div class="col-lg-3">
             <div class="form-floating">
                 <select class="form-select" name="sortParam" [(ngModel)]="sortParam" id="sortParam">
                   <option value="name">Nazivu</option>
@@ -56,7 +66,7 @@
                 <label for="floatingSelect">Sortiraj po</label>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-lg-3">
             <div class="form-floating">
                 <select class="form-select" name="sortDir" [(ngModel)]="sortDir" id="sortDir">
                   <option value="1">Neopadajuće</option>
@@ -65,13 +75,13 @@
                 <label for="floatingSelect">Sortiraj</label>
               </div>
         </div>
-        <div class="col-2 py-2">
+        <div class="col-lg-2 py-2">
             <button class="btn btn-outline-plt1-clr2 w-100 fs-5 fw-medium" type="submit" (click)="sort()">Sortiraj</button>
         </div>
-        <div class="col-4"></div>
+        <div class="col-lg-4 d-none d-lg-block"></div>
 
         <!-- cards -->
-        <div class="col-lg-2 col-6" *ngFor="let agency of agencySearchResults">
+        <div class="col-lg-2 col-10" *ngFor="let agency of agencySearchResults">
             <app-agency-search-card [agency]="agency"></app-agency-search-card>
         </div>
 
