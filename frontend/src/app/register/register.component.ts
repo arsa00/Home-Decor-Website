@@ -265,7 +265,7 @@ export class RegisterComponent implements OnInit {
               }
 
               sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
-              this.router.navigate([""]);
+              this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
             },
 
             error: (res) => {
@@ -301,7 +301,7 @@ export class RegisterComponent implements OnInit {
               }
 
               sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
-              this.router.navigate([""]);
+              this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
             },
 
             error: (res) => {

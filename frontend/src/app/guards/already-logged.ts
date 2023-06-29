@@ -22,9 +22,9 @@ export class AlreadyLoggedGuard implements CanActivate {
             if(!loggedUser) return true;
 
             switch(loggedUser.type) {
-                case GlobalConstants.CLIENT_TYPE: return this.router.parseUrl("clientProfile");
-                case GlobalConstants.AGENCY_TYPE: return this.router.parseUrl("agencyProfile");
-                case GlobalConstants.ADMIN_TYPE: return this.router.parseUrl("adminDashboard");
+                case GlobalConstants.CLIENT_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_CLIENT_PROFILE);
+                case GlobalConstants.AGENCY_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_AGENCY_PROFILE);
+                case GlobalConstants.ADMIN_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_ADMIN_DASHBOARD);
                 default: return false;
             }
         } catch(err) {

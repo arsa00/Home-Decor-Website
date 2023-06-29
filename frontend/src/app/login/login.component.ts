@@ -92,9 +92,9 @@ export class LoginComponent implements OnInit {
           localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(userDB));
 
           switch(userDB.type) {
-            case GlobalConstants.CLIENT_TYPE: this.router.navigate(["clientProfile"]); break;
-            case GlobalConstants.AGENCY_TYPE: this.router.navigate(["agencyProfile"]); break;
-            case GlobalConstants.ADMIN_TYPE: this.router.navigate(["adminDashboard"]); break;
+            case GlobalConstants.CLIENT_TYPE: this.router.navigate([GlobalConstants.ROUTE_CLIENT_PROFILE]); break;
+            case GlobalConstants.AGENCY_TYPE: this.router.navigate([GlobalConstants.ROUTE_AGENCY_PROFILE]); break;
+            case GlobalConstants.ADMIN_TYPE: this.router.navigate([GlobalConstants.ROUTE_ADMIN_DASHBOARD]); break;
           }
         } else {
           this.addErrMessages("Došlo je do greške. Pokušajte ponovo.");

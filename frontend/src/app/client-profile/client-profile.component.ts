@@ -180,7 +180,7 @@ export class ClientProfileComponent implements OnInit {
 
   logout() {
     this.userService.logout();
-    this.router.navigate([""]);
+    this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
 }

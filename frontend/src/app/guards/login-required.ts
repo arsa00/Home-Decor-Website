@@ -21,11 +21,11 @@ export class LoginRequiredGuard implements CanActivate {
 
             if(loggedUser) return true;
 
-            return this.router.parseUrl("");
+            return this.router.parseUrl(GlobalConstants.ROUTE_LOGIN);
         } catch(err) {
             // corrupted data in locale storage
             localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER);
-            return this.router.parseUrl("");
+            return this.router.parseUrl(GlobalConstants.ROUTE_LOGIN);
         }
     }
 

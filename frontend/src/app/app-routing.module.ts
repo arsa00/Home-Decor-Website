@@ -10,16 +10,19 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { AlreadyLoggedGuard } from './guards/already-logged';
 import { LoginRequiredGuard } from './guards/login-required';
 import { AgencyDetailsComponent } from './agency-details/agency-details.component';
+import { ClientObjectsComponent } from './client-objects/client-objects.component';
+import { GlobalConstants } from './global-constants';
 
 const routes: Routes = [
-  { path: "", component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
-  { path: "adminLogin", component: AdminLoginComponent, canActivate: [AlreadyLoggedGuard] },
-  { path: "register", component: RegisterComponent, canActivate: [AlreadyLoggedGuard] },
-  { path: "requestPasswordReset", component: PasswordRecoveryRequestComponent, canActivate: [AlreadyLoggedGuard] },
-  { path: "resetPassword/:recoveryLink", component: ResetPasswordComponent },
-  { path: "guestPage", component: GuestPageComponent },
-  { path: "agencyDetails/:agencyID", component: AgencyDetailsComponent },
-  { path: "clientProfile", component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
+  { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: GlobalConstants.ROUTE_ADMIN_LOGIN, component: AdminLoginComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: GlobalConstants.ROUTE_REGISTER, component: RegisterComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: GlobalConstants.ROUTE_REQ_PASS_RESET, component: PasswordRecoveryRequestComponent, canActivate: [AlreadyLoggedGuard] },
+  { path: `${GlobalConstants.ROUTE_PASS_RESET}/:recoveryLink`, component: ResetPasswordComponent },
+  { path: GlobalConstants.ROUTE_GUEST_PAGE, component: GuestPageComponent },
+  { path: `${GlobalConstants.ROUTE_GUEST_AGENCIES}/:agencyID`, component: AgencyDetailsComponent },
+  { path: GlobalConstants.ROUTE_CLIENT_PROFILE, component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
+  { path: GlobalConstants.ROUTE_CLIENT_OBJECTS, component: ClientObjectsComponent, canActivate: [LoginRequiredGuard] },
 ];
 
 @NgModule({

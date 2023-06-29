@@ -37,7 +37,7 @@ export class PasswordRecoveryRequestComponent implements OnInit {
     this.userService.requestPasswordReset(this.mail).subscribe({
       next: () => {
         sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_PASS_RESET_REQ, "true");
-        this.router.navigate([""]);
+        this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
       },
 
       error: (res) => {

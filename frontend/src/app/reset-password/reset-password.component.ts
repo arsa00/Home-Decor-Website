@@ -82,7 +82,7 @@ export class ResetPasswordComponent implements OnInit {
     this.userService.resetPassword(this.recoveryLink, this.password).subscribe({
       next: () => {
         sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_PASS_RESET, "true");
-        this.router.navigate([""]);
+        this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
       },
 
       error: (res) => {
