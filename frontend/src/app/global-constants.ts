@@ -37,6 +37,7 @@ export class GlobalConstants {
     // client routes
     static readonly ROUTE_CLIENT_PROFILE = "clientProfile";
     static readonly ROUTE_CLIENT_OBJECTS = "clientObjects";
+    static readonly ROUTE_CLIENT_AGENCIES_SEARCH = "agenciesSearch";
 
     // agency routes
     static readonly ROUTE_AGENCY_PROFILE = "agencyProfile";

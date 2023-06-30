@@ -26,9 +26,16 @@ export class AgencyService {
   }
 
 
-  getAllComments(agencyID: string) {
+  getAllComments(jwt: string, agencyID: string) {
     const httpParams = new HttpParams().append("agencyID", agencyID);
 
     return this.http.get(`${GlobalConstants.URI}/agency/getAllComments`, { params: httpParams });
+  }
+
+
+  getAllAnonymousComments(agencyID: string) {
+    const httpParams = new HttpParams().append("agencyID", agencyID);
+
+    return this.http.get(`${GlobalConstants.URI}/agency/getAllAnonymousComments`, { params: httpParams });
   }
 }

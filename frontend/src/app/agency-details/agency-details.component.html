@@ -1,4 +1,5 @@
-<app-navbar [activeNav]="'guest'"></app-navbar>
+<app-navbar [activeNav]="'guest'" *ngIf="isAnonymous()"></app-navbar>
+<app-navbar [activeNav]="'client'" *ngIf="!isAnonymous()"></app-navbar>
 
 <div class="container rounded mt-5 mb-3" *ngIf="!isLoading && !isErr">
     <div class="row justify-content-center align-items-center">
@@ -42,6 +43,12 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-12 d-flex justify-content-center align-items-center mt-3" *ngIf="!isAnonymous()">
+            <button type="button" class="btn btn-plt1-clr9 fs-5 fw-medium p-2 px-5 text-white">
+                Zatražite saradnju
+            </button>
+        </div>
     </div>
 </div>
 
@@ -53,7 +60,7 @@
         </div>
 
         <div class="col-md-6 p-3" *ngFor="let comment of allComments">
-            <app-comment [isAnonymous]="true" [comment]="comment"></app-comment>
+            <app-comment [isAnonymous]="isAnonymous()" [comment]="comment"></app-comment>
         </div>
 
     </div>

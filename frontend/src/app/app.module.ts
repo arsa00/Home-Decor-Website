@@ -25,6 +25,7 @@ import { AgencyDetailsComponent } from './agency-details/agency-details.componen
 import { CommentComponent } from './comment/comment.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ClientObjectsComponent } from './client-objects/client-objects.component';
+import { HireAgencyRequestComponent } from './hire-agency-request/hire-agency-request.component';
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import { ClientObjectsComponent } from './client-objects/client-objects.componen
     AgencyDetailsComponent,
     CommentComponent,
     ChangePasswordComponent,
-    ClientObjectsComponent
+    ClientObjectsComponent,
+    HireAgencyRequestComponent
   ],
   imports: [
     BrowserModule,

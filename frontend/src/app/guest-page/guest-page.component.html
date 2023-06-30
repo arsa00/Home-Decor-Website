@@ -1,4 +1,5 @@
-<app-navbar [activeNav]="'guest'"></app-navbar>
+<app-navbar [activeNav]="'guest'" *ngIf="isAnonymous()"></app-navbar>
+<app-navbar [activeNav]="'client'" *ngIf="!isAnonymous()"></app-navbar>
 
 <div class="toast-container position-fixed end-0 bottom-0 p-3">
     <div id="searchErr" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">

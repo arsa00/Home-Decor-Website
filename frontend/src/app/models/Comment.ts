@@ -3,8 +3,8 @@ export class Comment {
     agencyId: string;
     comment: string;
     grade: number;
-    authorUsername: string;
-    authorFirstname: string;
-    authorLastname: string;
-    authorImgType: string;
+    authorUsername?: string;
+    authorFirstname?: string;
+    authorLastname?: string;
+    authorImgType?: string;
 }

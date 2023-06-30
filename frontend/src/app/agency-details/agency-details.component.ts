@@ -12,6 +12,8 @@ import { Comment } from '../models/Comment';
 })
 export class AgencyDetailsComponent implements OnInit {
 
+  loggedUser: User;
+
   agency: User;
   isLoading: boolean = true;
   isErr: boolean = false;
@@ -23,6 +25,11 @@ export class AgencyDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
+    try {
+    this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    } catch(err) {
+      this.loggedUser = null;
+    }
     const agencyID = this.route.snapshot.paramMap.get("agencyID");
     this.agencyService.getAgency(agencyID).subscribe({
       next: (agency: User) => {
@@ -31,18 +38,34 @@ export class AgencyDetailsComponent implements OnInit {
           this.imageSrc = `${GlobalConstants.URI}/images/${this.agency.username}/profileImg${this.agency.imageType}`; 
         }
 
-        this.agencyService.getAllComments(agencyID).subscribe({
-          next: (comments: Comment[]) => {
-            this.allComments = comments;
-            this.isErr = false;
-            this.isLoading = false;
-          },
-          
-          error: () => { this.isErr = true; this.isLoading = false; }
-        });
+        if(this.isAnonymous()) {
+          this.agencyService.getAllAnonymousComments(agencyID).subscribe({
+            next: (comments: Comment[]) => {
+              this.allComments = comments;
+              this.isErr = false;
+              this.isLoading = false;
+            },
+            
+            error: () => { this.isErr = true; this.isLoading = false; }
+          });
+        } else {
+          this.agencyService.getAllComments(this.loggedUser.jwt, agencyID).subscribe({
+            next: (comments: Comment[]) => {
+              this.allComments = comments;
+              this.isErr = false;
+              this.isLoading = false;
+            },
+            
+            error: () => { this.isErr = true; this.isLoading = false; }
+          });
+        }
       },
       error: () => { this.isErr = true; this.isLoading = false; }
     });
+  }
+
+  isAnonymous(): boolean {
+    return this.loggedUser == null;
   }
 
 }

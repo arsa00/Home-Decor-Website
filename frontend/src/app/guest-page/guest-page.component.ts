@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { User } from '../models/User';
 import { AgencyService } from '../services/agency.service';
 import * as bootstrap from 'bootstrap';
+import { GlobalConstants } from '../global-constants';
 
 @Component({
   selector: 'app-guest-page',
@@ -36,6 +37,8 @@ export class GuestPageComponent implements OnInit {
     imageType: ".png"
   }
 
+  loggedUser: User;
+
   agencySearchResults: User[] = [GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency2, GuestPageComponent.agency2 ];
   searchParam: string = "name";
   searchTerm: string = "";
@@ -46,6 +49,11 @@ export class GuestPageComponent implements OnInit {
   constructor(private agencyService: AgencyService) { }
 
   ngOnInit(): void {
+    try {
+      this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    } catch(err) {
+      this.loggedUser = null;
+    }
   }
 
   search(): void {
@@ -82,6 +90,10 @@ export class GuestPageComponent implements OnInit {
         else return this.sortDir;
       }
     })
+  }
+
+  isAnonymous(): boolean {
+    return this.loggedUser == null;
   }
 
 }

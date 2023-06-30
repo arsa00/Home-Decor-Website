@@ -26,6 +26,7 @@ const routes: Routes = [
   { path: `${GlobalConstants.ROUTE_GUEST_AGENCIES}/:agencyID`, component: AgencyDetailsComponent },
   { path: GlobalConstants.ROUTE_CLIENT_PROFILE, component: ClientProfileComponent, canActivate: [LoggedAsClientGuard] },
   { path: GlobalConstants.ROUTE_CLIENT_OBJECTS, component: ClientObjectsComponent, canActivate: [LoggedAsClientGuard] },
+  { path: GlobalConstants.ROUTE_CLIENT_AGENCIES_SEARCH, component: GuestPageComponent, canActivate: [LoggedAsClientGuard] },
   { path: GlobalConstants.ROUTE_AGENCY_PROFILE, component: AgencyProfileComponent, canActivate: [LoggedAsAgencyGuard] },
 ];
 
