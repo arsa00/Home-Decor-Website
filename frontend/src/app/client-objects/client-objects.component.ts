@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApartmentSketch, ObjectType, RoomSketch } from '../models/ApartmentSketch';
+import { ApartmentSketch, DoorPosition, ObjectType, ProgressState, RoomSketch } from '../models/ApartmentSketch';
 import { ApartmentSketchComponent } from '../apartment-sketch/apartment-sketch.component';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
@@ -24,11 +24,17 @@ export class ClientObjectsComponent implements OnInit {
   deleteRoomSketchMode: boolean = false;
 
   addNewObjectMode: boolean = false;
+  addObjectWithJSON: boolean = false;
+  addObjectManually: boolean = false;
+  addNewObjectLoading: boolean = false;
   continueAddingObject: boolean = false;
+  newObjectFile: File;
   newObjectType: ObjectType;
   newObjectAddress: string;
   newObjectSquareFootage: number;
 
+  fileErrMessages: string[] = [];
+  newObjectFileErr: boolean = false;
   newObjectTypeErr: boolean = false;
   newObjectAddressErr: boolean = false;
   newObjectSquareFootageErr: boolean = false;
@@ -195,8 +201,23 @@ export class ClientObjectsComponent implements OnInit {
     this.addNewObjectMode = true;
   }
 
+  showAddObjectWithJSON() {
+    this.addObjectWithJSON = true;
+    setTimeout(() => {
+      document.getElementById("filePicker").addEventListener("change", this.changeObjectFile);
+    }, 100);
+    
+  }
+
+  showAddObjectManually() {
+    this.addObjectManually = true;
+  }
+
   hideAddNewobject() {
     this.addNewObjectMode = false;
+    this.addObjectWithJSON = false;
+    this.addObjectManually = false;
+    this.addNewObjectLoading = false;
     this.continueAddingObject = false;
   }
 
@@ -213,36 +234,154 @@ export class ClientObjectsComponent implements OnInit {
     this.scroller.scrollToAnchor("apartmentSketchCanvas");
   }
 
-  addNewObject() {
-    this.newObjectTypeErr = false;
-    this.newObjectAddressErr = false;
-    this.newObjectSquareFootageErr = false;
+  changeObjectFile = (e) => {
+    const selectedFile: File = e.target.files[0];
 
-    let isErrCatched: boolean = false;
-
-    if(!this.newObjectType) {
-      this.newObjectTypeErr = true;
-      isErrCatched = true;
+    this.fileErrMessages = [];
+    if(selectedFile.type != "application/json" && selectedFile.type != "text/plain") {
+      this.newObjectFileErr = true;
+      this.fileErrMessages.push("Odabran fajl nije ispravnog tipa. Fajl mora biti ili .json ili .txt tipa.");
+      return;
     }
 
-    if(!this.newObjectAddress) {
-      this.newObjectAddressErr = true;
-      isErrCatched = true;
+    this.newObjectFileErr = false;
+    this.newObjectFile = selectedFile;
+  }
+
+  readAndParseFile() {
+    if(this.newObjectFileErr) return;
+
+    const reader = new FileReader();
+    reader.readAsText(this.newObjectFile);
+    reader.addEventListener("load", async () => {
+      try {
+        const parsedData: ApartmentSketch = JSON.parse(reader.result.toString());
+
+        // check if parsed data structure is valid
+        if(!parsedData.address 
+          || (parsedData.firstRoomScreenUsage ?? -1) < 0
+          || !parsedData.roomSketches 
+          || (parsedData.squareFootage ?? -1) < 0
+          || parsedData.type == null
+          || (parsedData.type != ObjectType.APARTMENT
+              && parsedData.type != ObjectType.HOUSE)
+          ) {
+            throw new TypeError();
+        }
+
+        for(let rs of parsedData.roomSketches) {
+          if(rs.doorPosition == null
+            || (rs.doorPosition != DoorPosition.BOTTOM 
+                && rs.doorPosition != DoorPosition.LEFT 
+                && rs.doorPosition != DoorPosition.RIGHT 
+                && rs.doorPosition != DoorPosition.TOP)
+            || rs.doorX == null
+            || rs.doorY == null
+            || (rs.isCollided ?? true)
+            || !(rs.isSet ?? false)
+            || rs.progress == null
+            || (rs.progress != ProgressState.FINISHED
+                && rs.progress != ProgressState.IN_PROGRESS
+                && rs.progress != ProgressState.NOT_STARTED)
+            || (rs.projectHeight ?? -1) < 0
+            || (rs.projectWidth ?? -1) < 0
+            || rs.savedX == null
+            || rs.savedY == null
+            ) {
+              throw new TypeError();
+            }
+
+            // setting not required fields
+            if(rs.height == null) rs.height = 0;
+            if(rs.width == null) rs.width = 0;
+            if(rs.x == null) rs.x = 0;
+            if(rs.y == null) rs.y = 0;
+        }
+
+        // parsed data structure valid
+        parsedData.ownerId = this.loggedUser._id;
+
+        this.hideAddNewobject();
+        this.addNewObjectLoading = true;
+  
+        try {
+          await this.insertApartmentSketch(parsedData);
+          this.addNewObjectLoading = false;
+          this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.selectedIndex]);
+        } catch(err) {
+          this.hideAddNewobject();
+          new bootstrap.Toast(document.getElementById("err")).show();
+        }
+      } catch(err) {
+        this.newObjectFileErr = true;
+        this.fileErrMessages.push("Fajl nije ispravnog formata, odaberite drugi ili izmenite sadržaj odabranog.");
+      }
+    });
+  }
+
+  async addNewObject() {
+    if(this.addObjectManually) {
+      this.newObjectTypeErr = false;
+      this.newObjectAddressErr = false;
+      this.newObjectSquareFootageErr = false;
+
+      let isErrCatched: boolean = false;
+
+      if(!this.newObjectType) {
+        this.newObjectTypeErr = true;
+        isErrCatched = true;
+      }
+
+      if(!this.newObjectAddress) {
+        this.newObjectAddressErr = true;
+        isErrCatched = true;
+      }
+
+      this.newObjectSquareFootage = Number.parseInt(`${this.newObjectSquareFootage}`);
+      if((this.newObjectSquareFootage ?? -1) < 0 || typeof this.newObjectSquareFootage != "number" || Number.isNaN(this.newObjectSquareFootage)) {
+        this.newObjectSquareFootageErr = true;
+        isErrCatched = true;
+        this.newObjectSquareFootage = undefined;
+      }
+
+
+      if(isErrCatched) return;
+
+      // insert to db; fetch from db; append allApartments list;
+      const newAS = new ApartmentSketch(0.5, this.newObjectType, this.newObjectAddress, this.newObjectSquareFootage, this.loggedUser._id);
+
+      this.hideAddNewobject();
+      this.addNewObjectLoading = true;
+
+      try {
+        await this.insertApartmentSketch(newAS);
+        this.newObjectAddress = undefined;
+        this.newObjectSquareFootage = undefined;
+        this.newObjectType = undefined;
+        this.addNewObjectLoading = false;
+        this.activateEditMode();
+        this.continueAddingObject = true;
+      } catch(err) {
+        this.hideAddNewobject();
+        new bootstrap.Toast(document.getElementById("err")).show();
+      }
+    } else if(this.addObjectWithJSON) {
+      this.readAndParseFile();
     }
+    // console.log(this.selectedApartment)
+  }
 
-    this.newObjectSquareFootage = Number.parseInt(`${this.newObjectSquareFootage}`);
+  async insertApartmentSketch(newAS: ApartmentSketch) {
 
-    if(!this.newObjectSquareFootage || typeof this.newObjectSquareFootage != "number" || this.newObjectSquareFootage < 0) {
-			this.newObjectSquareFootageErr = true;
-			isErrCatched = true;
-      this.newObjectSquareFootage = undefined;
-		}
-
-
-    if(isErrCatched) return;
-
-    // insert to db; fetch from db; append allApartments list;
-    const newAS = new ApartmentSketch(0.5, this.newObjectType, this.newObjectAddress, this.newObjectSquareFootage, this.loggedUser._id);
+    try {
+      await this.apartmentSketchService.addApartmentSketch(this.loggedUser.jwt, newAS).forEach((apartmentSketchDb: ApartmentSketch) => {
+        this.allApartments.push(apartmentSketchDb);
+        this.selectedIndex = this.allApartments.length - 1;
+      });
+    } catch(err) {
+      throw new Error();
+    }
+/*
     this.apartmentSketchService.addApartmentSketch(this.loggedUser.jwt, newAS).subscribe({
       next: (apartmentSketchDb: ApartmentSketch) => {
         this.allApartments.push(apartmentSketchDb);
@@ -256,7 +395,6 @@ export class ClientObjectsComponent implements OnInit {
         this.addNewObjectMode = false;
       }
     });
-
-    // console.log(this.selectedApartment)
+*/
   }
 }

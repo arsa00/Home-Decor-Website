@@ -14,52 +14,145 @@
 
 <!-- menu interfaces -->
 <div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
-        *ngIf="addNewObjectMode || continueAddingObject || conflictDialogActive || deleteRoomSketchMode">
+        *ngIf="addNewObjectMode || addNewObjectLoading || continueAddingObject || conflictDialogActive || deleteRoomSketchMode">
     <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
     
     <!-- add new room dialog -->
-    <div class="container position-relative" style="z-index: 3;" *ngIf="addNewObjectMode">
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addNewObjectMode && !addObjectWithJSON && !addObjectManually">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
                 <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewobject()">
                     cancel
                 </mat-icon>
 
-                <h1 class="text-center fw-medium mb-4">Dodajte nov objekat</h1>
+                <h1 class="text-center fw-medium mb-4 fs-2">Dodajte nov objekat</h1>
 
                 <div class="row justify-content-center align-items-center p-2 gy-3">
+
+                    <div class="col-4 bg-plt1-clr5 addRoomBtn d-flex justify-content-center align-items-center"
+                            (click)="showAddObjectWithJSON()">
+                        <span class="fs-5 fw-medium text-center d-none d-lg-block">Dodajte objekat pomoću JSON fajl</span>
+                        <span class="fs-6 fw-medium text-center d-block d-lg-none">Dodajte objekat pomoću JSON fajl</span>
+                    </div>
+
+                    <div class="col-1"></div>
+
+                    <div class="col-4 bg-plt1-clr6 addRoomBtn d-flex justify-content-center align-items-center"
+                            (click)="showAddObjectManually()">
+                        <span class="fs-5 fw-medium text-center d-none d-lg-block">Dodajte objekat manuelno</span>
+                        <span class="fs-6 fw-medium text-center d-block d-lg-none">Dodajte objekat manuelno</span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- add new room with JSON dialog -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addObjectWithJSON">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewobject()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Dodajte nov objekat</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+
+                    <div class="col-lg-12">
+                        <label for="filePicker" class="form-label">Odaberite fajl</label>
+                        <input class="form-control" [ngClass]="{'is-invalid': newObjectFileErr}" type="file" accept="application/JSON,text/plain" id="filePicker">
+                    </div>
+
+                    <div class="col-lg-12 errorText text-start mt-2">
+                        <ul>
+                            <li *ngFor="let msg of fileErrMessages">{{ msg }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewObject()">
+                            Dodajte objekat
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- add new room manually dialog -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addObjectManually">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewobject()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Dodajte nov objekat</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+
                     <div class="col-lg-12">
                         <label class="labels">Tip objekta</label>
-
+                
                         <select class="form-select"  [(ngModel)]="newObjectType" [ngClass]="{'is-invalid': newObjectTypeErr}">
                             <option value="Stan">Stan</option>
                             <option value="Kuca">Kuca</option>
                         </select>
                     </div>
+
                     <div class="col-lg-12">
                         <label class="labels">Adresa</label>
                         <input type="text" class="form-control" placeholder="Adresa objekta" name="objAddr" id="objAddr"  
                                     [(ngModel)]="newObjectAddress" [ngClass]="{'is-invalid': newObjectAddressErr}">
                     </div>
+
                     <div class="col-lg-12">
                         <label for="doorPos">Kvadratura</label>
                         <input type="text" class="form-control" placeholder="Kvadratura objekta" name="objSqaureFootage" id="objSqaureFootage"  
                                     [(ngModel)]="newObjectSquareFootage" [ngClass]="{'is-invalid': newObjectSquareFootageErr}">   
                     </div>
+
                     <div class="col-lg-5">
-                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewObject()">Dodajte objekat</button>
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewObject()">
+                            Dodajte objekat
+                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
-       
     </div>
 
+    <!-- add object - LOADING -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addNewObjectLoading">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewobject()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Dodajte nov objekat</h1>
+
+                <div class="row justify-content-center align-items-center p-2">
+
+                    <div class="col-12 d-flex justify-content-center align-items-center my-5">
+                        <mat-spinner></mat-spinner>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- continue adding object -->
     <div class="container position-relative" style="z-index: 3;" *ngIf="continueAddingObject">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
 
-                <h1 class="text-center fw-medium mb-4">Objekat uspesno dodat</h1>
+                <h1 class="text-center fw-medium mb-4">Objekat uspešno dodat</h1>
 
                 <div class="row justify-content-center align-items-center p-2 gy-3">
                     <div class="col-lg-12 text-center">

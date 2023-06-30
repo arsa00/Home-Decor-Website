@@ -944,13 +944,13 @@ export class ApartmentSketchComponent implements OnInit {
 		this.newRoomH = Number.parseInt(`${this.newRoomH}`);
 		this.newRoomW = Number.parseInt(`${this.newRoomW}`);
 
-		if(!this.newRoomH || typeof this.newRoomH != "number" || this.newRoomH < 1) {
+		if(!this.newRoomH || typeof this.newRoomH != "number" || this.newRoomH < 1 || Number.isNaN(this.newRoomH)) {
 			this.newRoomHErr = true;
 			isErrCatched = true;
 			this.newRoomH = undefined;
 		}
 
-		if(!this.newRoomW || typeof this.newRoomW != "number" || this.newRoomW < 1) {
+		if(!this.newRoomW || typeof this.newRoomW != "number" || this.newRoomW < 1 || Number.isNaN(this.newRoomW)) {
 			this.newRoomWErr = true;
 			isErrCatched = true;
 			this.newRoomW = undefined;
