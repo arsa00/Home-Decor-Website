@@ -66,20 +66,12 @@ class UserController {
         this.register = (req, res) => __awaiter(this, void 0, void 0, function* () {
             // console.log(req.body);
             const username = req.body.username;
-            let usernameExist;
-            try {
-                usernameExist = yield user_1.UserModel.findOne({ "username": username }).orFail();
-            }
-            catch (err) {
+            const usernameExist = yield user_1.UserModel.findOne({ "username": username });
+            if (usernameExist)
                 return res.status(409).json({ errMsg: "Uneto korisničko ime već postoji" });
-            }
-            let mailAddrExist;
-            try {
-                mailAddrExist = yield user_1.UserModel.findOne({ "mail": req.body.mail }).orFail();
-            }
-            catch (err) {
+            const mailAddrExist = yield user_1.UserModel.findOne({ "mail": req.body.mail });
+            if (mailAddrExist)
                 return res.status(409).json({ errMsg: "Uneta mejl adresa se već koristi" });
-            }
             const type = req.body.type;
             // hash password
             const salt = yield bcrypt.genSalt(10);
@@ -135,7 +127,7 @@ class UserController {
         this.profileImgUpload = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             const imageType = path_1.default.extname(req["file"].originalname);
             const userFolder = path_1.default.join(__dirname, `../../assets/images/${req.body.username}/profileImg${imageType}`);
-            // create user's folder in assets/images/, if it doesn't already exist
+            // if user's folder doesn't already exist in assets/images/ ==> error
             if (fs.existsSync(userFolder)) {
                 console.log("Image successfuly uploaded");
                 try {
@@ -150,13 +142,12 @@ class UserController {
         });
         this.generateRecoveryLink = (req, res) => __awaiter(this, void 0, void 0, function* () {
             let userExist;
-            if (!userExist)
-                try {
-                    userExist = yield user_1.UserModel.findOne({ "mail": req.body.mail }).orFail();
-                }
-                catch (err) {
-                    return res.status(400).json({ "errMsg": "Ne postoji korisnik sa unetom email adresom" });
-                }
+            try {
+                userExist = yield user_1.UserModel.findOne({ "mail": req.body.mail }).orFail();
+            }
+            catch (err) {
+                return res.status(400).json({ "errMsg": "Ne postoji korisnik sa unetom email adresom" });
+            }
             // user exist, proceed to creating recovery link
             // console.log(new Date().getTime()); // TODO: delete
             const salt = yield bcrypt.genSalt(10);

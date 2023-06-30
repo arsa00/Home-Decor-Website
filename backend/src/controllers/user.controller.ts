@@ -76,27 +76,17 @@ export class UserController {
         // console.log(req.body);
 
         const username = req.body.username;
-        let usernameExist;
+        const usernameExist = await UserModel.findOne({"username": username});
+        if(usernameExist) return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
 
-        try {
-            usernameExist = await UserModel.findOne({"username": username}).orFail();
-        } catch(err) {
-            return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
-        }
-
-        let mailAddrExist;
-
-        try {
-            mailAddrExist = await UserModel.findOne({"mail": req.body.mail}).orFail();
-        } catch(err) {
-            return res.status(409).json({errMsg: "Uneta mejl adresa se već koristi"});
-        }
+        const mailAddrExist = await UserModel.findOne({"mail": req.body.mail});
+        if(mailAddrExist) return res.status(409).json({errMsg: "Uneta mejl adresa se već koristi"});
 
         const type = req.body.type;
 
         // hash password
-       const salt = await bcrypt.genSalt(10);
-       const password = await bcrypt.hash(req.body.password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const password = await bcrypt.hash(req.body.password, salt);
 
         if(type === UserController.AGENCY_TYPE) {
             // insert agency
@@ -156,7 +146,7 @@ export class UserController {
         const imageType = path.extname(req["file"].originalname);
         const userFolder = path.join(__dirname, `../../assets/images/${req.body.username}/profileImg${imageType}`);
 
-        // create user's folder in assets/images/, if it doesn't already exist
+        // if user's folder doesn't already exist in assets/images/ ==> error
         if (fs.existsSync(userFolder)){
             console.log("Image successfuly uploaded");
             try{
@@ -176,7 +166,6 @@ export class UserController {
     generateRecoveryLink = async (req: Request, res: Response) => {
 
         let userExist;
-        if(!userExist) 
 
         try{
             userExist = await UserModel.findOne({"mail": req.body.mail}).orFail();
