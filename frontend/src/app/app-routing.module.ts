@@ -12,6 +12,9 @@ import { LoginRequiredGuard } from './guards/login-required';
 import { AgencyDetailsComponent } from './agency-details/agency-details.component';
 import { ClientObjectsComponent } from './client-objects/client-objects.component';
 import { GlobalConstants } from './global-constants';
+import { LoggedAsClientGuard } from './guards/logged-as-client';
+import { AgencyProfileComponent } from './agency-profile/agency-profile.component';
+import { LoggedAsAgencyGuard } from './guards/logged-as-agency';
 
 const routes: Routes = [
   { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -21,8 +24,9 @@ const routes: Routes = [
   { path: `${GlobalConstants.ROUTE_PASS_RESET}/:recoveryLink`, component: ResetPasswordComponent },
   { path: GlobalConstants.ROUTE_GUEST_PAGE, component: GuestPageComponent },
   { path: `${GlobalConstants.ROUTE_GUEST_AGENCIES}/:agencyID`, component: AgencyDetailsComponent },
-  { path: GlobalConstants.ROUTE_CLIENT_PROFILE, component: ClientProfileComponent, canActivate: [LoginRequiredGuard] },
-  { path: GlobalConstants.ROUTE_CLIENT_OBJECTS, component: ClientObjectsComponent, canActivate: [LoginRequiredGuard] },
+  { path: GlobalConstants.ROUTE_CLIENT_PROFILE, component: ClientProfileComponent, canActivate: [LoggedAsClientGuard] },
+  { path: GlobalConstants.ROUTE_CLIENT_OBJECTS, component: ClientObjectsComponent, canActivate: [LoggedAsClientGuard] },
+  { path: GlobalConstants.ROUTE_AGENCY_PROFILE, component: AgencyProfileComponent, canActivate: [LoggedAsAgencyGuard] },
 ];
 
 @NgModule({
