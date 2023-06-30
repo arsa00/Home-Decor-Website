@@ -77,4 +77,22 @@ export class AgencyController {
 
     }
 
+
+    getAllAnonymousComments = (req, res) => {
+
+        const agencyID = mongoSanitaze(req.query.agencyID);
+
+        CommentModel.find({ "agencyId": new ObjectId(agencyID) }, 
+        "-authorUsername -authorFirstname -authorLastname -authorImgType", 
+        (err, comments) => {
+            if(err) {
+                console.log(err);
+                return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+            }
+
+            return res.status(200).json(comments);
+        });
+
+    }
+
 }

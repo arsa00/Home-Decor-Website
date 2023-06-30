@@ -52,6 +52,16 @@ class AgencyController {
                 return res.status(200).json(comments);
             });
         };
+        this.getAllAnonymousComments = (req, res) => {
+            const agencyID = mongoSanitaze(req.query.agencyID);
+            comment_1.CommentModel.find({ "agencyId": new ObjectId(agencyID) }, "-authorUsername -authorFirstname -authorLastname -authorImgType", (err, comments) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+                }
+                return res.status(200).json(comments);
+            });
+        };
     }
 }
 exports.AgencyController = AgencyController;

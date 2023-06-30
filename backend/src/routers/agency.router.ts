@@ -18,4 +18,9 @@ agencyRouter.route("/getAllComments").get(
     (req, res) => new AgencyController().getAllComments(req, res)
 );
 
+
+agencyRouter.route("/getAllAnonymousComments").get(
+    (req, res) => new AgencyController().getAllAnonymousComments(req, res)
+);
+
 export default agencyRouter;
