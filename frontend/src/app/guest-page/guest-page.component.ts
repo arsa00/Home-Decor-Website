@@ -11,40 +11,16 @@ import { GlobalConstants } from '../global-constants';
 })
 export class GuestPageComponent implements OnInit {
 
-  static agency1: User = {
-    _id: "asdas",
-    username: "Arsa",
-    password: "123",
-    type: "agency",
-    mail: "mail@m.com",
-    jwt: "jwt token",
-    name: "Naziv agencije 1",
-    description: "Opis agencije koji moze biti poduzi i u \n par redova",
-    address: "Adresa agencije 22",
-    // imageType: ".png"
-  }
-
-  static agency2: User = {
-    _id: "asdas2",
-    username: "Arsa",
-    password: "123",
-    type: "agency",
-    mail: "mail@m.com",
-    jwt: "jwt token",
-    name: "Naziv agencije 2",
-    description: "Opis agencije koji moze biti poduzi i u \n par redova",
-    address: "Adresa agencije 21",
-    imageType: ".png"
-  }
-
   loggedUser: User;
 
-  agencySearchResults: User[] = [GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency1, GuestPageComponent.agency2, GuestPageComponent.agency2 ];
+  agencySearchResults: User[] = [];
   searchParam: string = "name";
   searchTerm: string = "";
 
   sortParam: string = "name";
   sortDir: number = 1;
+
+  isSearching: boolean = false;
 
   constructor(private agencyService: AgencyService) { }
 
@@ -57,7 +33,7 @@ export class GuestPageComponent implements OnInit {
   }
 
   search(): void {
-
+    this.isSearching = true;
     let searchName: boolean = false;
     let searchAddress: boolean = false;
 
@@ -70,10 +46,12 @@ export class GuestPageComponent implements OnInit {
     this.agencyService.getAgencies(this.searchTerm, searchName, searchAddress).subscribe({
       next: (agencies: User[]) => {
         this.agencySearchResults = agencies;
+        this.isSearching = false;
       },
 
       error: () => {
         new bootstrap.Toast(document.getElementById("searchErr")).show();
+        this.isSearching = false;
       }
     });
   }

@@ -86,5 +86,9 @@
             <app-agency-search-card [agency]="agency"></app-agency-search-card>
         </div>
 
+        <div class="col-12 d-flex justify-content-center align-items-center mt-5" *ngIf="isSearching">
+            <mat-spinner></mat-spinner>
+        </div>
+
     </div>
 </div>

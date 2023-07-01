@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ApartmentSketch } from '../models/ApartmentSketch';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-hire-agency-request',
@@ -11,6 +12,7 @@ import { ApartmentSketchService } from '../services/apartment-sketch.service';
 })
 export class HireAgencyRequestComponent implements OnInit {
 
+  agencyID: string;
   loggedUser: User;
 
   allApartments: ApartmentSketch[] = [];
@@ -19,10 +21,18 @@ export class HireAgencyRequestComponent implements OnInit {
   previewIndex: number;
   selectedApartment: ApartmentSketch;
 
-  constructor(private apartmentSketchService: ApartmentSketchService) { }
+  startJobDate: Date;
+  endJobDate: Date;
+
+  errMessages: string[] = [];
+
+  constructor(private apartmentSketchService: ApartmentSketchService,
+              private router: Router,
+              private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    this.agencyID = this.route.snapshot.paramMap.get("agencyID");
 
     this.apartmentSketchService.getAllOwnersApartmentSketches(this.loggedUser.jwt, this.loggedUser._id).subscribe({
       next: (allApartmentSketches: ApartmentSketch[]) => {
@@ -52,6 +62,42 @@ export class HireAgencyRequestComponent implements OnInit {
   previewNextSketch() {
     this.previewIndex = (this.previewIndex == this.allApartments.length - 1 ? -1 : this.previewIndex) + 1;
     this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.previewIndex]);
+  }
+
+  submitRequest() {
+    this.errMessages = [];
+    const startJobDateEl: any = document.getElementById("startJobDate");
+    const endJobDateEl: any = document.getElementById("endJobDate");
+
+    this.startJobDate = new Date(startJobDateEl.value);
+    this.endJobDate = new Date(endJobDateEl.value);
+
+    let isErrorCatched: boolean;
+
+    if(Number.isNaN(this.startJobDate.getTime())) {
+      isErrorCatched = true;
+      this.errMessages.push("Datum početka radova nije validan.");
+    }
+
+    if(Number.isNaN(this.endJobDate.getTime())) {
+      isErrorCatched = true;
+      this.errMessages.push("Datum kraja radova nije validan.");
+    }
+
+    if(isErrorCatched) return;
+
+    if(this.endJobDate <= this.startJobDate) {
+      this.errMessages.push("Datum kraja radova mora biti nakon datuma početka radova.");
+      return;
+    }
+
+    // create new job request
+
+    // console.log(this.startJobDate.toISOString());
+  }
+
+  returnToAgencyDetailsPage() {
+    this.router.navigate([`${GlobalConstants.ROUTE_GUEST_AGENCY_DETAILS}/${this.agencyID}`]);
   }
 
 }

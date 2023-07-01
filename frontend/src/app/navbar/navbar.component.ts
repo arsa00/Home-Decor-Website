@@ -17,7 +17,7 @@ export class NavbarComponent implements OnInit {
   readonly ROUTE_REQ_PASS_RESET         = GlobalConstants.ROUTE_REQ_PASS_RESET;
   readonly ROUTE_PASS_RESET             = GlobalConstants.ROUTE_PASS_RESET;
   readonly ROUTE_GUEST_PAGE             = GlobalConstants.ROUTE_GUEST_PAGE;   
-  readonly ROUTE_GUEST_AGENCIES         = GlobalConstants.ROUTE_GUEST_AGENCIES;
+  readonly ROUTE_GUEST_AGENCIES         = GlobalConstants.ROUTE_GUEST_AGENCY_DETAILS;
   readonly ROUTE_CLIENT_PROFILE         = GlobalConstants.ROUTE_CLIENT_PROFILE;
   readonly ROUTE_CLIENT_OBJECTS         = GlobalConstants.ROUTE_CLIENT_OBJECTS;
   readonly ROUTE_CLIENT_AGENCIES_SEARCH = GlobalConstants.ROUTE_CLIENT_AGENCIES_SEARCH;

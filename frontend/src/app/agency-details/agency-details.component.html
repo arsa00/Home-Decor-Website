@@ -45,7 +45,8 @@
         </div>
 
         <div class="col-md-12 d-flex justify-content-center align-items-center mt-3" *ngIf="!isAnonymous()">
-            <button type="button" class="btn btn-plt1-clr9 fs-5 fw-medium p-2 px-5 text-white">
+            <button type="button" class="btn btn-plt1-clr9 fs-5 fw-medium p-2 px-5 text-white"
+                    (click)="redirectToHireAgencyPage()">
                 Zatražite saradnju
             </button>
         </div>

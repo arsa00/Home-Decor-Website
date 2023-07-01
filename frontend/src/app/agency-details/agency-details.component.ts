@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../models/User';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AgencyService } from '../services/agency.service';
 import { GlobalConstants } from '../global-constants';
 import { Comment } from '../models/Comment';
@@ -21,7 +21,9 @@ export class AgencyDetailsComponent implements OnInit {
 
   allComments: Comment[];
 
-  constructor(private agencyService: AgencyService, private route: ActivatedRoute) { }
+  constructor(private agencyService: AgencyService, 
+              private route: ActivatedRoute,
+              private router: Router) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -66,6 +68,10 @@ export class AgencyDetailsComponent implements OnInit {
 
   isAnonymous(): boolean {
     return this.loggedUser == null;
+  }
+
+  redirectToHireAgencyPage() {
+    this.router.navigate([`${GlobalConstants.ROUTE_CLIENT_HIRE_AGENCY_REQ}/${this.agency._id}`]);
   }
 
 }

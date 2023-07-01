@@ -32,12 +32,13 @@ export class GlobalConstants {
 
     // guest routes
     static readonly ROUTE_GUEST_PAGE = "guestPage";
-    static readonly ROUTE_GUEST_AGENCIES = "agencyDetails";
+    static readonly ROUTE_GUEST_AGENCY_DETAILS = "agencyDetails";
 
     // client routes
     static readonly ROUTE_CLIENT_PROFILE = "clientProfile";
     static readonly ROUTE_CLIENT_OBJECTS = "clientObjects";
     static readonly ROUTE_CLIENT_AGENCIES_SEARCH = "agenciesSearch";
+    static readonly ROUTE_CLIENT_HIRE_AGENCY_REQ = "hireAgency";
 
     // agency routes
     static readonly ROUTE_AGENCY_PROFILE = "agencyProfile";
