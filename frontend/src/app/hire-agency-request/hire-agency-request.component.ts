@@ -16,6 +16,7 @@ import { Job } from '../models/Job';
 export class HireAgencyRequestComponent implements OnInit {
 
   agencyID: string;
+  agencyName: string;
   loggedUser: User;
 
   allApartments: ApartmentSketch[] = [];
@@ -38,6 +39,7 @@ export class HireAgencyRequestComponent implements OnInit {
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
     this.agencyID = this.route.snapshot.paramMap.get("agencyID");
+    this.agencyName = this.route.snapshot.paramMap.get("agencyName");
 
     this.apartmentSketchService.getAllOwnersApartmentSketches(this.loggedUser.jwt, this.loggedUser._id).subscribe({
       next: (allApartmentSketches: ApartmentSketch[]) => {
@@ -97,9 +99,11 @@ export class HireAgencyRequestComponent implements OnInit {
     }
 
     // create new job request
+    const pickedObject = this.allApartments[this.selectedIndex];
     this.isWaitingForResposne = true;
-    const newJob: Job = new Job(this.loggedUser._id, this.agencyID, 
-                            this.allApartments[this.selectedIndex]._id, this.startJobDate, this.endJobDate);
+    const newJob: Job = new Job(this.loggedUser._id, this.agencyID, this.agencyName, 
+                                pickedObject._id, pickedObject.type, pickedObject.address,
+                                this.startJobDate, this.endJobDate);
 
     this.jobService.addJob(this.loggedUser.jwt, newJob).subscribe({
       next: () => { 
@@ -112,8 +116,6 @@ export class HireAgencyRequestComponent implements OnInit {
         new bootstrap.Toast(document.getElementById("err")).show(); 
       }
     });
-
-    // console.log(this.startJobDate.toISOString());
   }
 
   returnToAgencyDetailsPage() {

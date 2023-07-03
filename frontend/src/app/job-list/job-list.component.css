@@ -1,0 +1,23 @@
+.activeJob {
+    color: rgb(0, 164, 0);
+}
+
+.requestJob {
+    color: orange;
+}
+
+.finishedJob {
+    color: black;
+}
+
+.canceledJob {
+    color: red;
+}
+
+.rejectedJob {
+    background-color: rgb(255, 115, 115);
+}
+
+.acceptedJob {
+    background-color: rgb(154, 255, 95);
+}

@@ -27,7 +27,7 @@ export class AgencyService {
 
 
   getAllComments(jwt: string, agencyID: string) {
-    const httpParams = new HttpParams().append("agencyID", agencyID);
+    const httpParams = new HttpParams().append("jwt", jwt).append("agencyID", agencyID);
 
     return this.http.get(`${GlobalConstants.URI}/agency/getAllComments`, { params: httpParams });
   }

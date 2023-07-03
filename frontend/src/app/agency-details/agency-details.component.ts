@@ -84,7 +84,7 @@ export class AgencyDetailsComponent implements OnInit {
   }
 
   redirectToHireAgencyPage() {
-    this.router.navigate([`${GlobalConstants.ROUTE_CLIENT_HIRE_AGENCY_REQ}/${this.agency._id}`]);
+    this.router.navigate([`${GlobalConstants.ROUTE_CLIENT_HIRE_AGENCY_REQ}/${this.agency._id}/${this.agency.name}`]);
   }
 
 }

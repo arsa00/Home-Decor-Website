@@ -26,8 +26,11 @@ export class JobService {
             cancelRequested?: boolean, 
             agencyOffer?: number, 
             clientID?: string, 
-            agencyID?: string, 
+            agencyID?: string,
+            agencyName?: string, 
             objectID?: string, 
+            objectType?: string, 
+            objectAddress?: string, 
             startDate?: Date, 
             endDate?: Date) {
     let dataPayload;
@@ -39,11 +42,24 @@ export class JobService {
     if(agencyOffer) dataPayload = { ...dataPayload, "agencyOffer": agencyOffer };
     if(clientID) dataPayload = { ...dataPayload, "clientID": clientID };
     if(agencyID) dataPayload = { ...dataPayload, "agencyID": agencyID };
+    if(agencyName) dataPayload = { ...dataPayload, "agencyName": agencyName };
     if(objectID) dataPayload = { ...dataPayload, "objectID": objectID };
+    if(objectType) dataPayload = { ...dataPayload, "objectType": objectType };
+    if(objectAddress) dataPayload = { ...dataPayload, "objectAddress": objectAddress };
     if(startDate) dataPayload = { ...dataPayload, "startDate": startDate };
     if(endDate) dataPayload = { ...dataPayload, "endDate": endDate };
 
     return this.http.post(`${GlobalConstants.URI}/job/updateJob`, dataPayload);
+  }
+
+
+  getAllClientJobs(jwt: string, clientID: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "clientID": clientID
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getAllClientJobs`, dataPayload);
   }
 
 }
