@@ -29,3 +29,5 @@ class Job {
         this.state = JobState.PENDING;
     }
 }
+
+export { Job, JobState }

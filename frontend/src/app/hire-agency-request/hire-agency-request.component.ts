@@ -4,6 +4,9 @@ import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { JobService } from '../services/job.service';
+import * as bootstrap from 'bootstrap'
+import { Job } from '../models/Job';
 
 @Component({
   selector: 'app-hire-agency-request',
@@ -25,8 +28,10 @@ export class HireAgencyRequestComponent implements OnInit {
   endJobDate: Date;
 
   errMessages: string[] = [];
+  isWaitingForResposne: boolean = false;
 
   constructor(private apartmentSketchService: ApartmentSketchService,
+              private jobService: JobService,
               private router: Router,
               private route: ActivatedRoute) { }
 
@@ -92,6 +97,21 @@ export class HireAgencyRequestComponent implements OnInit {
     }
 
     // create new job request
+    this.isWaitingForResposne = true;
+    const newJob: Job = new Job(this.loggedUser._id, this.agencyID, 
+                            this.allApartments[this.selectedIndex]._id, this.startJobDate, this.endJobDate);
+
+    this.jobService.addJob(this.loggedUser.jwt, newJob).subscribe({
+      next: () => { 
+        this.isWaitingForResposne = false;
+        sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_JOB_ADDED, "true");
+        this.returnToAgencyDetailsPage();
+      },
+      error: () => { 
+        this.isWaitingForResposne = false; 
+        new bootstrap.Toast(document.getElementById("err")).show(); 
+      }
+    });
 
     // console.log(this.startJobDate.toISOString());
   }

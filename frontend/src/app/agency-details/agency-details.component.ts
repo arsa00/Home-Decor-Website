@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AgencyService } from '../services/agency.service';
 import { GlobalConstants } from '../global-constants';
 import { Comment } from '../models/Comment';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-agency-details',
@@ -27,11 +28,23 @@ export class AgencyDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
+
     try {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
     } catch(err) {
       this.loggedUser = null;
     }
+
+    const isJobAdded = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_JOB_ADDED);
+
+    if(isJobAdded) {
+      if(isJobAdded === "true") {
+        new bootstrap.Toast(document.getElementById("jobAddedSucc")).show();
+      }
+
+      sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_JOB_ADDED);
+    }
+
     const agencyID = this.route.snapshot.paramMap.get("agencyID");
     this.agencyService.getAgency(agencyID).subscribe({
       next: (agency: User) => {

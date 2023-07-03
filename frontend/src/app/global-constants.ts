@@ -5,6 +5,7 @@ export class GlobalConstants {
     static readonly SESSION_STORAGE_REGISTRATION = "registrationSuccessful";
     static readonly SESSION_STORAGE_PASS_RESET = "passResetSuccessful";
     static readonly SESSION_STORAGE_PASS_RESET_REQ = "passResetRequestSuccessful";
+    static readonly SESSION_STORAGE_JOB_ADDED = "jobAddedSuccessfully";
 
     static readonly ADMIN_TYPE: string = "admin";
     static readonly AGENCY_TYPE: string = "agency";
