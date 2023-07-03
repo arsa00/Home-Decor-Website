@@ -21,6 +21,7 @@ export class NavbarComponent implements OnInit {
   readonly ROUTE_CLIENT_PROFILE         = GlobalConstants.ROUTE_CLIENT_PROFILE;
   readonly ROUTE_CLIENT_OBJECTS         = GlobalConstants.ROUTE_CLIENT_OBJECTS;
   readonly ROUTE_CLIENT_AGENCIES_SEARCH = GlobalConstants.ROUTE_CLIENT_AGENCIES_SEARCH;
+  readonly ROUTE_CLIENT_JOBS_LIST       = GlobalConstants.ROUTE_CLIENT_JOBS_LIST;
 
   @Input() activeNav: string = "guest";
 

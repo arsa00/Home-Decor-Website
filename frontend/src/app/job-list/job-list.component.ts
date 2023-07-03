@@ -15,7 +15,9 @@ export class JobListComponent implements OnInit {
   loggedUser: User;
 
   allJobs: Job[] = [];
+  displayedJobs: Job[] = [];
 
+  jobStateFilter: string = "all";
 
   constructor(private jobService: JobService) { }
 
@@ -24,11 +26,22 @@ export class JobListComponent implements OnInit {
 
     this.jobService.getAllClientJobs(this.loggedUser.jwt, this.loggedUser._id).subscribe({
       next: (jobs: Job[]) => {
-        this.allJobs = jobs;
+        this.displayedJobs = this.allJobs = jobs;
        },
       error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
     });
 
+    document.getElementById("jobStateFilter").addEventListener("change", this.filterJobs);
+  }
+
+  filterJobs = () => {
+    switch(this.jobStateFilter) {
+      case "jobReq": this.displayedJobs = this.allJobs.filter((job: Job) => this.isJobReq(job)); break;
+      case "jobActive": this.displayedJobs = this.allJobs.filter((job: Job) => this.isJobActive(job)); break;
+      case "jobFinished": this.displayedJobs = this.allJobs.filter((job: Job) => this.isJobFinished(job)); break;
+      case "jobCanceled": this.displayedJobs = this.allJobs.filter((job: Job) => this.isJobCanceled(job)); break;
+      default: this.displayedJobs = this.allJobs;
+    }
   }
 
   printJobState(job: Job): string {
