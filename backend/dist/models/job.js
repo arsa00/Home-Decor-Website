@@ -17,8 +17,17 @@ let Job = new schema({
     agencyID: {
         type: ObjectId
     },
+    agencyName: {
+        type: String
+    },
     objectID: {
         type: ObjectId
+    },
+    objectType: {
+        type: String
+    },
+    objectAddress: {
+        type: String
     },
     startDate: {
         type: Date

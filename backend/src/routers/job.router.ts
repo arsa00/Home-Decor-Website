@@ -13,4 +13,9 @@ jobRouter.route("/updateJob").post(
 );
 
 
+jobRouter.route("/getAllClientJobs").post(
+    (req, res) => new JobController().getAllClientJobs(req, res)
+);
+
+
 export default jobRouter;
