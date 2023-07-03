@@ -10,6 +10,7 @@ const user_router_1 = __importDefault(require("./routers/user.router"));
 const path_1 = __importDefault(require("path"));
 const agency_router_1 = __importDefault(require("./routers/agency.router"));
 const apartment_sketch_router_1 = __importDefault(require("./routers/apartment-sketch.router"));
+const job_router_1 = __importDefault(require("./routers/job.router"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
@@ -23,6 +24,7 @@ const router = express_1.default.Router();
 router.use("/user", user_router_1.default);
 router.use("/agency", agency_router_1.default);
 router.use("/apartmentSketch", apartment_sketch_router_1.default);
+router.use("/job", job_router_1.default);
 //test
 router.get("/", (req, res) => { res.send("Server working..."); });
 app.use("/", router);

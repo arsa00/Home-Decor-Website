@@ -10,12 +10,12 @@ export class JobController {
     addJob = async (req: Request, res: Response) => {
         const newJob = new JobModel({
             state: mongoSanitaze(req.body.state),
-            agencyID: mongoSanitaze(req.body.agencyID),
+            agencyID: new ObjectId(mongoSanitaze(req.body.agencyID)),
             agencyOffer: mongoSanitaze(req.body.agencyOffer),
             cancelRequested: mongoSanitaze(req.body.cancelRequested),
-            clientID: mongoSanitaze(req.body.clientID),
+            clientID: new ObjectId(mongoSanitaze(req.body.clientID)),
             endDate: mongoSanitaze(req.body.endDate),
-            objectID: mongoSanitaze(req.body.objectID),
+            objectID: new ObjectId(mongoSanitaze(req.body.objectID)),
             startDate: mongoSanitaze(req.body.startDate)
         });
 
@@ -30,18 +30,27 @@ export class JobController {
 
 
     updateJob = async (req: Request, res: Response) => {
-        const updateQuery = {
-            state: mongoSanitaze(req.body.state),
-            agencyID: mongoSanitaze(req.body.agencyID),
-            agencyOffer: mongoSanitaze(req.body.agencyOffer),
-            cancelRequested: mongoSanitaze(req.body.cancelRequested),
-            clientID: mongoSanitaze(req.body.clientID),
-            endDate: mongoSanitaze(req.body.endDate),
-            objectID: mongoSanitaze(req.body.objectID),
-            startDate: mongoSanitaze(req.body.startDate)
-        };
+        const state = mongoSanitaze(req.body.state);
+        const agencyID = mongoSanitaze(req.body.agencyID);
+        const agencyOffer = mongoSanitaze(req.body.agencyOffer);
+        const cancelRequested = mongoSanitaze(req.body.cancelRequested);
+        const clientID = mongoSanitaze(req.body.clientID);
+        const endDate = mongoSanitaze(req.body.endDate);
+        const objectID = mongoSanitaze(req.body.objectID);
+        const startDate = mongoSanitaze(req.body.startDate);
 
-        const jobID = mongoSanitaze(req.body.jobID);
+        let updateQuery;
+
+        if(state) updateQuery = { ...updateQuery, "state": state };
+        if(agencyID) updateQuery = { ...updateQuery, "agencyID": new ObjectId(agencyID) };
+        if(agencyOffer) updateQuery = { ...updateQuery, "agencyOffer": agencyOffer };
+        if(cancelRequested) updateQuery = { ...updateQuery, "cancelRequested": cancelRequested };
+        if(clientID) updateQuery = { ...updateQuery, "clientID": new ObjectId(clientID) };
+        if(endDate) updateQuery = { ...updateQuery, "endDate": endDate };
+        if(objectID) updateQuery = { ...updateQuery, "objectID": new ObjectId(objectID) };
+        if(startDate) updateQuery = { ...updateQuery, "startDate": startDate };
+
+        const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
 
         try {
             const updatedJob = await JobModel.findOneAndUpdate({ "_id": jobID }, updateQuery, {new: true}).orFail();
