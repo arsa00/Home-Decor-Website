@@ -36,6 +36,9 @@ let Job = new schema({
     },
     cancelRequested: {
         type: Boolean
+    },
+    cancelReqMsg: {
+        type: String
     }
 });
 

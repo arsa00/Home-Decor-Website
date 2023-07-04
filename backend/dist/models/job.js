@@ -40,6 +40,9 @@ let Job = new schema({
     },
     cancelRequested: {
         type: Boolean
+    },
+    cancelReqMsg: {
+        type: String
     }
 });
 const JobModel = mongoose_1.default.model("JobModel", Job, "job");

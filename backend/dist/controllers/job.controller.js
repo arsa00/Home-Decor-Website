@@ -44,6 +44,7 @@ class JobController {
             const agencyName = mongoSanitaze(req.body.agencyName);
             const agencyOffer = mongoSanitaze(req.body.agencyOffer);
             const cancelRequested = mongoSanitaze(req.body.cancelRequested);
+            const cancelReqMsg = mongoSanitaze(req.body.cancelReqMsg);
             const clientID = mongoSanitaze(req.body.clientID);
             const endDate = mongoSanitaze(req.body.endDate);
             const objectID = mongoSanitaze(req.body.objectID);
@@ -61,6 +62,8 @@ class JobController {
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "agencyOffer": agencyOffer });
             if (cancelRequested)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "cancelRequested": cancelRequested });
+            if (cancelReqMsg)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "cancelReqMsg": cancelReqMsg });
             if (clientID)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientID": new ObjectId(clientID) });
             if (endDate)
