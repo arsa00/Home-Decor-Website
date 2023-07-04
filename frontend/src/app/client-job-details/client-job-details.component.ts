@@ -5,6 +5,8 @@ import { JobService } from '../services/job.service';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import * as bootstrap from 'bootstrap';
+import { ApartmentSketch } from '../models/ApartmentSketch';
+import { ApartmentSketchService } from '../services/apartment-sketch.service';
 
 @Component({
   selector: 'app-client-job-details',
@@ -14,10 +16,13 @@ import * as bootstrap from 'bootstrap';
 export class ClientJobDetailsComponent implements OnInit {
 
   loggedUser: User;
+
   job: Job;
+  objectUnderConstruction: ApartmentSketch;
 
   constructor(private route: ActivatedRoute,
-              private jobService: JobService) { }
+              private jobService: JobService,
+              private apartmentSketchService: ApartmentSketchService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -26,6 +31,15 @@ export class ClientJobDetailsComponent implements OnInit {
     this.jobService.getJobByID(this.loggedUser.jwt, jobID).subscribe({
       next: (job: Job) => {
         this.job = job;
+
+        console.log(job);
+
+        this.apartmentSketchService.getApartmentSketchByID(this.loggedUser.jwt, job.objectID).subscribe({
+          next: (apartmentSketch: ApartmentSketch) => {
+            this.objectUnderConstruction = apartmentSketch;
+          },
+          error: () => { new bootstrap.Toast(document.getElementById("objectErr")).show(); }
+        });
       },
       error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
     });
@@ -43,7 +57,7 @@ export class ClientJobDetailsComponent implements OnInit {
 
   getFormattedJobState(): string {
     switch(this.job.state) {
-      case JobState.ACTIVE: return "Aktivan posao";
+      case JobState.ACTIVE: return ("Aktivan posao" + (this.job.cancelRequested ? ". Zahtev za otkazivanje na čekanju." : ""));
       case JobState.FINISHED: return "Završen posao";
       case JobState.CANCELED: return "Otkazan posao";
       case JobState.PENDING: return "Zahtev za saradnju. Čeka se odgovor agencije.";
@@ -51,6 +65,46 @@ export class ClientJobDetailsComponent implements OnInit {
       case JobState.REJECTED: return "Zahtev za saradnju odbijen od strane agencije.";
       default: return "-";
     }
+  }
+
+  isJobActive(): boolean {
+    return this.job.state === JobState.ACTIVE;
+  }
+
+  isJobReq(): boolean {
+    return this.job.state === JobState.ACCEPTED 
+            || this.job.state === JobState.PENDING 
+            || this.job.state === JobState.REJECTED; 
+  }
+
+  isJobRejected(): boolean {
+    return this.job.state === JobState.REJECTED; 
+  }
+
+  isJobAccepted(): boolean {
+    return this.job.state === JobState.ACCEPTED; 
+  }
+
+  isJobFinished(): boolean {
+    return this.job.state === JobState.FINISHED;
+  }
+
+  isJobCanceled(): boolean {
+    return this.job.state === JobState.CANCELED;
+  }
+
+  cancelJob() {
+    if(this.job.state !== JobState.ACTIVE || this.job.cancelRequested) return;
+
+    this.jobService.updateJob(this.loggedUser.jwt, this.job._id, undefined, true).subscribe({
+      next: () => { 
+        new bootstrap.Toast(document.getElementById("cancelReqSucc")).show(); 
+        setTimeout(() => {
+          window.location.reload();
+        }, 750);
+      },
+      error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+    });
   }
 
 }

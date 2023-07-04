@@ -79,35 +79,13 @@ export class ApartmentSketchService {
     return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/updateApartmentSketch`, dataPayload);
   }
 
-  /*
-      const apartmentSketchId = new mongoTypes.Types.ObjectId(sanitaze(req.body.apartmentSketchId));
-      const roomSketches = sanitaze(req.body.roomSketches);
-      const firstRoomScreenUsage = sanitaze(req.body.firstRoomScreenUsage);
-      const type = sanitaze(req.body.type);
-      const address = sanitaze(req.body.address);
-      const squareFootage = sanitaze(req.body.squareFootage);
-  
-  */
 
-  /*
-  apartmentSketchRouter.route("/addApartmentSketch").post(
-    (req, res) => new ApartmentSketchController().addApartmentSketch(req, res)
-)
+  getApartmentSketchByID(jwt: string, apartmentSketchID: string) {
+    let dataPayload = {
+      "jwt": jwt,
+      "apartmentSketchID": apartmentSketchID 
+    };
 
-
-apartmentSketchRouter.route("/updateApartmentSketch").post(
-    (req, res) => new ApartmentSketchController().updateApartmentSketch(req, res)
-)
-
-
-apartmentSketchRouter.route("/deleteApartmentSketch").post(
-    (req, res) => new ApartmentSketchController().deleteApartmentSketch(req, res)
-)
-
-
-apartmentSketchRouter.route("/getAllOwnersApartmentSketches").post(
-    (req, res) => new ApartmentSketchController().getAllOwnersApartmentSketches(req, res)
-)
-*/
-
+    return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/getApartmentSketchByID`, dataPayload);
+  }
 }

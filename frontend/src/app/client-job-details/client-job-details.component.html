@@ -4,7 +4,29 @@
     <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex bg-plt1-clr1 rounded">
             <div class="toast-body fs-6 fw-medium">
-                Došlo je do greške prilikom pretrage. Pokušajte ponovo.
+                Došlo je do greške. Pokušajte ponovo.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="objectErr" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Došlo je do greške prilikom dohvatanja skice objekta. Pokušajte ponovo.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="cancelReqSucc" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Zahtev za otkazivanje posla uspešno poslat.
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
@@ -13,8 +35,8 @@
 
 <h1 class="fs-1 fw-medium text-center mt-5"> Detalji posla </h1>
 
-<div class="container my-5  ">
-    <div class="row  justify-content-center align-items-center">
+<div class="container-fluid my-5  ">
+    <div class="row gy-3 justify-content-center align-items-center">
         <div class="col-lg-8 shadow rounded-5">
 
             <div class="row gy-4 justify-content-center align-items-center p-3">
@@ -83,5 +105,20 @@
             </div>
 
         </div>
+
+
+        <!-- fields for active jobs -->
+        <div class="col-12" *ngIf="isJobActive()">
+            <app-apartment-sketch [updateProgressModeIn]="false" [showProgressIn]="true" [editModeIn]="false" [apartmentSkecthIn]="objectUnderConstruction">
+            </app-apartment-sketch>
+        </div>
+
+        <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && !job.cancelRequested">
+            <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium" (click)="cancelJob()">
+                Zatražite otkazivanje posla
+            </button>
+        </div>
+
     </div>
 </div>
+
