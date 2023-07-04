@@ -19,6 +19,10 @@ export class ClientJobDetailsComponent implements OnInit {
 
   job: Job;
   objectUnderConstruction: ApartmentSketch;
+  
+  cancelJobMode: boolean = false;
+  cancelMsg: string;
+  cancelMsgErr: boolean = false;
 
   constructor(private route: ActivatedRoute,
               private jobService: JobService,
@@ -93,10 +97,26 @@ export class ClientJobDetailsComponent implements OnInit {
     return this.job.state === JobState.CANCELED;
   }
 
+  showCancelDialog() {
+    this.cancelJobMode = true;
+  }
+
+  hideCancelDialog() {
+    this.cancelJobMode = false;
+    this.cancelMsgErr = false;
+  }
+
   cancelJob() {
+    if(!this.cancelMsg) {
+      this.cancelMsgErr = true;
+      return;
+    }
+
+    this.hideCancelDialog();
+
     if(this.job.state !== JobState.ACTIVE || this.job.cancelRequested) return;
 
-    this.jobService.updateJob(this.loggedUser.jwt, this.job._id, undefined, true).subscribe({
+    this.jobService.updateJob(this.loggedUser.jwt, this.job._id, undefined, true, this.cancelMsg).subscribe({
       next: () => { 
         new bootstrap.Toast(document.getElementById("cancelReqSucc")).show(); 
         setTimeout(() => {

@@ -20,6 +20,7 @@ class Job {
     endDate: Date;
     agencyOffer: number;
     cancelRequested: boolean;
+    cancelReqMsg?: string;
 
     constructor(clientID: string, agencyID: string, agencyName: string, objectID: string, objectType: string, objectAddress: string, startDate: Date, endDate: Date) {
         this.agencyID = agencyID;

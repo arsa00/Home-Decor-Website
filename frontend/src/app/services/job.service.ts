@@ -23,7 +23,8 @@ export class JobService {
   updateJob(jwt: string, 
             jobID: string, 
             state?: JobState, 
-            cancelRequested?: boolean, 
+            cancelRequested?: boolean,
+            cancelReqMsg?: string, 
             agencyOffer?: number, 
             clientID?: string, 
             agencyID?: string,
@@ -39,6 +40,7 @@ export class JobService {
 
     if(state) dataPayload = { ...dataPayload, "state": state };
     if(cancelRequested) dataPayload = { ...dataPayload, "cancelRequested": cancelRequested };
+    if(cancelReqMsg) dataPayload = { ...dataPayload, "cancelReqMsg": cancelReqMsg };
     if(agencyOffer) dataPayload = { ...dataPayload, "agencyOffer": agencyOffer };
     if(clientID) dataPayload = { ...dataPayload, "clientID": clientID };
     if(agencyID) dataPayload = { ...dataPayload, "agencyID": agencyID };

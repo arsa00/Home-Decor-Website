@@ -33,6 +33,44 @@
     </div>
 </div>
 
+
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
+        *ngIf="cancelJobMode">
+    
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+    
+    <!-- add new room dialog -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="cancelJobMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideCancelDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Zahtev za otkazivanje posla</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-2 mt-3">
+
+                    <div class="col-lg-10 fs-5 fw-medium">
+                        Razlog otkazivanja:
+                    </div>
+                    
+                    <div class="col-lg-10 d-flex justify-content-center align-items-center">
+                        <textarea class="form-control" [ngClass]="{'is-invalid': cancelMsgErr}" name="cancelMsg" [(ngModel)]="cancelMsg" id="cancelMsg" cols="30" rows="5" placeholder="Ovde napišite razlog otkazivanja..."></textarea> 
+                    </div>
+
+                    <div class="col-lg-10 d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-plt1-clr9 px-5 py-2 fs-6 fw-medium text-white" (click)="cancelJob()">
+                            Pošaljite zahtev
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <h1 class="fs-1 fw-medium text-center mt-5"> Detalji posla </h1>
 
 <div class="container-fluid my-5  ">
@@ -114,7 +152,7 @@
         </div>
 
         <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && !job.cancelRequested">
-            <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium" (click)="cancelJob()">
+            <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium" (click)="showCancelDialog()">
                 Zatražite otkazivanje posla
             </button>
         </div>
