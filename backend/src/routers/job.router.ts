@@ -18,4 +18,8 @@ jobRouter.route("/getAllClientJobs").post(
 );
 
 
+jobRouter.route("/getJobByID").post(
+    (req, res) => new JobController().getJobByID(req, res)
+);
+
 export default jobRouter;

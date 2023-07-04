@@ -94,6 +94,17 @@ class JobController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getJobByID = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
+            try {
+                const job = yield job_1.JobModel.findOne({ "_id": jobID }).orFail();
+                return res.status(200).json(job);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.JobController = JobController;

@@ -83,4 +83,17 @@ export class JobController {
         }
     }
 
+
+    getJobByID = async (req: Request, res: Response) => {
+        const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
+
+        try {
+            const job = await JobModel.findOne({ "_id": jobID }).orFail();
+            return res.status(200).json(job);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
 }
