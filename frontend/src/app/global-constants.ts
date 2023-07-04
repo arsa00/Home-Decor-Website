@@ -41,6 +41,7 @@ export class GlobalConstants {
     static readonly ROUTE_CLIENT_AGENCIES_SEARCH = "agenciesSearch";
     static readonly ROUTE_CLIENT_HIRE_AGENCY_REQ = "hireAgency";
     static readonly ROUTE_CLIENT_JOBS_LIST = "clientJobsList";
+    static readonly ROUTE_CLIENT_JOB_DETAILS = "clientJobDetails";
 
     // agency routes
     static readonly ROUTE_AGENCY_PROFILE = "agencyProfile";

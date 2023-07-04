@@ -1,0 +1,87 @@
+<app-navbar [activeNav]="'client'"></app-navbar>
+
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Došlo je do greške prilikom pretrage. Pokušajte ponovo.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<h1 class="fs-1 fw-medium text-center mt-5"> Detalji posla </h1>
+
+<div class="container my-5  ">
+    <div class="row  justify-content-center align-items-center">
+        <div class="col-lg-8 shadow rounded-5">
+
+            <div class="row gy-4 justify-content-center align-items-center p-3">
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Tip objekta:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ job.objectType }}
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Adresa objekta:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ job.objectAddress }}
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Naziv agencije:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ job.agencyName }}
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Datum početka radova:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ getFormattedStartDate() }}
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Datum kraja radova:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ getFormattedEndDate() }}
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Ponuda agencije:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ job.agencyOffer }}&nbsp;din.
+                </div>
+
+
+                <div class="col-6 text-lg-end text-start fs-3 fw-medium">
+                    Status posla:
+                </div>
+
+                <div class="col-6 d-flex justify-content-start align-items-center fs-3 higher-line">
+                    {{ getFormattedJobState() }}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

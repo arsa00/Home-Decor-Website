@@ -4,6 +4,7 @@ import { User } from '../models/User';
 import { JobService } from '../services/job.service';
 import * as bootstrap from 'bootstrap';
 import { GlobalConstants } from '../global-constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-job-list',
@@ -19,7 +20,7 @@ export class JobListComponent implements OnInit {
 
   jobStateFilter: string = "all";
 
-  constructor(private jobService: JobService) { }
+  constructor(private jobService: JobService, private router: Router) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -82,6 +83,10 @@ export class JobListComponent implements OnInit {
   getFormattedDate(date: Date): string {
     const validDate = new Date(date);
     return `${validDate.getDate()}.${validDate.getMonth() + 1}.${validDate.getFullYear()}`;
+  }
+
+  redirectToJobDetails(job: Job) {
+    this.router.navigate([`${GlobalConstants.ROUTE_CLIENT_JOB_DETAILS}/${job._id}`]);
   }
 
 }

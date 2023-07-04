@@ -62,4 +62,14 @@ export class JobService {
     return this.http.post(`${GlobalConstants.URI}/job/getAllClientJobs`, dataPayload);
   }
 
+
+  getJobByID(jwt: string, jobID: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobID": jobID
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getJobByID`, dataPayload);
+  }
+
 }

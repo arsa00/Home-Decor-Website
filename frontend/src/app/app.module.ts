@@ -27,6 +27,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
 import { ClientObjectsComponent } from './client-objects/client-objects.component';
 import { HireAgencyRequestComponent } from './hire-agency-request/hire-agency-request.component';
 import { JobListComponent } from './job-list/job-list.component';
+import { ClientJobDetailsComponent } from './client-job-details/client-job-details.component';
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import { JobListComponent } from './job-list/job-list.component';
     ChangePasswordComponent,
     ClientObjectsComponent,
     HireAgencyRequestComponent,
-    JobListComponent
+    JobListComponent,
+    ClientJobDetailsComponent
   ],
   imports: [
     BrowserModule,
