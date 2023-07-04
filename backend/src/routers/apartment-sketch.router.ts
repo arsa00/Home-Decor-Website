@@ -24,4 +24,8 @@ apartmentSketchRouter.route("/getAllOwnersApartmentSketches").post(
 );
 
 
+apartmentSketchRouter.route("/getApartmentSketchByID").post(
+    (req, res) => new ApartmentSketchController().getApartmentSketchByID(req, res)
+);
+
 export default apartmentSketchRouter;

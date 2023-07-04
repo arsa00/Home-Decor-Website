@@ -81,4 +81,17 @@ export class ApartmentSketchController {
         }
     }
 
+
+    getApartmentSketchByID = async (req: Request, res: Response) => {
+        const apartmentSketchID = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchID));
+
+        try {
+            const apartmentSketch = await ApartmentSketchModel.findOne({ "_id": apartmentSketchID }).orFail();
+            return res.status(200).json(apartmentSketch);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
 }
