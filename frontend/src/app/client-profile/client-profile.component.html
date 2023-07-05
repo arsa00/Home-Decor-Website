@@ -58,26 +58,26 @@
                     <div class="col-md-12">
                         <label class="labels">Ime</label>
                         <input type="text" class="form-control" value="{{ loggedUser.firstname }}" readonly *ngIf="!editMode">
-                        <input type="text" class="form-control" [(ngModel)]="loggedUser.firstname" value="{{ loggedUser.firstname }}" *ngIf="editMode">
+                        <input type="text" class="form-control" name="firstname" [(ngModel)]="loggedUser.firstname" value="{{ loggedUser.firstname }}" *ngIf="editMode">
                     </div>
 
                     <div class="col-md-12">
                         <label class="labels">Prezime</label>
                         <input type="text" class="form-control" value="{{ loggedUser.lastname }}" readonly *ngIf="!editMode">
-                        <input type="text" class="form-control" [(ngModel)]="loggedUser.lastname" value="{{ loggedUser.lastname }}" *ngIf="editMode">
+                        <input type="text" class="form-control" name="lastname" [(ngModel)]="loggedUser.lastname" value="{{ loggedUser.lastname }}" *ngIf="editMode">
                     </div>
 
                     <div class="col-md-12">
                         <label class="labels">Email</label>
                         <input type="text" class="form-control" value="{{ loggedUser.mail }}" readonly *ngIf="!editMode">
-                        <input type="text" class="form-control" [(ngModel)]="loggedUser.mail" [ngClass]="{'is-invalid': mailErr}"
+                        <input type="text" class="form-control" name="mail" [(ngModel)]="loggedUser.mail" [ngClass]="{'is-invalid': mailErr}"
                                 (click)="mailInputClicked()" value="{{ loggedUser.mail }}" *ngIf="editMode">
                     </div>
 
                     <div class="col-md-12">
                         <label class="labels">Kontakt telefon</label>
                         <input type="text" class="form-control" value="{{ loggedUser.phone }}" readonly *ngIf="!editMode">
-                        <input type="text" class="form-control" [(ngModel)]="loggedUser.phone" [ngClass]="{'is-invalid': phoneErr}"
+                        <input type="text" class="form-control" name="phone" [(ngModel)]="loggedUser.phone" [ngClass]="{'is-invalid': phoneErr}"
                                 (click)="phoneNumInputClicked()" value="{{ loggedUser.phone }}" *ngIf="editMode">
                     </div>
                 </div>
