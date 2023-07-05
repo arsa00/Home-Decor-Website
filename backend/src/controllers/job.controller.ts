@@ -99,4 +99,16 @@ export class JobController {
         }
     }
 
+
+    deleteJob = async (req: Request, res: Response) => {
+        try {
+            const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
+
+            await JobModel.deleteOne({ "_id": jobID }).orFail();
+            return res.status(200).json({"errMsg": "Posao uspešno izbrisan."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
 }

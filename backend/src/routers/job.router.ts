@@ -22,4 +22,9 @@ jobRouter.route("/getJobByID").post(
     (req, res) => new JobController().getJobByID(req, res)
 );
 
+
+jobRouter.route("/deleteJob").post(
+    (req, res) => new JobController().deleteJob(req, res)
+);
+
 export default jobRouter;

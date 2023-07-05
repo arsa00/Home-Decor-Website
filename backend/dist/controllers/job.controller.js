@@ -108,6 +108,17 @@ class JobController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.deleteJob = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
+                yield job_1.JobModel.deleteOne({ "_id": jobID }).orFail();
+                return res.status(200).json({ "errMsg": "Posao uspešno izbrisan." });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.JobController = JobController;
