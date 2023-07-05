@@ -23,4 +23,19 @@ agencyRouter.route("/getAllAnonymousComments").get(
     (req, res) => new AgencyController().getAllAnonymousComments(req, res)
 );
 
+
+agencyRouter.route("/getCommentByJobId").get(
+    (req, res) => new AgencyController().getCommentByJobId(req, res)
+);
+
+
+agencyRouter.route("/addComment").post(
+    (req, res) => new AgencyController().addComment(req, res)
+);
+
+
+agencyRouter.route("/updateComment").post(
+    (req, res) => new AgencyController().updateComment(req, res)
+);
+
 export default agencyRouter;

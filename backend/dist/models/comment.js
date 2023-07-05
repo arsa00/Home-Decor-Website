@@ -11,6 +11,9 @@ let Comment = new schema({
     agencyId: {
         type: ObjectId
     },
+    jobId: {
+        type: ObjectId
+    },
     comment: {
         type: String
     },
