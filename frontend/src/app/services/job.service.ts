@@ -74,4 +74,13 @@ export class JobService {
     return this.http.post(`${GlobalConstants.URI}/job/getJobByID`, dataPayload);
   }
 
+
+  deleteJob(jwt: string, jobID: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobID": jobID
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/deleteJob`, dataPayload);
+  }
 }

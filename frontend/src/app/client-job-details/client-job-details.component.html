@@ -190,7 +190,7 @@
 
         <!-- fields for active jobs -->
         <div class="col-12" *ngIf="isJobActive()">
-            <app-apartment-sketch [updateProgressModeIn]="false" [showProgressIn]="true" [editModeIn]="false" [apartmentSkecthIn]="objectUnderConstruction">
+            <app-apartment-sketch [updateProgressModeIn]="false" [showProgressIn]="true" [editModeIn]="false" [apartmentSkecthIn]="apartmentInCanvas">
             </app-apartment-sketch>
         </div> 
 
@@ -217,6 +217,21 @@
             <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium" *ngIf="isCommentPublished()"
                     (click)="showAddCommentDialog()">
                 Ažurirajte komentar
+            </button>
+        </div>
+
+
+        <!-- fields for accepted job requests -->
+        <div class="col-xl-12"></div>
+        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted()" (click)="acceptAgencyOffer()">
+            <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium">
+                Prihvatite ponudu agencije
+            </button>
+        </div>
+
+        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted()" (click)="rejectAgencyOffer()">
+            <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium">
+                Odbijte ponudu agencije
             </button>
         </div>
 

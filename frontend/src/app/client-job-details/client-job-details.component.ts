@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Job, JobState } from '../models/Job';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { JobService } from '../services/job.service';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
@@ -21,6 +21,7 @@ export class ClientJobDetailsComponent implements OnInit {
 
   job: Job;
   objectUnderConstruction: ApartmentSketch;
+  apartmentInCanvas: ApartmentSketch;
   comment: Comment;
   
   cancelJobMode: boolean = false;
@@ -36,6 +37,7 @@ export class ClientJobDetailsComponent implements OnInit {
   commentGradeErrMsgs: string[] = [];
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private jobService: JobService,
               private apartmentSketchService: ApartmentSketchService,
               private agencyService: AgencyService) { }
@@ -51,6 +53,7 @@ export class ClientJobDetailsComponent implements OnInit {
         this.apartmentSketchService.getApartmentSketchByID(this.loggedUser.jwt, job.objectID).subscribe({
           next: (apartmentSketch: ApartmentSketch) => {
             this.objectUnderConstruction = apartmentSketch;
+            this.apartmentInCanvas = ApartmentSketch.clone(this.objectUnderConstruction);
           },
           error: () => { this.displayErrorToast("Došlo je do greške prilikom dohvatanja skice objekta. Pokušajte ponovo."); }
         });
@@ -180,11 +183,9 @@ export class ClientJobDetailsComponent implements OnInit {
     if(this.job.state !== JobState.ACTIVE || this.job.cancelRequested) return;
 
     this.jobService.updateJob(this.loggedUser.jwt, this.job._id, undefined, true, this.cancelMsg).subscribe({
-      next: () => { 
+      next: (job: Job) => { 
+        this.job = job;
         this.displaySuccessfulToast("Zahtev za otkazivanje posla uspešno poslat.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 750);
       },
       error: () => { this.displayErrorToast("Došlo je do greške prilikom slanja zahteva. Pokušajte ponovo."); }
     });
@@ -196,11 +197,9 @@ export class ClientJobDetailsComponent implements OnInit {
     // payment logic would go here... (flow should be continued only if payment was successful)
 
     this.jobService.updateJob(this.loggedUser.jwt, this.job._id, JobState.FINISHED).subscribe({
-      next: () => { 
+      next: (job: Job) => { 
+        this.job = job;
         this.displaySuccessfulToast("Plaćanje uspešno izvršeno.");
-        setTimeout(() => {
-          window.location.reload();
-        }, 750);
       },
       error: () => { this.displayErrorToast("Došlo je do greške prilikom plaćanja. Pokušajte ponovo."); }
     });
@@ -263,6 +262,44 @@ export class ClientJobDetailsComponent implements OnInit {
 
       });
     }
+  }
+
+  acceptAgencyOffer() {
+    if(this.job.state != JobState.ACCEPTED) {
+      this.displayErrorToast("Greška. Posao nije prihvaćen od strane agencije.");
+      return;
+    }
+
+    this.jobService.updateJob(this.loggedUser.jwt, this.job._id, JobState.ACTIVE).subscribe({
+      next: (job: Job) => { 
+        this.job = job;
+
+        // delay to avoid double loading apartmentSketch (once for load and once for update)
+        setTimeout(() => {
+          this.apartmentInCanvas = ApartmentSketch.clone(this.objectUnderConstruction);
+        }, 10); 
+        
+        this.displaySuccessfulToast("Ponuda uspešno prihvaćena.");
+      },
+      error: () => { this.displayErrorToast("Došlo je do greške prilikom prihvatanja ponude. Pokušajte ponovo."); }
+    });
+  }
+
+  rejectAgencyOffer() {
+    if(this.job.state != JobState.ACCEPTED) {
+      this.displayErrorToast("Greška. Posao nije prihvaćen od strane agencije.");
+      return;
+    }
+
+    this.jobService.deleteJob(this.loggedUser.jwt, this.job._id).subscribe({
+      next: () => {
+        this.displaySuccessfulToast("Zahtev uspešno obrisan.");
+        setTimeout(() => {
+          this.router.navigate([GlobalConstants.ROUTE_CLIENT_JOBS_LIST]);
+        }, 1000);
+      },
+      error: () => { this.displayErrorToast("Došlo je do greške prilikom brisanja zahteva. Pokušajte ponovo."); }
+    });
   }
 
 }
