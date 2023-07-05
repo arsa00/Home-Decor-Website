@@ -29,7 +29,6 @@ export class ApartmentSketchController {
 
 
     updateApartmentSketch = async (req: Request, res: Response) => {
-        const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
         const roomSketches = sanitaze(req.body.roomSketches);
         const firstRoomScreenUsage = sanitaze(req.body.firstRoomScreenUsage);
         const type = sanitaze(req.body.type);
@@ -47,6 +46,7 @@ export class ApartmentSketchController {
 
 
         try{
+            const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
             const apartmentSketchDb = await ApartmentSketchModel.findOneAndUpdate({ "_id": apartmentSketchId }, updateQuery, { new: true }).orFail();
             return res.status(200).json(apartmentSketchDb);
         } catch(err) {
@@ -57,9 +57,8 @@ export class ApartmentSketchController {
 
 
     deleteApartmentSketch = async (req: Request, res: Response) => {
-        const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
-
         try {
+            const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
             await ApartmentSketchModel.deleteOne({ "_id": apartmentSketchId }).orFail();
             return res.status(200).json({ "succMsg": "Objekat uspešno obrisan." });
         } catch(err) {
@@ -70,9 +69,8 @@ export class ApartmentSketchController {
 
 
     getAllOwnersApartmentSketches = async (req: Request, res: Response) => {
-        const ownerId = new mongoTypes.ObjectId(sanitaze(req.body.ownerId));
-
         try {
+            const ownerId = new mongoTypes.ObjectId(sanitaze(req.body.ownerId));
             const allApartmentSketches = await ApartmentSketchModel.find({ "ownerId": ownerId }).orFail();
             return res.status(200).json(allApartmentSketches);
         } catch(err) {
@@ -83,9 +81,8 @@ export class ApartmentSketchController {
 
 
     getApartmentSketchByID = async (req: Request, res: Response) => {
-        const apartmentSketchID = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchID));
-
         try {
+            const apartmentSketchID = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchID));
             const apartmentSketch = await ApartmentSketchModel.findOne({ "_id": apartmentSketchID }).orFail();
             return res.status(200).json(apartmentSketch);
         } catch(err) {

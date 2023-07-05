@@ -35,7 +35,6 @@ class ApartmentSketchController {
             }
         });
         this.updateApartmentSketch = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
             const roomSketches = sanitaze(req.body.roomSketches);
             const firstRoomScreenUsage = sanitaze(req.body.firstRoomScreenUsage);
             const type = sanitaze(req.body.type);
@@ -53,6 +52,7 @@ class ApartmentSketchController {
             if (squareFootage)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "squareFootage": squareFootage });
             try {
+                const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
                 const apartmentSketchDb = yield apartment_sketch_1.ApartmentSketchModel.findOneAndUpdate({ "_id": apartmentSketchId }, updateQuery, { new: true }).orFail();
                 return res.status(200).json(apartmentSketchDb);
             }
@@ -62,8 +62,8 @@ class ApartmentSketchController {
             }
         });
         this.deleteApartmentSketch = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
             try {
+                const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
                 yield apartment_sketch_1.ApartmentSketchModel.deleteOne({ "_id": apartmentSketchId }).orFail();
                 return res.status(200).json({ "succMsg": "Objekat uspešno obrisan." });
             }
@@ -73,8 +73,8 @@ class ApartmentSketchController {
             }
         });
         this.getAllOwnersApartmentSketches = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const ownerId = new mongoTypes.ObjectId(sanitaze(req.body.ownerId));
             try {
+                const ownerId = new mongoTypes.ObjectId(sanitaze(req.body.ownerId));
                 const allApartmentSketches = yield apartment_sketch_1.ApartmentSketchModel.find({ "ownerId": ownerId }).orFail();
                 return res.status(200).json(allApartmentSketches);
             }
@@ -84,8 +84,8 @@ class ApartmentSketchController {
             }
         });
         this.getApartmentSketchByID = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const apartmentSketchID = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchID));
             try {
+                const apartmentSketchID = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchID));
                 const apartmentSketch = yield apartment_sketch_1.ApartmentSketchModel.findOne({ "_id": apartmentSketchID }).orFail();
                 return res.status(200).json(apartmentSketch);
             }

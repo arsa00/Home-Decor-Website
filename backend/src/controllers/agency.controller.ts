@@ -47,10 +47,16 @@ export class AgencyController {
 
 
     getAgency = (req, res) => {
+        let agencyID;
 
-        const agencyID = mongoSanitaze(req.query.agencyID);
+        try {
+            agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+        } catch(err) {
+            console.log(err);
+            return res.status(400).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+        }
 
-        UserModel.findOne({ "_id": new ObjectId(agencyID) }, (err, agency) => {
+        UserModel.findOne({ "_id": agencyID }, (err, agency) => {
             if(err) {
                 console.log(err);
                 return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
@@ -63,10 +69,16 @@ export class AgencyController {
 
 
     getAllComments = (req, res) => {
+        let agencyID;
 
-        const agencyID = mongoSanitaze(req.query.agencyID);
+        try {
+            agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+        } catch(err) {
+            console.log(err);
+            return res.status(400).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+        }
 
-        CommentModel.find({ "agencyId": new ObjectId(agencyID) }, (err, comments) => {
+        CommentModel.find({ "agencyId": agencyID }, (err, comments) => {
             if(err) {
                 console.log(err);
                 return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
@@ -79,10 +91,16 @@ export class AgencyController {
 
 
     getAllAnonymousComments = (req, res) => {
+        let agencyID;
 
-        const agencyID = mongoSanitaze(req.query.agencyID);
+        try {
+            agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+        } catch(err) {
+            console.log(err);
+            return res.status(400).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+        }
 
-        CommentModel.find({ "agencyId": new ObjectId(agencyID) }, 
+        CommentModel.find({ "agencyId": agencyID }, 
         "-authorUsername -authorFirstname -authorLastname -authorImgType", 
         (err, comments) => {
             if(err) {

@@ -33,8 +33,15 @@ class AgencyController {
             });
         };
         this.getAgency = (req, res) => {
-            const agencyID = mongoSanitaze(req.query.agencyID);
-            user_1.UserModel.findOne({ "_id": new ObjectId(agencyID) }, (err, agency) => {
+            let agencyID;
+            try {
+                agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(400).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+            }
+            user_1.UserModel.findOne({ "_id": agencyID }, (err, agency) => {
                 if (err) {
                     console.log(err);
                     return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
@@ -43,8 +50,15 @@ class AgencyController {
             });
         };
         this.getAllComments = (req, res) => {
-            const agencyID = mongoSanitaze(req.query.agencyID);
-            comment_1.CommentModel.find({ "agencyId": new ObjectId(agencyID) }, (err, comments) => {
+            let agencyID;
+            try {
+                agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(400).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+            }
+            comment_1.CommentModel.find({ "agencyId": agencyID }, (err, comments) => {
                 if (err) {
                     console.log(err);
                     return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
@@ -53,8 +67,15 @@ class AgencyController {
             });
         };
         this.getAllAnonymousComments = (req, res) => {
-            const agencyID = mongoSanitaze(req.query.agencyID);
-            comment_1.CommentModel.find({ "agencyId": new ObjectId(agencyID) }, "-authorUsername -authorFirstname -authorLastname -authorImgType", (err, comments) => {
+            let agencyID;
+            try {
+                agencyID = new ObjectId(mongoSanitaze(req.query.agencyID));
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(400).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+            }
+            comment_1.CommentModel.find({ "agencyId": agencyID }, "-authorUsername -authorFirstname -authorLastname -authorImgType", (err, comments) => {
                 if (err) {
                     console.log(err);
                     return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
