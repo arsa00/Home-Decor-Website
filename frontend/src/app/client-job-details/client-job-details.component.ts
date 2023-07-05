@@ -5,7 +5,7 @@ import { JobService } from '../services/job.service';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import * as bootstrap from 'bootstrap';
-import { ApartmentSketch } from '../models/ApartmentSketch';
+import { ApartmentSketch, ProgressState } from '../models/ApartmentSketch';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
 
 @Component({
@@ -24,6 +24,9 @@ export class ClientJobDetailsComponent implements OnInit {
   cancelMsg: string;
   cancelMsgErr: boolean = false;
 
+  succToastMsg: string;
+  errToastMsg: string;
+
   constructor(private route: ActivatedRoute,
               private jobService: JobService,
               private apartmentSketchService: ApartmentSketchService) { }
@@ -36,17 +39,25 @@ export class ClientJobDetailsComponent implements OnInit {
       next: (job: Job) => {
         this.job = job;
 
-        console.log(job);
-
         this.apartmentSketchService.getApartmentSketchByID(this.loggedUser.jwt, job.objectID).subscribe({
           next: (apartmentSketch: ApartmentSketch) => {
             this.objectUnderConstruction = apartmentSketch;
           },
-          error: () => { new bootstrap.Toast(document.getElementById("objectErr")).show(); }
+          error: () => { this.displayErrorToast("Došlo je do greške prilikom dohvatanja skice objekta. Pokušajte ponovo."); }
         });
       },
-      error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+      error: () => { this.displayErrorToast("Došlo je do greške. Pokušajte ponovo."); }
     });
+  }
+
+  displayErrorToast(msg: string) {
+    this.errToastMsg = msg;
+    new bootstrap.Toast(document.getElementById("err")).show(); 
+  }
+
+  displaySuccessfulToast(msg: string) {
+    this.succToastMsg = msg;
+    new bootstrap.Toast(document.getElementById("succ")).show(); 
   }
 
   getFormattedStartDate(): string {
@@ -97,6 +108,25 @@ export class ClientJobDetailsComponent implements OnInit {
     return this.job.state === JobState.CANCELED;
   }
 
+  areAllRoomsFinished(): boolean {
+    if(!this.objectUnderConstruction 
+        || !this.objectUnderConstruction.roomSketches 
+        || !this.objectUnderConstruction.roomSketches.length) {
+      return false;
+    }
+
+    let finished: boolean = true;
+
+    for(let rs of this.objectUnderConstruction.roomSketches) {
+      if(rs.progress != ProgressState.FINISHED) {
+        finished = false;
+        break;
+      }
+    }
+
+    return finished;
+  }
+
   showCancelDialog() {
     this.cancelJobMode = true;
   }
@@ -118,12 +148,28 @@ export class ClientJobDetailsComponent implements OnInit {
 
     this.jobService.updateJob(this.loggedUser.jwt, this.job._id, undefined, true, this.cancelMsg).subscribe({
       next: () => { 
-        new bootstrap.Toast(document.getElementById("cancelReqSucc")).show(); 
+        this.displaySuccessfulToast("Zahtev za otkazivanje posla uspešno poslat.");
         setTimeout(() => {
           window.location.reload();
         }, 750);
       },
-      error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+      error: () => { this.displayErrorToast("Došlo je do greške prilikom slanja zahteva. Pokušajte ponovo."); }
+    });
+  }
+
+  payAgency() {
+    console.log("isplata...");
+
+    // payment logic would go here... (flow should be continued only if payment was successful)
+
+    this.jobService.updateJob(this.loggedUser.jwt, this.job._id, JobState.FINISHED).subscribe({
+      next: () => { 
+        this.displaySuccessfulToast("Plaćanje uspešno izvršeno.");
+        setTimeout(() => {
+          window.location.reload();
+        }, 750);
+      },
+      error: () => { this.displayErrorToast("Došlo je do greške prilikom plaćanja. Pokušajte ponovo."); }
     });
   }
 
