@@ -38,4 +38,41 @@ export class AgencyService {
 
     return this.http.get(`${GlobalConstants.URI}/agency/getAllAnonymousComments`, { params: httpParams });
   }
+
+
+  getCommentByJobId(jwt: string, jobId: string) {
+    const httpParams = new HttpParams().append("jwt", jwt).append("jobId", jobId);
+
+    return this.http.get(`${GlobalConstants.URI}/agency/getCommentByJobId`, { params: httpParams });
+  }
+
+
+  addComment(jwt: string, jobId: string, comment: string, grade: number, clientId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobId": jobId,
+      "comment": comment,
+      "grade": grade,
+      "clientId": clientId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/addComment`, dataPayload);
+  }
+
+
+  updateComment(jwt: string, commentId: string, clientUsername: string, comment?: string, grade?: number) {
+    let dataPayload;
+
+    dataPayload = {
+      "jwt": jwt,
+      "commentId": commentId,
+      "clientUsername": clientUsername,
+    }
+
+    if(comment) dataPayload = { ...dataPayload, "comment": comment };
+    if(grade) dataPayload = { ...dataPayload, "grade": grade };
+
+    return this.http.post(`${GlobalConstants.URI}/agency/updateComment`, dataPayload);
+  }
+
 }

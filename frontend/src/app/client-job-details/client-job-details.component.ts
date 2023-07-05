@@ -7,6 +7,8 @@ import { GlobalConstants } from '../global-constants';
 import * as bootstrap from 'bootstrap';
 import { ApartmentSketch, ProgressState } from '../models/ApartmentSketch';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
+import { AgencyService } from '../services/agency.service';
+import { Comment } from '../models/Comment';
 
 @Component({
   selector: 'app-client-job-details',
@@ -19,6 +21,7 @@ export class ClientJobDetailsComponent implements OnInit {
 
   job: Job;
   objectUnderConstruction: ApartmentSketch;
+  comment: Comment;
   
   cancelJobMode: boolean = false;
   cancelMsg: string;
@@ -27,9 +30,15 @@ export class ClientJobDetailsComponent implements OnInit {
   succToastMsg: string;
   errToastMsg: string;
 
+  addCommentMode: boolean = false;
+  commentTxt: string;
+  grade: number = 0;
+  commentGradeErrMsgs: string[] = [];
+
   constructor(private route: ActivatedRoute,
               private jobService: JobService,
-              private apartmentSketchService: ApartmentSketchService) { }
+              private apartmentSketchService: ApartmentSketchService,
+              private agencyService: AgencyService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -47,6 +56,11 @@ export class ClientJobDetailsComponent implements OnInit {
         });
       },
       error: () => { this.displayErrorToast("Došlo je do greške. Pokušajte ponovo."); }
+    });
+
+    this.agencyService.getCommentByJobId(this.loggedUser.jwt, jobID).subscribe({
+      next: (comment: Comment) => { this.comment = comment; },
+      error: () => { this.comment = undefined; }
     });
   }
 
@@ -136,6 +150,25 @@ export class ClientJobDetailsComponent implements OnInit {
     this.cancelMsgErr = false;
   }
 
+  showAddCommentDialog() {
+    if(this.comment) {
+      this.commentTxt = this.comment.comment;
+      this.grade = this.comment.grade;
+    }
+
+    this.addCommentMode = true;
+  }
+
+  hideAddCommentDialog() {
+    this.addCommentMode = false;
+    this.commentTxt = undefined;
+    this.grade = 0;
+  }
+
+  isCommentPublished(): boolean {
+    return !!this.comment;
+  }
+
   cancelJob() {
     if(!this.cancelMsg) {
       this.cancelMsgErr = true;
@@ -171,6 +204,65 @@ export class ClientJobDetailsComponent implements OnInit {
       },
       error: () => { this.displayErrorToast("Došlo je do greške prilikom plaćanja. Pokušajte ponovo."); }
     });
+  }
+
+  allGrades(): Array<number> {
+    return Array(5);
+  }
+
+  setGrade(grade: number) {
+    this.grade = grade + 1;
+    console.log(this.grade);
+  }
+
+  addComment() {
+    this.commentGradeErrMsgs = [];
+    let isErrCathced: boolean = false;
+
+    if(!this.commentTxt) {
+      this.commentGradeErrMsgs.push("Unesite komentar");
+      isErrCathced = true;
+    }
+
+    if(!this.grade) {
+      this.commentGradeErrMsgs.push("Odaberite ocenu");
+      isErrCathced = true;
+    }
+
+    if(isErrCathced) return;
+
+    // send comment&grade to server...
+    if(!this.comment) {
+      this.agencyService
+          .addComment(this.loggedUser.jwt, this.job._id, this.commentTxt, this.grade, this.loggedUser._id)
+          .subscribe({
+
+        next: (addedComment: Comment) => {
+          this.comment = addedComment;
+          this.displaySuccessfulToast("Komentar i ocena uspešno objavljeni.");
+          this.hideAddCommentDialog();
+        },
+        error: () => {
+          this.displayErrorToast("Došlo je do greške prilikom objavljivanja komentara i ocene. Pokušajte ponovo.");
+        },
+
+      });
+    } else {
+      this.agencyService
+          .updateComment(this.loggedUser.jwt, this.comment._id, this.loggedUser.username, this.commentTxt, this.grade)
+          .subscribe({
+
+        next: (updatedComment: Comment) => {
+          this.comment = updatedComment;
+          this.displaySuccessfulToast("Komentar i ocena uspešno izmenjeni.");
+          this.hideAddCommentDialog();
+        },
+        error: () => {
+          this.displayErrorToast("Došlo je do greške prilikom izmene komentara i ocene. Pokušajte ponovo.");
+        },
+
+      });
+    }
   }
 
 }

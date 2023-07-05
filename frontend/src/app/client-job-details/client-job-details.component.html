@@ -26,7 +26,7 @@
 
 
 <div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
-        *ngIf="cancelJobMode">
+        *ngIf="cancelJobMode || addCommentMode">
     
     <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
     
@@ -59,6 +59,58 @@
             </div>
         </div>
     </div>
+
+    <!-- add comment job dialog -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addCommentMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddCommentDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Ostavite ocenu i komentar</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-2 mt-3">
+
+                    <div class="col-lg-12 fs-5 fw-medium">
+                        Komentar:
+                    </div>
+                    
+                    <div class="col-lg-12 d-flex justify-content-center align-items-center mb-3">
+                        <textarea class="form-control" name="commentTxt" [(ngModel)]="commentTxt" id="commentTxt" cols="30" rows="5" placeholder="Ovde napišite Vaš komentar..."></textarea> 
+                    </div>
+
+                    
+                    <div class="col-lg-1 fs-5 fw-medium">
+                        Ocena:
+                    </div>
+
+                    <div class="col-1 text-plt1-clr5 me-3 me-sm-0" *ngFor="let star of allGrades(); let i = index">
+                        <mat-icon style="font-size: 50px;" class="pointer" (click)="setGrade(i)" *ngIf="grade > i">
+                             star 
+                        </mat-icon>
+                        <mat-icon style="font-size: 50px;" class="pointer" (click)="setGrade(i)" *ngIf="grade <= i">
+                            star_border
+                        </mat-icon>
+                    </div>
+                   
+                    <div class="col-6"></div>
+
+                    <div class="col-lg-10 d-flex justify-content-center align-items-center">
+                        <button type="button" class="btn btn-plt1-clr9 px-5 py-2 fs-6 fw-medium text-white"
+                                (click)="addComment()">
+                            Potvrdite
+                        </button>
+                    </div>
+
+                    <ul style="color: red;">
+                        <li *ngFor="let msg of commentGradeErrMsgs"> {{ msg }} </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -155,7 +207,18 @@
         </div>
 
 
-        
+        <!-- fields for finished jobs -->
+        <div class="col-12 d-flex justify-content-center" *ngIf="isJobFinished()">
+            <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium" *ngIf="!isCommentPublished()"
+                    (click)="showAddCommentDialog()">
+                Ostavite komentar
+            </button>
+
+            <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium" *ngIf="isCommentPublished()"
+                    (click)="showAddCommentDialog()">
+                Ažurirajte komentar
+            </button>
+        </div>
 
     </div>
 </div>
