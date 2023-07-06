@@ -63,4 +63,9 @@ agencyRouter.route("/getNumOfOpenedPositions").post(
     (req, res) => new AgencyController().getNumOfOpenedPositions(req, res)
 );
 
+
+agencyRouter.route("/addNewAgencyRequest").post(
+    (req, res) => new AgencyController().addNewAgencyRequest(req, res)
+);
+
 export default agencyRouter;

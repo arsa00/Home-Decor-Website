@@ -15,5 +15,6 @@ agencyRouter.route("/updateEmployee").post((req, res) => new agency_controller_1
 agencyRouter.route("/deleteEmployee").post((req, res) => new agency_controller_1.AgencyController().deleteEmployee(req, res));
 agencyRouter.route("/getAllEmployeesForAgency").post((req, res) => new agency_controller_1.AgencyController().getAllEmployeesForAgency(req, res));
 agencyRouter.route("/getNumOfOpenedPositions").post((req, res) => new agency_controller_1.AgencyController().getNumOfOpenedPositions(req, res));
+agencyRouter.route("/addNewAgencyRequest").post((req, res) => new agency_controller_1.AgencyController().addNewAgencyRequest(req, res));
 exports.default = agencyRouter;
 //# sourceMappingURL=agency.router.js.map

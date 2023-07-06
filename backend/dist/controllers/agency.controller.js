@@ -19,6 +19,7 @@ const comment_1 = require("../models/comment");
 const job_1 = require("../models/job");
 const employee_1 = require("../models/employee");
 const mongoose_1 = __importDefault(require("mongoose"));
+const agency_request_1 = require("../models/agency-request");
 const mongoSanitaze = require("mongo-sanitize");
 const ObjectId = mongoose_1.default.Types.ObjectId;
 class AgencyController {
@@ -250,6 +251,22 @@ class AgencyController {
                 const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
                 const agency = yield user_1.UserModel.findOne({ "_id": agencyId }).orFail();
                 return res.status(200).json({ "numOfOpenedPositions": agency.numOfOpenedPositions });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.addNewAgencyRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyReq = mongoSanitaze(req.body.agencyReq);
+                const newReq = new agency_request_1.AgencyRequestModel({
+                    agencyId: agencyReq.agencyId,
+                    type: agencyReq.type,
+                    numOfPositions: agencyReq.numOfPositions
+                });
+                const addedReq = newReq.save();
+                return res.status(200).json(addedReq);
             }
             catch (err) {
                 console.log(err);

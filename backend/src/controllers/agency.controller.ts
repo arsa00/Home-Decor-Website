@@ -5,6 +5,7 @@ import { CommentModel } from "../models/comment";
 import { JobModel } from "../models/job";
 import { EmployeeModel } from "../models/employee";
 import mongoose from "mongoose";
+import { AgencyRequestModel } from "../models/agency-request";
 
 const mongoSanitaze = require("mongo-sanitize");
 const ObjectId = mongoose.Types.ObjectId;
@@ -290,6 +291,25 @@ export class AgencyController {
             
             const agency = await UserModel.findOne({ "_id": agencyId }).orFail();
             return res.status(200).json({"numOfOpenedPositions": agency.numOfOpenedPositions});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    addNewAgencyRequest = async (req: Request, res: Response) => {
+        try {
+            const agencyReq = mongoSanitaze(req.body.agencyReq);
+            
+            const newReq = new AgencyRequestModel({
+                agencyId: agencyReq.agencyId,
+                type: agencyReq.type,
+                numOfPositions: agencyReq.numOfPositions
+            });
+            
+            const addedReq = newReq.save();
+            return res.status(200).json(addedReq);
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
