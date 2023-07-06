@@ -148,6 +148,18 @@ class JobController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getAgencyJobsWithState = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const jobState = mongoSanitaze(req.body.jobState);
+                const allJobs = yield job_1.JobModel.find({ "agencyID": agencyId, "state": jobState }).orFail();
+                return res.status(200).json(allJobs);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.JobController = JobController;

@@ -144,4 +144,18 @@ export class JobController {
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
+
+
+    getAgencyJobsWithState = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            const jobState = mongoSanitaze(req.body.jobState);
+
+            const allJobs = await JobModel.find({ "agencyID": agencyId, "state": jobState }).orFail();
+            return res.status(200).json(allJobs);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
 }

@@ -27,4 +27,9 @@ jobRouter.route("/deleteJob").post(
     (req, res) => new JobController().deleteJob(req, res)
 );
 
+
+jobRouter.route("/getAgencyJobsWithState").post(
+    (req, res) => new JobController().getAgencyJobsWithState(req, res)
+);
+
 export default jobRouter;
