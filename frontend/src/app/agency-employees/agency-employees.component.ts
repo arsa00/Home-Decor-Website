@@ -4,6 +4,7 @@ import { GlobalConstants } from '../global-constants';
 import { Employee } from '../models/Employee';
 import { AgencyService } from '../services/agency.service';
 import * as bootstrap from 'bootstrap';
+import { AgencyRequest, RequestType } from '../models/AgencyRequest';
 
 @Component({
   selector: 'app-agency-employees',
@@ -261,6 +262,8 @@ export class AgencyEmployeesComponent implements OnInit {
 
   hideNewOpenPositionsDialog() {
     this.requestNewOpenPositionsMode = false;
+    this.numOfNewOpenPositions = 0;
+    this.numOfNewOpenPositionsErr = false;
   }
 
   requestNewOpenPositions() {
@@ -269,6 +272,23 @@ export class AgencyEmployeesComponent implements OnInit {
       return;
     }
 
-    return;
+    this.hideNewOpenPositionsDialog();
+    this.showLoadingDialog("Slanje zahteva...");
+
+    const newReq = new AgencyRequest();
+    newReq.agencyId = this.loggedUser._id;
+    newReq.numOfPositions = this.numOfNewOpenPositions;
+    newReq.type = RequestType.NEW_OPEN_POSITIONS;
+
+    this.agencyService.addNewAgencyRequest(this.loggedUser.jwt, newReq).subscribe({
+      next: () => {
+        this.displaySuccessfulToast("Uspešno poslat zahtev.");
+        this.hideLoadingDialog(); 
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom slanja zahteva. Pokušajte ponovo."); 
+        this.hideLoadingDialog(); 
+      }
+    });
   }
 }

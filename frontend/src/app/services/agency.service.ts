@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GlobalConstants } from '../global-constants';
 import { Employee } from '../models/Employee';
+import { AgencyRequest } from '../models/AgencyRequest';
 
 @Injectable({
   providedIn: 'root'
@@ -127,5 +128,15 @@ export class AgencyService {
     }
 
     return this.http.post(`${GlobalConstants.URI}/agency/getNumOfOpenedPositions`, dataPayload);
+  }
+
+
+  addNewAgencyRequest(jwt: string, agencyReq: AgencyRequest) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyReq": agencyReq
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/addNewAgencyRequest`, dataPayload);
   }
 }
