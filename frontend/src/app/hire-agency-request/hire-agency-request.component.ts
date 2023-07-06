@@ -103,7 +103,8 @@ export class HireAgencyRequestComponent implements OnInit {
     this.isWaitingForResposne = true;
     const newJob: Job = new Job(this.loggedUser._id, this.agencyID, this.agencyName, 
                                 pickedObject._id, pickedObject.type, pickedObject.address,
-                                this.startJobDate, this.endJobDate);
+                                this.startJobDate, this.endJobDate, this.loggedUser.firstname,
+                                this.loggedUser.lastname, this.loggedUser.phone, this.loggedUser.mail);
 
     this.jobService.addJob(this.loggedUser.jwt, newJob).subscribe({
       next: () => { 

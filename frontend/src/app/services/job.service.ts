@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GlobalConstants } from '../global-constants';
 import { Job, JobState } from '../models/Job';
+import { Employee } from '../models/Employee';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class JobService {
             state?: JobState, 
             cancelRequested?: boolean,
             cancelReqMsg?: string, 
-            agencyOffer?: number, 
+            agencyOffer?: number,
+            assignedEmployees?: Employee[],  
             clientID?: string, 
             agencyID?: string,
             agencyName?: string, 
@@ -33,7 +35,11 @@ export class JobService {
             objectType?: string, 
             objectAddress?: string, 
             startDate?: Date, 
-            endDate?: Date) {
+            endDate?: Date,
+            clientFirstname?: string,
+            clientLastname?: string,
+            clientPhone?: string,
+            clientMail?: string) {
     let dataPayload;
 
     dataPayload = { "jwt": jwt, "jobID": jobID };
@@ -50,6 +56,11 @@ export class JobService {
     if(objectAddress) dataPayload = { ...dataPayload, "objectAddress": objectAddress };
     if(startDate) dataPayload = { ...dataPayload, "startDate": startDate };
     if(endDate) dataPayload = { ...dataPayload, "endDate": endDate };
+    if(assignedEmployees) dataPayload = { ...dataPayload, "assignedEmployees": assignedEmployees };
+    if(clientFirstname) dataPayload = { ...dataPayload, "clientFirstname": clientFirstname };
+    if(clientLastname) dataPayload = { ...dataPayload, "clientLastname": clientLastname };
+    if(clientPhone) dataPayload = { ...dataPayload, "clientPhone": clientPhone };
+    if(clientMail) dataPayload = { ...dataPayload, "clientMail": clientMail };
 
     return this.http.post(`${GlobalConstants.URI}/job/updateJob`, dataPayload);
   }
