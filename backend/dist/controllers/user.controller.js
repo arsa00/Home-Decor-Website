@@ -241,20 +241,36 @@ class UserController {
             const lastname = mongoSanitaze(req.body.lastname);
             const phone = mongoSanitaze(req.body.phone);
             const mail = mongoSanitaze(req.body.mail);
+            const name = mongoSanitaze(req.body.name);
+            const address = mongoSanitaze(req.body.address);
+            const description = mongoSanitaze(req.body.description);
             let updateQuery;
-            if (firstname)
-                updateQuery = Object.assign(Object.assign({}, updateQuery), { "firstname": firstname });
-            if (lastname)
-                updateQuery = Object.assign(Object.assign({}, updateQuery), { "lastname": lastname });
+            // common data
             if (phone)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "phone": phone });
             if (mail)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "mail": mail });
+            // client's data
+            if (firstname)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "firstname": firstname });
+            if (lastname)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "lastname": lastname });
+            // agency's data
+            if (name)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "name": name });
+            if (address)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "address": address });
+            if (description)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "description": description });
             // console.log( updateQuery );
             if (!updateQuery)
                 return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite nove podatke." });
             try {
                 const newUser = yield user_1.UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
+                newUser.password = null;
+                // user._id = null; // maybe
+                if (newUser.recoveryLink)
+                    newUser.recoveryLink = null;
                 return res.status(200).json(newUser);
             }
             catch (err) {

@@ -279,13 +279,24 @@ export class UserController {
         const lastname = mongoSanitaze(req.body.lastname);
         const phone = mongoSanitaze(req.body.phone);
         const mail = mongoSanitaze(req.body.mail);
+        const name = mongoSanitaze(req.body.name);
+        const address = mongoSanitaze(req.body.address);
+        const description = mongoSanitaze(req.body.description);
 
         let updateQuery;
 
-        if(firstname) updateQuery = { ...updateQuery, "firstname": firstname };
-        if(lastname) updateQuery = { ...updateQuery, "lastname": lastname };
+        // common data
         if(phone) updateQuery = { ...updateQuery, "phone": phone };
         if(mail) updateQuery = { ...updateQuery, "mail": mail };
+
+        // client's data
+        if(firstname) updateQuery = { ...updateQuery, "firstname": firstname };
+        if(lastname) updateQuery = { ...updateQuery, "lastname": lastname };
+        
+        // agency's data
+        if(name) updateQuery = { ...updateQuery, "name": name };
+        if(address) updateQuery = { ...updateQuery, "address": address };
+        if(description) updateQuery = { ...updateQuery, "description": description };
 
         // console.log( updateQuery );
 
@@ -293,6 +304,9 @@ export class UserController {
 
         try {
             const newUser = await UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
+            newUser.password = null;
+            // user._id = null; // maybe
+            if(newUser.recoveryLink) newUser.recoveryLink = null;
             return res.status(200).json(newUser);
         } catch(err) {
             console.log(err);
