@@ -41,6 +41,12 @@ let User = new schema({
     description: {
         type: String
     },
+    numOfOpenedPositions: {
+        type: Number
+    },
+    numOfFilledPositions: {
+        type: Number
+    },
     imageType: {
         type: String
     },

@@ -88,7 +88,9 @@ class UserController {
                     idNumber: req.body.idNumber,
                     phone: req.body.phone,
                     mail: req.body.mail,
-                    description: req.body.description
+                    description: req.body.description,
+                    numOfOpenedPositions: 0,
+                    numOfFilledPositions: 0
                 });
                 // MAYBE TODO: add additional validation of data in request body
                 try {
