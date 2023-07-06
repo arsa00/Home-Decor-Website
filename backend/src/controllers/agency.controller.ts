@@ -3,9 +3,11 @@ import { UserModel } from "../models/user";
 import { UserController } from "./user.controller";
 import { CommentModel } from "../models/comment";
 import { JobModel } from "../models/job";
+import { EmployeeModel } from "../models/employee";
+import mongoose from "mongoose";
 
 const mongoSanitaze = require("mongo-sanitize");
-const ObjectId = require("mongoose").Types.ObjectId;
+const ObjectId = mongoose.Types.ObjectId;
 
 export class AgencyController {
 
@@ -188,7 +190,109 @@ export class AgencyController {
             return res.status(200).json(newComment);
         } catch(err) {
             console.log(err);
-            return res.status(500).json({errMsg: "Došlo je do greške. Pokušajte ponovo."});
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    addEmployee = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            const firstname = mongoSanitaze(req.body.employee.firstname);
+            const lastname = mongoSanitaze(req.body.employee.lastname);
+            const mail = mongoSanitaze(req.body.employee.mail);
+            const phone = mongoSanitaze(req.body.employee.phone);
+            const specialization = mongoSanitaze(req.body.employee.specialization);
+
+            // check if there is enough opened positions at agency (throw err if not)
+            let numOfEmployees = await EmployeeModel.find({ "agencyId": agencyId });
+            await UserModel.findOne({ "_id": agencyId, "numOfOpenedPositions": { "$gt": numOfEmployees.length } }).orFail();
+
+            // checkup successful
+            const newEmployee = new EmployeeModel({
+                agencyId: agencyId,
+                firstname: firstname,
+                lastname: lastname,
+                mail: mail,
+                phone: phone,
+                specialization: specialization
+            });
+
+            const addedEmployee = await newEmployee.save();
+            return res.status(200).json(addedEmployee);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    updateEmployee = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            const firstname = mongoSanitaze(req.body.employee.firstname);
+            const lastname = mongoSanitaze(req.body.employee.lastname);
+            const mail = mongoSanitaze(req.body.employee.mail);
+            const phone = mongoSanitaze(req.body.employee.phone);
+            const specialization = mongoSanitaze(req.body.employee.specialization);
+            const employeeId = new ObjectId(mongoSanitaze(req.body.employee._id));
+            const employeeAgencyId = new ObjectId(mongoSanitaze(req.body.employee.agencyId));
+            
+            if(!agencyId.equals(employeeAgencyId)) throw Error();
+
+            let updateQuery;
+
+            if(firstname) updateQuery = { "firstname": firstname };
+            if(lastname) updateQuery = { ...updateQuery, "lastname": lastname };
+            if(mail) updateQuery = { ...updateQuery, "mail": mail };
+            if(phone) updateQuery = { ...updateQuery, "phone": phone };
+            if(specialization) updateQuery = { ...updateQuery, "specialization": specialization };
+            
+            const updatedEmployee = await EmployeeModel.findOneAndUpdate({ "_id": employeeId }, updateQuery, { new: true }).orFail();
+            return res.status(200).json(updatedEmployee);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    deleteEmployee = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            const employeeId = new ObjectId(mongoSanitaze(req.body.employeeId));
+            
+            await EmployeeModel.findOneAndDelete({ "_id": employeeId, "agencyId": agencyId }).orFail();
+            return res.status(200).json({"succMsg": "Radnik uspešno obirsan."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    getAllEmployeesForAgency = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            
+            const allEmployees = await EmployeeModel.find({ "agencyId": agencyId });
+            return res.status(200).json(allEmployees);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    getNumOfOpenedPositions = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            
+            const agency = await UserModel.findOne({ "_id": agencyId }).orFail();
+            return res.status(200).json({"numOfOpenedPositions": agency.numOfOpenedPositions});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
 

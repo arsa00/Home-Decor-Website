@@ -38,4 +38,29 @@ agencyRouter.route("/updateComment").post(
     (req, res) => new AgencyController().updateComment(req, res)
 );
 
+
+agencyRouter.route("/addEmployee").post(
+    (req, res) => new AgencyController().addEmployee(req, res)
+);
+
+
+agencyRouter.route("/updateEmployee").post(
+    (req, res) => new AgencyController().updateEmployee(req, res)
+);
+
+
+agencyRouter.route("/deleteEmployee").post(
+    (req, res) => new AgencyController().deleteEmployee(req, res)
+);
+
+
+agencyRouter.route("/getAllEmployeesForAgency").post(
+    (req, res) => new AgencyController().getAllEmployeesForAgency(req, res)
+);
+
+
+agencyRouter.route("/getNumOfOpenedPositions").post(
+    (req, res) => new AgencyController().getNumOfOpenedPositions(req, res)
+);
+
 export default agencyRouter;

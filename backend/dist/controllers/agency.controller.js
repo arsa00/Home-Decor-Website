@@ -8,14 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgencyController = void 0;
 const user_1 = require("../models/user");
 const user_controller_1 = require("./user.controller");
 const comment_1 = require("../models/comment");
 const job_1 = require("../models/job");
+const employee_1 = require("../models/employee");
+const mongoose_1 = __importDefault(require("mongoose"));
 const mongoSanitaze = require("mongo-sanitize");
-const ObjectId = require("mongoose").Types.ObjectId;
+const ObjectId = mongoose_1.default.Types.ObjectId;
 class AgencyController {
     constructor() {
         this.getAgencies = (req, res) => {
@@ -155,7 +160,100 @@ class AgencyController {
             }
             catch (err) {
                 console.log(err);
-                return res.status(500).json({ errMsg: "Došlo je do greške. Pokušajte ponovo." });
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.addEmployee = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const firstname = mongoSanitaze(req.body.employee.firstname);
+                const lastname = mongoSanitaze(req.body.employee.lastname);
+                const mail = mongoSanitaze(req.body.employee.mail);
+                const phone = mongoSanitaze(req.body.employee.phone);
+                const specialization = mongoSanitaze(req.body.employee.specialization);
+                // check if there is enough opened positions at agency (throw err if not)
+                let numOfEmployees = yield employee_1.EmployeeModel.find({ "agencyId": agencyId });
+                yield user_1.UserModel.findOne({ "_id": agencyId, "numOfOpenedPositions": { "$gt": numOfEmployees.length } }).orFail();
+                // checkup successful
+                const newEmployee = new employee_1.EmployeeModel({
+                    agencyId: agencyId,
+                    firstname: firstname,
+                    lastname: lastname,
+                    mail: mail,
+                    phone: phone,
+                    specialization: specialization
+                });
+                const addedEmployee = yield newEmployee.save();
+                return res.status(200).json(addedEmployee);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.updateEmployee = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const firstname = mongoSanitaze(req.body.employee.firstname);
+                const lastname = mongoSanitaze(req.body.employee.lastname);
+                const mail = mongoSanitaze(req.body.employee.mail);
+                const phone = mongoSanitaze(req.body.employee.phone);
+                const specialization = mongoSanitaze(req.body.employee.specialization);
+                const employeeId = new ObjectId(mongoSanitaze(req.body.employee._id));
+                const employeeAgencyId = new ObjectId(mongoSanitaze(req.body.employee.agencyId));
+                if (!agencyId.equals(employeeAgencyId))
+                    throw Error();
+                let updateQuery;
+                if (firstname)
+                    updateQuery = { "firstname": firstname };
+                if (lastname)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "lastname": lastname });
+                if (mail)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "mail": mail });
+                if (phone)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "phone": phone });
+                if (specialization)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "specialization": specialization });
+                const updatedEmployee = yield employee_1.EmployeeModel.findOneAndUpdate({ "_id": employeeId }, updateQuery, { new: true }).orFail();
+                return res.status(200).json(updatedEmployee);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.deleteEmployee = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const employeeId = new ObjectId(mongoSanitaze(req.body.employeeId));
+                yield employee_1.EmployeeModel.findOneAndDelete({ "_id": employeeId, "agencyId": agencyId }).orFail();
+                return res.status(200).json({ "succMsg": "Radnik uspešno obirsan." });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.getAllEmployeesForAgency = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const allEmployees = yield employee_1.EmployeeModel.find({ "agencyId": agencyId });
+                return res.status(200).json(allEmployees);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.getNumOfOpenedPositions = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const agency = yield user_1.UserModel.findOne({ "_id": agencyId }).orFail();
+                return res.status(200).json({ "numOfOpenedPositions": agency.numOfOpenedPositions });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
     }
