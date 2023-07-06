@@ -1,1 +1,126 @@
-<p>agency-profile works!</p>
+<app-navbar [activeNav]="'agency'"></app-navbar>
+
+<!-- error toast -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="updateErr" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Došlo je do greške prilikom ažuriranja profila. Pokušajte ponovo.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- successful password changed toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="passResetSucc" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Lozinka uspešno promenjena.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="container rounded mt-5 mb-3 d-flex justify-content-center">
+    
+
+    <div class="row w-75 justify-content-center align-items-center shadow pb-2 position-relative">
+        <div class="position-absolute top-0 d-flex justify-content-end mt-3">
+            <button type="button" class="btn btn-outline-plt1-clr11 fw-medium d-flex" (click)="logout()">
+                <span class="me-2">Odjavite se</span>
+                <mat-icon>
+                    logout
+                </mat-icon>
+            </button>
+        </div>
+
+        <div class="col-md-10 d-flex justify-content-center align-items-center flex-column mt-3">
+            <h1 class="text-right fs-2 fw-medium mt-5 pt-3 m-md-0 p-md-0">Profil</h1>
+            <div class="w-50 bg-plt1-clr6 rounded" style="height: 5px;"></div>
+        </div>
+        <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center text-center p-3" *ngIf="!editMode">
+                <img class="rounded-circle mt-3 shadow-sm" width="150px" src="{{ imageSrc }}" id="profileImg">
+                <span class="fw-medium fs-6 mt-2"> {{ loggedUser.firstname }} </span>
+            </div>
+            <div class="d-flex flex-column align-items-center text-center p-3" *ngIf="editMode">
+                <img class="rounded-circle mt-3 shadow-sm bg-gray-plt-clr5" width="150px" src="{{ imageSrc }}" style="opacity: 0.7;" id="profileImg">
+                <button type="button" class="btn btn-outline-plt1-clr9 fs-6 fw-medium mt-3" onclick="document.getElementById('imgPicker').click();">Izaberite sliku</button>
+                <input type="file" accept="image/png, image/jpeg" name="imgPicker" id="imgPicker" class="d-none">
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="p-3">
+                <div class="row mt-3 gy-2"> 
+                    <!-- назив агенција, адреса, кратак опис, и-мејл адреса и контакт телефон -->
+                    <div class="col-md-12">
+                        <label class="labels">Naziv agencije</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.name }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" name="name" [(ngModel)]="loggedUser.name" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Adresa</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.address }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" name="address" [(ngModel)]="loggedUser.address" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Kratak opis</label>
+                        <!-- <input type="text" class="form-control" value="{{ loggedUser.description }}" readonly *ngIf="!editMode"> -->
+                        <textarea col="5" class="form-control" value="{{ loggedUser.description }}" *ngIf="!editMode" readonly></textarea>
+                        <textarea col="5" class="form-control" name="description" [(ngModel)]="loggedUser.description" *ngIf="editMode"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Email</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.mail }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" name="mail" [(ngModel)]="loggedUser.mail" [ngClass]="{'is-invalid': mailErr}"
+                                (click)="mailInputClicked()" *ngIf="editMode">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="labels">Kontakt telefon</label>
+                        <input type="text" class="form-control" value="{{ loggedUser.phone }}" readonly *ngIf="!editMode">
+                        <input type="text" class="form-control" name="phone" [(ngModel)]="loggedUser.phone" [ngClass]="{'is-invalid': phoneErr}"
+                                (click)="phoneNumInputClicked()" *ngIf="editMode">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 text-center text-md-end" *ngIf="!editMode">
+            <button type="button" class="btn btn-plt1-clr4 fs-5 fw-medium my-2 w-75" (click)="startEdit()">Promenite informacije</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-start" *ngIf="!editMode">
+            <button type="button" class="btn btn-plt1-clr5 fs-5 fw-medium my-2 w-75" (click)="openChangePassDialog()">Promenite lozinku</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-end" *ngIf="editMode">
+            <button type="button" class="btn btn-plt1-clr6 fs-5 fw-medium my-2 w-75" (click)="saveChagnes()">Potvrdite</button>
+        </div>
+
+        <div class="col-md-5 text-center text-md-start" *ngIf="editMode">
+            <button type="button" class="btn btn-plt1-clr1 fs-5 fw-medium my-2 w-75" (click)="discardChagnes()">Otkažite</button>
+        </div>
+
+        <div class="col-10 text-center errorText fw-medium fs-6 mt-3" *ngIf="editMode">
+            <ul style="list-style-type: none;">
+                <li *ngFor="let msg of errMessages">* {{ msg }}</li>
+                <li *ngFor="let msg of imgErrMessages">* {{ msg }}</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<div class="container-fluid h-100 w-100 position-fixed top-0" *ngIf="changePassMode" style="z-index: 3;">
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+    <app-change-password style="position: relative; z-index: 5;" [user]="loggedUser" 
+                [closeDialogFunc]="closeChangePassDialog" [changeSuccessful]="passChangeSucc">
+    </app-change-password>
+</div>

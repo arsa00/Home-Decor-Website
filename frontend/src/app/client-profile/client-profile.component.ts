@@ -79,7 +79,7 @@ export class ClientProfileComponent implements OnInit {
     this.editMode = false;
 
     this.userService
-        .updateUserData(this.loggedUser.username, this.loggedUser.jwt, this.loggedUser.phone, this.loggedUser.mail, this.loggedUser.firstname, this.loggedUser.lastname)
+        .updateClientData(this.loggedUser.username, this.loggedUser.jwt, this.loggedUser.phone, this.loggedUser.mail, this.loggedUser.firstname, this.loggedUser.lastname)
         .subscribe({
           next: (newUser: User) => {
             newUser.jwt = this.loggedUser.jwt;

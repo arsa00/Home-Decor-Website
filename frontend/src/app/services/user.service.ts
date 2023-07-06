@@ -103,7 +103,7 @@ export class UserService {
   }
 
 
-  updateUserData(username: string, jwt: string, phone?: string, mail?: string, firstname?: string, lastname?: string, ) {
+  updateClientData(username: string, jwt: string, phone?: string, mail?: string, firstname?: string, lastname?: string) {
     let dataPayload;
 
     dataPayload  = {"username": username, "jwt": jwt };
@@ -133,6 +133,50 @@ export class UserService {
       dataPayload = {
         ...dataPayload,
         "lastname": lastname
+      }
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/updateData`, dataPayload);
+  }
+
+
+  updateAgencyData(username: string, jwt: string, phone?: string, mail?: string, name?: string, address?: string, description?: string) {
+    let dataPayload;
+
+    dataPayload  = {"username": username, "jwt": jwt };
+
+    if(phone) {
+      dataPayload = {
+        ...dataPayload,
+        "phone": phone
+      }
+    }
+
+    if(mail) {
+      dataPayload = {
+        ...dataPayload,
+        "mail": mail
+      }
+    }
+
+    if(name) {
+      dataPayload = {
+        ...dataPayload,
+        "name": name
+      }
+    }
+
+    if(address) {
+      dataPayload = {
+        ...dataPayload,
+        "address": address
+      }
+    }
+
+    if(description) {
+      dataPayload = {
+        ...dataPayload,
+        "description": description
       }
     }
 

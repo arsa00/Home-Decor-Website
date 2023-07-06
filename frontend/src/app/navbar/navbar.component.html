@@ -78,5 +78,30 @@
         </ul>
       </div>
 
+
+      <!-- agency's navbar -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isAgencyNav()">
+        <ul class="navbar-nav ms-auto me-lg-2 mb-2 mb-lg-0 fs-6">
+
+          <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
+            <a class="nav-link" aria-current="page"
+                  [ngClass]="{ 'active': isActiveLink(ROUTE_AGENCY_PROFILE) }" routerLink="/{{ ROUTE_AGENCY_PROFILE }}">
+                Profil
+            </a>
+          </li>
+
+          <li class="nav-item width-fit-content ms-3">
+            <a class="nav-link d-flex justify-content-center align-items-center" 
+                  [ngClass]="{ 'active': isActiveLink(ROUTE_LOGIN) }" routerLink="/{{ ROUTE_LOGIN }}" (click)="logout()">
+                <span class="me-1">Odjava</span>
+                <mat-icon>
+                    logout
+                </mat-icon>
+            </a>
+          </li>
+
+        </ul>
+      </div>
+
     </div>
   </nav>
