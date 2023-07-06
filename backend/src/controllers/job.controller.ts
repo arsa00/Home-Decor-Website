@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { JobModel } from "../models/job";
+import { ApartmentSketchModel } from "../models/apartment-sketch";
 
 
 const mongoSanitaze = require("mongo-sanitize");
@@ -9,6 +10,23 @@ export class JobController {
 
     addJob = async (req: Request, res: Response) => {
         try {
+            const objectID = new ObjectId(mongoSanitaze(req.body.objectID));
+
+            // if object is already included within another job (that is not rejected, canceled nor finished), reject request
+            const objectAlreadyUnderConstruction = await JobModel.findOne(
+                { "objectID": objectID, "state": { "$nin": [ 1, 4, 5 ] } }
+            );
+
+            if(objectAlreadyUnderConstruction) throw Error();
+
+            // if object is not included within another job, 
+            // reset progress of it's rooms before creating new job
+            await ApartmentSketchModel.findOneAndUpdate(
+                { "_id": objectID }, 
+                { "$set": { "roomSketches.$[].progress": 1 } },
+                { multi: true }
+            ).orFail();
+
             const newJob = new JobModel({
                 state: mongoSanitaze(req.body.state),
                 agencyID: new ObjectId(mongoSanitaze(req.body.agencyID)),
@@ -20,7 +38,12 @@ export class JobController {
                 objectID: new ObjectId(mongoSanitaze(req.body.objectID)),
                 objectType: mongoSanitaze(req.body.objectType),
                 objectAddress: mongoSanitaze(req.body.objectAddress),
-                startDate: mongoSanitaze(req.body.startDate)
+                startDate: mongoSanitaze(req.body.startDate),
+                clientFirstname : mongoSanitaze(req.body.clientFirstname),
+                clientLastname: mongoSanitaze(req.body.clientLastname),
+                clientMail: mongoSanitaze(req.body.clientMail),
+                clientPhone: mongoSanitaze(req.body.clientPhone),
+                assignedEmployees: mongoSanitaze(req.body.assignedEmployees)
             });
 
             const addedJob = await newJob.save();
@@ -46,6 +69,11 @@ export class JobController {
             const objectType = mongoSanitaze(req.body.objectType);
             const objectAddress = mongoSanitaze(req.body.objectAddress);
             const startDate = mongoSanitaze(req.body.startDate);
+            const clientFirstname = mongoSanitaze(req.body.clientFirstname);
+            const clientLastname = mongoSanitaze(req.body.clientLastname);
+            const clientMail = mongoSanitaze(req.body.clientMail);
+            const clientPhone = mongoSanitaze(req.body.clientPhone);
+            const assignedEmployees = mongoSanitaze(req.body.assignedEmployees);
 
             let updateQuery;
 
@@ -61,6 +89,11 @@ export class JobController {
             if(objectType) updateQuery = { ...updateQuery, "objectType": objectType };
             if(objectAddress) updateQuery = { ...updateQuery, "objectAddress": objectAddress };
             if(startDate) updateQuery = { ...updateQuery, "startDate": startDate };
+            if(clientFirstname) updateQuery = { ...updateQuery, "clientFirstname": clientFirstname };
+            if(clientLastname) updateQuery = { ...updateQuery, "clientLastname": clientLastname };
+            if(clientMail) updateQuery = { ...updateQuery, "clientMail": clientMail };
+            if(clientPhone) updateQuery = { ...updateQuery, "clientPhone": clientPhone };
+            if(assignedEmployees) updateQuery = { ...updateQuery, "assignedEmployees": assignedEmployees };
 
             const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
 

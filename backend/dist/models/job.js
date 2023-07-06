@@ -43,6 +43,21 @@ let Job = new schema({
     },
     cancelReqMsg: {
         type: String
+    },
+    clientFirstname: {
+        type: String
+    },
+    clientLastname: {
+        type: String
+    },
+    clientPhone: {
+        type: String
+    },
+    clientMail: {
+        type: String
+    },
+    assignedEmployees: {
+        type: Array
     }
 });
 const JobModel = mongoose_1.default.model("JobModel", Job, "job");

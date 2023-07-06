@@ -11,12 +11,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobController = void 0;
 const job_1 = require("../models/job");
+const apartment_sketch_1 = require("../models/apartment-sketch");
 const mongoSanitaze = require("mongo-sanitize");
 const ObjectId = require("mongoose").Types.ObjectId;
 class JobController {
     constructor() {
         this.addJob = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
+                const objectID = new ObjectId(mongoSanitaze(req.body.objectID));
+                // if object is already included within another job (that is not rejected, canceled nor finished), reject request
+                const objectAlreadyUnderConstruction = yield job_1.JobModel.findOne({ "objectID": objectID, "state": { "$nin": [1, 4, 5] } });
+                if (objectAlreadyUnderConstruction)
+                    throw Error();
+                // if object is not included within another job, 
+                // reset progress of it's rooms before creating new job
+                yield apartment_sketch_1.ApartmentSketchModel.findOneAndUpdate({ "_id": objectID }, { "$set": { "roomSketches.$[].progress": 1 } }, { multi: true }).orFail();
                 const newJob = new job_1.JobModel({
                     state: mongoSanitaze(req.body.state),
                     agencyID: new ObjectId(mongoSanitaze(req.body.agencyID)),
@@ -28,7 +37,12 @@ class JobController {
                     objectID: new ObjectId(mongoSanitaze(req.body.objectID)),
                     objectType: mongoSanitaze(req.body.objectType),
                     objectAddress: mongoSanitaze(req.body.objectAddress),
-                    startDate: mongoSanitaze(req.body.startDate)
+                    startDate: mongoSanitaze(req.body.startDate),
+                    clientFirstname: mongoSanitaze(req.body.clientFirstname),
+                    clientLastname: mongoSanitaze(req.body.clientLastname),
+                    clientMail: mongoSanitaze(req.body.clientMail),
+                    clientPhone: mongoSanitaze(req.body.clientPhone),
+                    assignedEmployees: mongoSanitaze(req.body.assignedEmployees)
                 });
                 const addedJob = yield newJob.save();
                 return res.status(200).json(addedJob);
@@ -52,6 +66,11 @@ class JobController {
                 const objectType = mongoSanitaze(req.body.objectType);
                 const objectAddress = mongoSanitaze(req.body.objectAddress);
                 const startDate = mongoSanitaze(req.body.startDate);
+                const clientFirstname = mongoSanitaze(req.body.clientFirstname);
+                const clientLastname = mongoSanitaze(req.body.clientLastname);
+                const clientMail = mongoSanitaze(req.body.clientMail);
+                const clientPhone = mongoSanitaze(req.body.clientPhone);
+                const assignedEmployees = mongoSanitaze(req.body.assignedEmployees);
                 let updateQuery;
                 if (state)
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "state": state });
@@ -77,6 +96,16 @@ class JobController {
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "objectAddress": objectAddress });
                 if (startDate)
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "startDate": startDate });
+                if (clientFirstname)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientFirstname": clientFirstname });
+                if (clientLastname)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientLastname": clientLastname });
+                if (clientMail)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientMail": clientMail });
+                if (clientPhone)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientPhone": clientPhone });
+                if (assignedEmployees)
+                    updateQuery = Object.assign(Object.assign({}, updateQuery), { "assignedEmployees": assignedEmployees });
                 const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
                 const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobID }, updateQuery, { new: true }).orFail();
                 return res.status(200).json(updatedJob);
