@@ -19,6 +19,7 @@ import { HireAgencyRequestComponent } from './hire-agency-request/hire-agency-re
 import { JobListComponent } from './job-list/job-list.component';
 import { ClientJobDetailsComponent } from './client-job-details/client-job-details.component';
 import { AgencyEmployeesComponent } from './agency-employees/agency-employees.component';
+import { AgencyJobListComponent } from './agency-job-list/agency-job-list.component';
 
 const routes: Routes = [
   { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -38,6 +39,7 @@ const routes: Routes = [
 
   { path: GlobalConstants.ROUTE_AGENCY_PROFILE, component: AgencyProfileComponent, canActivate: [LoggedAsAgencyGuard] },
   { path: GlobalConstants.ROUTE_AGENCY_EMPLOYEES, component: AgencyEmployeesComponent, canActivate: [LoggedAsAgencyGuard] },
+  { path: GlobalConstants.ROUTE_AGENCY_JOB_LIST, component: AgencyJobListComponent, canActivate: [LoggedAsAgencyGuard] },
   
 ];
 

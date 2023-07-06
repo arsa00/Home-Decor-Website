@@ -94,4 +94,15 @@ export class JobService {
 
     return this.http.post(`${GlobalConstants.URI}/job/deleteJob`, dataPayload);
   }
+
+
+  getAgencyJobsWithState(jwt: string, agencyId: string, jobState: JobState) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId,
+      "jobState": jobState
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getAgencyJobsWithState`, dataPayload);
+  }
 }

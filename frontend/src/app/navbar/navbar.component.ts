@@ -26,6 +26,7 @@ export class NavbarComponent implements OnInit {
 
   readonly ROUTE_AGENCY_PROFILE         = GlobalConstants.ROUTE_AGENCY_PROFILE;
   readonly ROUTE_AGENCY_EMPLOYEES       = GlobalConstants.ROUTE_AGENCY_EMPLOYEES;
+  readonly ROUTE_AGENCY_JOB_LIST        = GlobalConstants.ROUTE_AGENCY_JOB_LIST;
 
   readonly ROUTE_ADMIN_LOGIN            = GlobalConstants.ROUTE_ADMIN_LOGIN; 
 

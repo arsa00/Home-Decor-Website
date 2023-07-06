@@ -1,0 +1,164 @@
+<app-navbar [activeNav]="'agency'"></app-navbar>
+
+
+<!-- error toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ errToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- successful toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="succ" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ succToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
+        *ngIf="isAcceptReqDialogActive">
+
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+
+    <div class="container position-relative" style="z-index: 3;" *ngIf="isAcceptReqDialogActive">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer" 
+                        (click)="hideAcceptReqDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4">Prihvatanje zahteva</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-6 fs-4 text-lg-end text-center">
+                        <label class="labels">Unesite Vašu ponudu klijent:</label>
+                    </div>
+                    <div class="col-lg-6 text-lg-start text-center d-flex align-items-center justify-content-center">
+                        <input type="number" class="form-control w-50" name="offer" id="offer" min="0" step="1000"
+                                    [(ngModel)]="offer" [ngClass]="{'is-invalid': offerErr}">
+                        <span class="fs-5 fw-medium">&nbsp;din.</span>
+                    </div>
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" 
+                                (click)="acceptReq()">
+                            Prihvatite zahtev
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+
+    <!-- LOADING -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="loadingDialogActive">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideLoadingDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">{{ loadingHeaderTxt }}</h1>
+
+                <div class="row justify-content-center align-items-center p-2">
+
+                    <div class="col-12 d-flex justify-content-center align-items-center my-5">
+                        <mat-spinner></mat-spinner>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div class="col-md-12 d-flex justify-content-center align-items-center flex-column mt-3">
+    <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0">Zahtevi</h1>
+    <div class="w-50 bg-plt1-clr5 rounded mt-md-3 mt-0" style="height: 5px;"></div>
+</div>
+
+
+<div class="container-fluid p-3 mt-5 mb-1">
+
+    <div class="row gy-4">
+        
+        <div class="col-md-4" *ngFor="let jobReq of allJobRequests; let i = index;">
+            <div class="card border border-2 border-black employeeCard">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Tip objekta:</span>
+                        <span class="text-end"> {{ jobReq.objectType }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Adresa objekta:</span>
+                        <span class="text-end"> {{ jobReq.objectAddress }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Datum početka radova:</span>
+                        <span class="text-end"> {{ getFormattedDate(jobReq.startDate) }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Datum kraja radova:</span>
+                        <span class="text-end"> {{ getFormattedDate(jobReq.endDate) }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Ime klijenta:</span>
+                        <span class="text-end"> {{ jobReq.clientFirstname }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Prezime klijenta:</span>
+                        <span class="text-end"> {{ jobReq.clientLastname }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Telefon klijenta:</span>
+                        <span class="text-end"> {{ jobReq.clientPhone }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">E-mail klijenta:</span>
+                        <span class="text-end"> {{ jobReq.clientMail }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center fs-5 mt-5">
+                        <button type="button" class="btn btn-plt1-clr6 py-2 fs-5 fw-medium w-75"
+                                (click)="showAcceptReqDialog(i)">
+                            Prihvatite zahtev
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center fs-5 mt-4">
+                        <button type="button" class="btn btn-plt1-clr1 py-2 fs-5 fw-medium w-75" 
+                                (click)="rejectReq(i)">
+                            Odbijte zahtev
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
