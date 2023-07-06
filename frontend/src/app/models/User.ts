@@ -15,5 +15,4 @@ export class User {
     idNumber?:  string;
     description?: string;
     numOfOpenedPositions?: number;
-    numOfFilledPositions?: number;
 }

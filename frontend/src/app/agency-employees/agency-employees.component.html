@@ -15,13 +15,158 @@
 <!-- successful toast message -->
 <div class="toast-container position-fixed end-0 bottom-0 p-3">
     <div id="succ" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex bg-plt1-clr1 rounded">
+        <div class="d-flex bg-plt1-clr6 rounded">
             <div class="toast-body fs-6 fw-medium">
                 {{ succToastMsg }}
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
+</div>
+
+
+
+<!-- menu interfaces -->
+<div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
+        *ngIf="addNewEmployeeMode || loadingDialogActive || deleteMode || requestNewOpenPositionsMode">
+
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+
+    <!-- add new employee dialog -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="addNewEmployeeMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideAddNewEmployee()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">Dodajte novog radnika</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+
+                    <div class="col-lg-12">
+                        <label class="labels">Ime:</label>
+                        <input type="text" class="form-control" placeholder="Ime radnika..." name="emplFirstname" id="emplFirstname"  
+                                    [(ngModel)]="newEmployeeFirstname" [ngClass]="{'is-invalid': newEmployeeFirstnameErr}">
+                    </div>
+
+                    <div class="col-lg-12">
+                        <label class="labels">Prezime:</label>
+                        <input type="text" class="form-control" placeholder="Prezime radnika..." name="emplLastname" id="emplLastname"  
+                                    [(ngModel)]="newEmployeeLastname" [ngClass]="{'is-invalid': newEmployeeLastnameErr}">
+                    </div>
+
+                    <div class="col-lg-12">
+                        <label class="labels">E-mail adresa:</label>
+                        <input type="text" class="form-control" placeholder="E-mail adresa radnika..." name="emplMail" id="emplMail"  
+                                    [(ngModel)]="newEmployeeMail" [ngClass]="{'is-invalid': newEmployeeMailErr}">
+                    </div>
+
+                    <div class="col-lg-12">
+                        <label class="labels">Kontakt telefon:</label>
+                        <input type="text" class="form-control" placeholder="Kontakt telefon radnika..." name="emplPhone" id="emplPhone"  
+                                    [(ngModel)]="newEmployeePhone" [ngClass]="{'is-invalid': newEmployeePhoneErr}">
+                    </div>
+
+                    <div class="col-lg-12">
+                        <label class="labels">Specijalizacija</label>
+                        <input type="text" class="form-control" placeholder="Specijalizacija radnika..." name="emplSpecialization" id="emplSpecialization"  
+                        [(ngModel)]="newEmployeeSpecialization" [ngClass]="{'is-invalid': newEmployeeSpecializationErr}">
+                    </div>
+
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" (click)="addNewEmployee()">
+                            Dodajte radnika
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- add employee - LOADING -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="loadingDialogActive">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideLoadingDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4 fs-2">{{ loadingHeaderTxt }}</h1>
+
+                <div class="row justify-content-center align-items-center p-2">
+
+                    <div class="col-12 d-flex justify-content-center align-items-center my-5">
+                        <mat-spinner></mat-spinner>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- delete employee -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="deleteMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <h1 class="text-center fw-medium mb-4">Brisanje radnika</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-12 text-center">
+                        <p class="fs-5">
+                            Da li ste sigurni da želite da izbrišete ovog radnika?
+                        </p>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-plt1-clr6 fw-medium w-100 my-2" (click)="deleteEmployee()">
+                            Da
+                        </button>
+                    </div>
+                    <div class="col-lg-2">
+                        <button class="btn btn-plt1-clr1 fw-medium w-100 my-2" (click)="hideDeleteDialog()">
+                            Ne
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+
+    <!-- request new open positions -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="requestNewOpenPositionsMode">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer" 
+                        (click)="hideNewOpenPositionsDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4">Zahtev za otvaranje novih radnih mesta</h1>
+
+                <div class="row justify-content-center align-items-center p-2 gy-3">
+                    <div class="col-lg-6 fs-4 text-lg-end text-center">
+                        <label class="labels">Unesite željeni broj radnih mesta</label>
+                    </div>
+                    <div class="col-lg-6 text-lg-start text-center">
+                        <input type="number" class="form-control" name="numOfNewOpenPositions" id="numOfNewOpenPositions" min="1" 
+                                    [(ngModel)]="numOfNewOpenPositions" [ngClass]="{'is-invalid': numOfNewOpenPositionsErr}">
+                    </div>
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium w-100 my-2" 
+                                (click)="requestNewOpenPositions()">
+                            Pošaljite zahtev
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
 </div>
 
 
@@ -36,19 +181,35 @@
         </div>
 
         <div class="col-xl-4 fs-4 text-center">
-            Broj popunjenih radnih mesta: <span class="fs-3 fw-medium"> {{ loggedUser.numOfFilledPositions }} </span>
+            Broj popunjenih radnih mesta: <span class="fs-3 fw-medium"> {{ allEmployees?.length ?? 0 }} </span>
         </div>
 
         <div class="col-xl-4 text-center">
-            <button type="button" class="btn btn-plt1-clr9 fs-6 px-4 py-2 fw-medium"> + Zahtevajte otvaranje radnih mesta </button>
+            <button type="button" class="btn btn-plt1-clr9 fs-6 px-4 py-2 fw-medium" (click)="showNewOpenPositionsDialog()"> 
+                + Zahtevajte otvaranje radnih mesta 
+            </button>
         </div>
 
     </div>
 </div>
 
-
-
 <div class="container-fluid p-3 mt-5 mb-1">
+
+    <div class="d-flex justify-content-start mb-3">
+        <button type="button" class="btn btn-plt1-clr6 text-white fw-medium" *ngIf="isAnyPositionAvailable()"
+                (click)="showAddNewEmployee()">
+            + Dodajte radnika
+        </button>
+
+
+        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Nema slobodnih radnih mesta"
+                 *ngIf="!isAnyPositionAvailable()">
+            <button type="button" class="btn btn-plt1-clr6 text-white fw-medium" disabled>
+                + Dodajte radnika
+            </button>
+        </span>
+    </div>
+
     <div class="row gy-4">
         
         <div class="col-md-4" *ngFor="let employee of allEmployees; let i = index">

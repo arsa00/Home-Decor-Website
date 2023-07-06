@@ -21,20 +21,70 @@ export class AgencyEmployeesComponent implements OnInit {
 
   loggedUser: User;
 
-  allEmployees: Employee[] = [AgencyEmployeesComponent.empl1, AgencyEmployeesComponent.empl2, AgencyEmployeesComponent.empl3];
+
+  allEmployees: Employee[] = [];
   selectedIndex: number;
   selectedEmployee: Employee;
 
+
   editMode: boolean = false;
   deleteMode: boolean = false;
+  addNewEmployeeMode: boolean = false;
+
+
+  loadingDialogActive: boolean = false;
+  loadingHeaderTxt: string;
+
+
+  newEmployeeFirstname: string;
+  newEmployeeLastname: string;
+  newEmployeeMail: string;
+  newEmployeePhone: string;
+  newEmployeeSpecialization: string;
+
+  newEmployeeFirstnameErr: boolean = false;
+  newEmployeeLastnameErr: boolean = false;
+  newEmployeeMailErr: boolean = false;
+  newEmployeePhoneErr: boolean = false;
+  newEmployeeSpecializationErr: boolean = false;
+
+
+  requestNewOpenPositionsMode: boolean = false;
+  numOfNewOpenPositions: number = 0;
+
+  numOfNewOpenPositionsErr: boolean = false;
+
 
   errToastMsg: string;
   succToastMsg: string;
+
+  mailRegEx = new RegExp(GlobalConstants.REGEX_MAIL);
+  phoneRegEx = new RegExp(GlobalConstants.REGEX_PHONE);
+
 
   constructor(private agencyService: AgencyService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+
+    this.agencyService.getNumOfOpenedPositions(this.loggedUser.jwt, this.loggedUser._id).subscribe({
+      next: (res) => {
+        this.loggedUser.numOfOpenedPositions = res["numOfOpenedPositions"];
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom učitavanja agencije. Probajte da osvežite stranicu.") 
+      }
+    });
+
+    this.agencyService.getAllEmployeesForAgency(this.loggedUser.jwt, this.loggedUser._id)
+    .subscribe({
+      next: (employees: Employee[]) => {
+        this.allEmployees = employees;
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom učitavanja radnika. Probajte da osvežite stranicu.") 
+      }
+    });
   }
 
   displayErrorToast(msg: string) {
@@ -76,6 +126,103 @@ export class AgencyEmployeesComponent implements OnInit {
     this.deleteMode = true;
   }
 
+  deleteEmployee() {
+    this.hideDeleteDialog();
+    this.showLoadingDialog("Brisanje radnika...");
+
+    this.agencyService.deleteEmployee(this.loggedUser.jwt, this.loggedUser._id, this.selectedEmployee._id)
+    .subscribe({
+      next: () => {
+        this.allEmployees.splice(this.selectedIndex, 1);
+        this.selectedIndex = null;
+        this.selectedEmployee = null;
+        this.hideLoadingDialog();
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom brisanja radnika. Pokušajte ponovo.");
+        this.hideLoadingDialog();
+       }
+    });
+  }
+
+  showAddNewEmployee() {
+    this.addNewEmployeeMode = true;
+  }
+
+  hideAddNewEmployee() {
+    this.addNewEmployeeMode = false;
+    this.newEmployeeFirstname = undefined;
+    this.newEmployeeLastname = undefined;
+    this.newEmployeeMail = undefined;
+    this.newEmployeePhone = undefined;
+    this.newEmployeeSpecialization = undefined;
+  }
+
+  hideLoadingDialog() {
+    this.loadingDialogActive = false;
+  }
+
+  private showLoadingDialog(msg: string) {
+    this.loadingHeaderTxt = msg;
+    this.loadingDialogActive = true;
+  }
+
+  addNewEmployee() {
+    this.newEmployeeMailErr = false;
+    this.newEmployeePhoneErr = false;
+    this.newEmployeeLastnameErr = false;
+    this.newEmployeeFirstnameErr = false;
+    this.newEmployeeSpecializationErr = false;
+
+    let isErrCatched: boolean = false;
+
+    if(!this.newEmployeeFirstname) {
+      this.newEmployeeFirstnameErr = true;
+      isErrCatched = true;
+    }
+
+    if(!this.newEmployeeLastname) {
+      this.newEmployeeLastnameErr = true;
+      isErrCatched = true;
+    }
+
+    if(!this.newEmployeeMail || !this.mailRegEx.test(this.newEmployeeMail)) {
+      this.newEmployeeMailErr = true;
+      isErrCatched = true;
+    }
+
+    if(!this.newEmployeePhone || !this.phoneRegEx.test(this.newEmployeePhone)) {
+      this.newEmployeePhoneErr = true;
+      isErrCatched = true;
+    }
+
+    if(!this.newEmployeeSpecialization) {
+      this.newEmployeeSpecializationErr = true;
+      isErrCatched = true;
+    }
+
+    if(isErrCatched) return;
+
+    this.addNewEmployeeMode = false;
+    this.showLoadingDialog("Dodavanje novog radnika...");
+
+    const newEmployee = new Employee(this.newEmployeeFirstname, this.newEmployeeLastname, this.newEmployeeMail,
+                                      this.newEmployeePhone, this.newEmployeeSpecialization);
+
+    this.agencyService.addEmployee(this.loggedUser.jwt, this.loggedUser._id, newEmployee).subscribe({
+      next: (employee: Employee) => {
+        this.allEmployees.push(employee);
+        this.displaySuccessfulToast("Uspešno dodat radnik.");
+        this.hideLoadingDialog();
+        this.hideAddNewEmployee();
+      },
+      error: () => {
+        this.displayErrorToast("Došlo je do greške prilikom dodavanja novog radnika. Pokušajte ponovo.");
+        this.hideLoadingDialog();
+      }
+    });
+  }
+
   activateEditMode() { 
     if(this.selectedIndex == undefined || this.selectedIndex == null) return;
 
@@ -104,4 +251,24 @@ export class AgencyEmployeesComponent implements OnInit {
     });
   }
 
+  isAnyPositionAvailable(): boolean {
+    return (this.loggedUser.numOfOpenedPositions - this.allEmployees.length) > 0;
+  }
+  
+  showNewOpenPositionsDialog() {
+    this.requestNewOpenPositionsMode = true;
+  }
+
+  hideNewOpenPositionsDialog() {
+    this.requestNewOpenPositionsMode = false;
+  }
+
+  requestNewOpenPositions() {
+    if(!this.numOfNewOpenPositions || this.numOfNewOpenPositions <= 0) {
+      this.numOfNewOpenPositionsErr = true;
+      return;
+    }
+
+    return;
+  }
 }

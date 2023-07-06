@@ -81,7 +81,7 @@ export class AgencyService {
     const dataPayload = {
       "jwt": jwt,
       "agencyId": agencyId,
-      ...employee
+      "employee": employee
     }
 
     return this.http.post(`${GlobalConstants.URI}/agency/addEmployee`, dataPayload);
@@ -92,7 +92,7 @@ export class AgencyService {
     const dataPayload = {
       "jwt": jwt,
       "agencyId": agencyId,
-      ...employee
+      "employee": employee
     }
 
     return this.http.post(`${GlobalConstants.URI}/agency/updateEmployee`, dataPayload);
@@ -107,5 +107,25 @@ export class AgencyService {
     }
 
     return this.http.post(`${GlobalConstants.URI}/agency/deleteEmployee`, dataPayload);
+  }
+
+
+  getAllEmployeesForAgency(jwt: string, agencyId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/getAllEmployeesForAgency`, dataPayload);
+  }
+
+
+  getNumOfOpenedPositions(jwt: string, agencyId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/getNumOfOpenedPositions`, dataPayload);
   }
 }
