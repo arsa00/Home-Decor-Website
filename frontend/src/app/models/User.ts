@@ -14,4 +14,6 @@ export class User {
     address?:  string;
     idNumber?:  string;
     description?: string;
+    numOfOpenedPositions?: number;
+    numOfFilledPositions?: number;
 }

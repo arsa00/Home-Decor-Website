@@ -85,6 +85,13 @@
 
           <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
             <a class="nav-link" aria-current="page"
+                  [ngClass]="{ 'active': isActiveLink(ROUTE_AGENCY_EMPLOYEES) }" routerLink="/{{ ROUTE_AGENCY_EMPLOYEES }}">
+                Radnici
+            </a>
+          </li>
+
+          <li class="nav-item me-3 d-flex justify-content-center align-items-center width-fit-content">
+            <a class="nav-link" aria-current="page"
                   [ngClass]="{ 'active': isActiveLink(ROUTE_AGENCY_PROFILE) }" routerLink="/{{ ROUTE_AGENCY_PROFILE }}">
                 Profil
             </a>

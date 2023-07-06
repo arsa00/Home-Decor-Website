@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { GlobalConstants } from '../global-constants';
+import { Employee } from '../models/Employee';
 
 @Injectable({
   providedIn: 'root'
@@ -74,5 +75,37 @@ export class AgencyService {
 
     return this.http.post(`${GlobalConstants.URI}/agency/updateComment`, dataPayload);
   }
-  
+
+
+  addEmployee(jwt: string, agencyId: string, employee: Employee) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId,
+      ...employee
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/addEmployee`, dataPayload);
+  }
+
+
+  updateEmployee(jwt: string, agencyId: string, employee: Employee) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId,
+      ...employee
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/updateEmployee`, dataPayload);
+  }
+
+
+  deleteEmployee(jwt: string, agencyId: string, employeeId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId,
+      "employeeId": employeeId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/deleteEmployee`, dataPayload);
+  }
 }

@@ -18,6 +18,7 @@ import { LoggedAsAgencyGuard } from './guards/logged-as-agency';
 import { HireAgencyRequestComponent } from './hire-agency-request/hire-agency-request.component';
 import { JobListComponent } from './job-list/job-list.component';
 import { ClientJobDetailsComponent } from './client-job-details/client-job-details.component';
+import { AgencyEmployeesComponent } from './agency-employees/agency-employees.component';
 
 const routes: Routes = [
   { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: `${GlobalConstants.ROUTE_CLIENT_JOB_DETAILS}/:jobID`, component: ClientJobDetailsComponent, canActivate: [LoggedAsClientGuard] },
 
   { path: GlobalConstants.ROUTE_AGENCY_PROFILE, component: AgencyProfileComponent, canActivate: [LoggedAsAgencyGuard] },
+  { path: GlobalConstants.ROUTE_AGENCY_EMPLOYEES, component: AgencyEmployeesComponent, canActivate: [LoggedAsAgencyGuard] },
   
 ];
 

@@ -28,6 +28,7 @@ import { ClientObjectsComponent } from './client-objects/client-objects.componen
 import { HireAgencyRequestComponent } from './hire-agency-request/hire-agency-request.component';
 import { JobListComponent } from './job-list/job-list.component';
 import { ClientJobDetailsComponent } from './client-job-details/client-job-details.component';
+import { AgencyEmployeesComponent } from './agency-employees/agency-employees.component';
 
 
 @NgModule({
@@ -51,7 +52,8 @@ import { ClientJobDetailsComponent } from './client-job-details/client-job-detai
     ClientObjectsComponent,
     HireAgencyRequestComponent,
     JobListComponent,
-    ClientJobDetailsComponent
+    ClientJobDetailsComponent,
+    AgencyEmployeesComponent
   ],
   imports: [
     BrowserModule,

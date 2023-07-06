@@ -1,0 +1,123 @@
+<app-navbar [activeNav]="'agency'"></app-navbar>
+
+<!-- error toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ errToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- successful toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="succ" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ succToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
+
+<h1 class="fs-1 text-center fw-medium mt-5 mb-3 text-gray-plt-clr9"> Radnici </h1>
+
+<div class="container my-4 p-3 rounded-5 shadow bg-plt1-clr5">
+    <div class="row gy-3 justify-content-center align-items-center">
+
+        <div class="col-xl-4 fs-4 text-center">
+            Broj dostupnih radnih mesta: <span class="fs-3 fw-medium"> {{ loggedUser.numOfOpenedPositions }} </span>
+        </div>
+
+        <div class="col-xl-4 fs-4 text-center">
+            Broj popunjenih radnih mesta: <span class="fs-3 fw-medium"> {{ loggedUser.numOfFilledPositions }} </span>
+        </div>
+
+        <div class="col-xl-4 text-center">
+            <button type="button" class="btn btn-plt1-clr9 fs-6 px-4 py-2 fw-medium"> + Zahtevajte otvaranje radnih mesta </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="container-fluid p-3 mt-5 mb-1">
+    <div class="row gy-4">
+        
+        <div class="col-md-4" *ngFor="let employee of allEmployees; let i = index">
+            <div class="card border border-2 border-black employeeCard" [ngClass]="{'border-3': selectedIndex == i}" 
+                    (click)="setActive(i)">
+                <div class="card-body" [ngClass]="{'bg-plt2-clr1': selectedIndex == i}">
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Ime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ employee.firstname }} </span>
+                        <input type="text" class="form-control" name="firstname" [(ngModel)]="selectedEmployee.firstname" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Prezime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ employee.lastname }} </span>
+                        <input type="text" class="form-control" name="lastname" [(ngModel)]="selectedEmployee.lastname" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">E-mail adresa:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ employee.mail }} </span>
+                        <input type="text" class="form-control" name="mail" [(ngModel)]="selectedEmployee.mail" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Kontakt telefon:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ employee.phone }} </span>
+                        <input type="text" class="form-control" name="phone" [(ngModel)]="selectedEmployee.phone" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Specijalizacija:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ employee.specialization }} </span>
+                        <input type="text" class="form-control" name="specialization" [(ngModel)]="selectedEmployee.specialization" *ngIf="showEditField(i)">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="showActionButtons()"
+            (click)="showDeleteDialog()">
+    <mat-icon class="circleIcon">
+        delete
+    </mat-icon>
+</div>
+
+<div class="fixedButton secondButton bg-plt1-clr10 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="showActionButtons()"
+            (click)="activateEditMode()">
+    <mat-icon class="circleIcon">
+        edit
+    </mat-icon>
+</div>
+
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
+            (click)="discardEdit()">
+    <mat-icon class="circleIcon">
+        close
+    </mat-icon>
+</div>
+
+<div class="fixedButton secondButton bg-plt1-clr6 d-flex justify-content-center align-items-center cursor-pointer" *ngIf="editMode"
+            (click)="submitEdit()">
+    <mat-icon class="circleIcon">
+        check
+    </mat-icon>
+</div>
