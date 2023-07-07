@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobController = void 0;
 const job_1 = require("../models/job");
 const apartment_sketch_1 = require("../models/apartment-sketch");
+const employee_1 = require("../models/employee");
 const mongoSanitaze = require("mongo-sanitize");
 const ObjectId = require("mongoose").Types.ObjectId;
 class JobController {
@@ -154,6 +155,29 @@ class JobController {
                 const jobState = mongoSanitaze(req.body.jobState);
                 const allJobs = yield job_1.JobModel.find({ "agencyID": agencyId, "state": jobState });
                 return res.status(200).json(allJobs);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.assignEmployeesToJob = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+                const employees = mongoSanitaze(req.body.employees);
+                if (!employees.length)
+                    throw Error();
+                // check if employees exist and are they working for agency with recevied agencyId
+                const employeeIds = Array.from(employees.map((employee) => {
+                    return employee._id;
+                }));
+                const employeesFromDb = yield employee_1.EmployeeModel.find({ "_id": { "$in": employeeIds }, "agencyId": agencyId }).orFail();
+                if (employees.length != employeesFromDb.length)
+                    throw Error();
+                // assign them to job
+                const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobId, "agencyID": agencyId }, { "$push": { "assignedEmployees": { "$each": employeesFromDb } } }, { new: true });
+                return res.status(200).json(updatedJob);
             }
             catch (err) {
                 console.log(err);

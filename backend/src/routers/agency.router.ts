@@ -59,6 +59,11 @@ agencyRouter.route("/getAllEmployeesForAgency").post(
 );
 
 
+agencyRouter.route("/getAllAvailableEmployeesForAgency").post(
+    (req, res) => new AgencyController().getAllAvailableEmployeesForAgency(req, res)
+);
+
+
 agencyRouter.route("/getNumOfOpenedPositions").post(
     (req, res) => new AgencyController().getNumOfOpenedPositions(req, res)
 );

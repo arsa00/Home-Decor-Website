@@ -32,4 +32,9 @@ jobRouter.route("/getAgencyJobsWithState").post(
     (req, res) => new JobController().getAgencyJobsWithState(req, res)
 );
 
+
+jobRouter.route("/assignEmployeesToJob").post(
+    (req, res) => new JobController().assignEmployeesToJob(req, res)
+);
+
 export default jobRouter;

@@ -285,6 +285,37 @@ export class AgencyController {
     }
 
 
+    getAllAvailableEmployeesForAgency = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            
+            // get all already assigned employees on active(=3) jobs
+            const assignedEmployees: any[] = await JobModel.find(
+                { "agencyID": agencyId, "state": 3 },
+                { "assignedEmployees": 1, "_id": 0 }
+            );
+
+            // create array of ids of already assigned employees 
+            let assignedEmployeesId: number[] = [];
+
+            for(let singleRow of assignedEmployees) {
+                for(let employee of singleRow.assignedEmployees) {
+                    assignedEmployeesId.push(employee._id);
+                }
+            }
+
+            // find and return list of available employees
+            const allEmployees = await EmployeeModel.find(
+                { "agencyId": agencyId, "_id": { "$nin": assignedEmployeesId } }
+            );
+            return res.status(200).json(allEmployees);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
     getNumOfOpenedPositions = async (req: Request, res: Response) => {
         try {
             const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));

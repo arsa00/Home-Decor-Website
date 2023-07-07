@@ -9,5 +9,6 @@ jobRouter.route("/getAllClientJobs").post((req, res) => new job_controller_1.Job
 jobRouter.route("/getJobByID").post((req, res) => new job_controller_1.JobController().getJobByID(req, res));
 jobRouter.route("/deleteJob").post((req, res) => new job_controller_1.JobController().deleteJob(req, res));
 jobRouter.route("/getAgencyJobsWithState").post((req, res) => new job_controller_1.JobController().getAgencyJobsWithState(req, res));
+jobRouter.route("/assignEmployeesToJob").post((req, res) => new job_controller_1.JobController().assignEmployeesToJob(req, res));
 exports.default = jobRouter;
 //# sourceMappingURL=job.router.js.map

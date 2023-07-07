@@ -246,6 +246,27 @@ class AgencyController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getAllAvailableEmployeesForAgency = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                // get all already assigned employees on active(=3) jobs
+                const assignedEmployees = yield job_1.JobModel.find({ "agencyID": agencyId, "state": 3 }, { "assignedEmployees": 1, "_id": 0 });
+                // create array of ids of already assigned employees 
+                let assignedEmployeesId = [];
+                for (let singleRow of assignedEmployees) {
+                    for (let employee of singleRow.assignedEmployees) {
+                        assignedEmployeesId.push(employee._id);
+                    }
+                }
+                // find and return list of available employees
+                const allEmployees = yield employee_1.EmployeeModel.find({ "agencyId": agencyId, "_id": { "$nin": assignedEmployeesId } });
+                return res.status(200).json(allEmployees);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
         this.getNumOfOpenedPositions = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));

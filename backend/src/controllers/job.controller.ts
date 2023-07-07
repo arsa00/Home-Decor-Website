@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { JobModel } from "../models/job";
 import { ApartmentSketchModel } from "../models/apartment-sketch";
+import { EmployeeModel } from "../models/employee";
 
 
 const mongoSanitaze = require("mongo-sanitize");
@@ -153,6 +154,39 @@ export class JobController {
 
             const allJobs = await JobModel.find({ "agencyID": agencyId, "state": jobState });
             return res.status(200).json(allJobs);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    assignEmployeesToJob = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+            const employees: any[] = mongoSanitaze(req.body.employees);
+
+            if(!employees.length) throw Error();
+
+            // check if employees exist and are they working for agency with recevied agencyId
+            const employeeIds: any[] = Array.from(employees.map((employee) => {
+                return employee._id;
+            }));
+
+            const employeesFromDb: any[] = await EmployeeModel.find(
+                { "_id": { "$in": employeeIds }, "agencyId": agencyId }
+            ).orFail();
+
+            if(employees.length != employeesFromDb.length) throw Error();
+
+            // assign them to job
+            const updatedJob = await JobModel.findOneAndUpdate(
+                { "_id": jobId, "agencyID": agencyId },
+                { "$push": { "assignedEmployees": { "$each": employeesFromDb } } },
+                { new: true }
+            );
+            return res.status(200).json(updatedJob);
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
