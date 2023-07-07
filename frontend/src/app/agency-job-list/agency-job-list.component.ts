@@ -6,6 +6,8 @@ import { GlobalConstants } from '../global-constants';
 import { JobService } from '../services/job.service';
 import { ApartmentSketch } from '../models/ApartmentSketch';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
+import { Employee } from '../models/Employee';
+import { AgencyService } from '../services/agency.service';
 
 @Component({
   selector: 'app-agency-job-list',
@@ -14,13 +16,6 @@ import { ApartmentSketchService } from '../services/apartment-sketch.service';
 })
 export class AgencyJobListComponent implements OnInit {
 
-  // dummy data
-
-  static readonly job1 = new Job("32,", "22", "Agencija ime", "1519", "Kuca", "Adresa", new Date("2023-07-06"), 
-                                new Date("2022-07-07"), "Ime klijenta", "Prezime klijenta", "+381 61/ 000 - 00", "klijent@mejl.rs");
-
-  // delete dummy data above
-
   loggedUser: User;
 
   allJobRequests: Job[] = [];
@@ -28,8 +23,15 @@ export class AgencyJobListComponent implements OnInit {
 
   allActiveJobs: Job[] = [];
   selectedActiveIndex: number;
+
   allApartments: ApartmentSketch[] = [];
   selectedApartment: ApartmentSketch = null;
+
+  allAvailableEmployees: Employee[] = [];
+  selectedEmployeesMap: Map<number, Employee> = new Map<number, Employee>();
+
+  isAssignEmployeesDialogActive: boolean;
+  assignEmployeesErrMsgs: string[] = [];
 
   isAcceptReqDialogActive: boolean = false;
   offer: number = 0;
@@ -42,7 +44,9 @@ export class AgencyJobListComponent implements OnInit {
   loadingDialogActive: boolean;
   loadingHeaderTxt: string;
 
-  constructor(private jobService: JobService, private apartmentSketchService: ApartmentSketchService) { }
+  constructor(private jobService: JobService, 
+              private apartmentSketchService: ApartmentSketchService,
+              private agencyService: AgencyService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -60,7 +64,6 @@ export class AgencyJobListComponent implements OnInit {
     this.jobService.getAgencyJobsWithState(this.loggedUser.jwt, this.loggedUser._id, JobState.ACTIVE)
     .subscribe({
       next: (allActiveJobs: Job[]) => {
-        console.log(allActiveJobs);
         this.allActiveJobs = allActiveJobs;
         this.selectedActiveIndex = 0;
 
@@ -81,6 +84,16 @@ export class AgencyJobListComponent implements OnInit {
       },
       error: () => { 
         this.displayErrorToast("Došlo je do greške prilikom učitavanja aktivnih poslova. Pokušajte da osvežite stranicu.");
+      }
+    });
+
+    this.agencyService.getAllAvailableEmployeesForAgency(this.loggedUser.jwt, this.loggedUser._id)
+    .subscribe({
+      next: (allEmployees: Employee[]) => {
+        this.allAvailableEmployees = allEmployees;
+      },
+      error: () => {
+        this.displayErrorToast("Došlo je do greške prilikom učitavanja dostupnih radnika. Pokušajte da osvežite stranicu.");
       }
     });
   }
@@ -190,6 +203,75 @@ export class AgencyJobListComponent implements OnInit {
     this.selectedApartment = ApartmentSketch.clone( this.allApartments.find((object: ApartmentSketch) => {
       return object._id == this.allActiveJobs[this.selectedActiveIndex].objectID;
     }));
+  }
+
+  showAssignEmployeesDialog() {
+    this.isAssignEmployeesDialogActive = true;
+  }
+
+  hideAssignEmployeesDialog() {
+    this.isAssignEmployeesDialogActive = false;
+    this.selectedEmployeesMap = new Map<number, Employee>();
+  }
+
+  toggleEmployeeAssignment(event, index: number) {
+    if(event.target.checked) {
+      this.selectedEmployeesMap.set(index, this.allAvailableEmployees[index]);
+    } else {
+      this.selectedEmployeesMap.delete(index);
+    }   
+  }
+
+  assignEmployees() {
+    this.assignEmployeesErrMsgs = [];
+    const activeJob = this.allActiveJobs[this.selectedActiveIndex];
+
+    if(this.selectedEmployeesMap.size + activeJob.assignedEmployees.length < this.selectedApartment.roomSketches.length) {
+      this.assignEmployeesErrMsgs.push("Morate odabrati minimum jednog radnika po prostoriji");
+      return;
+    }
+
+    this.isAssignEmployeesDialogActive = false;
+    this.showLoadingDialog("Angažovanje radnika...");
+
+    const assignedEmployees = Array.from(this.selectedEmployeesMap.values());
+    this.jobService.assignEmployeesToJob(this.loggedUser.jwt, this.loggedUser._id, activeJob._id, assignedEmployees)
+    .subscribe({
+      next: (updatedJob: Job) => {
+        this.agencyService.getAllAvailableEmployeesForAgency(this.loggedUser.jwt, this.loggedUser._id)
+        .subscribe({
+          next: (allEmployees: Employee[]) => {
+            this.allAvailableEmployees = allEmployees;
+          },
+          error: () => {
+            const allIndexesOfAssignedEmpls: number[] = Array.from(this.selectedEmployeesMap.keys());
+        
+            let removedIndexes: number[] = [];
+            for(let index of allIndexesOfAssignedEmpls) {
+              let indexToRemoveFrom = index;
+
+              for(let removed of removedIndexes) {
+                if(index > removed) indexToRemoveFrom--;
+              }
+
+              this.allAvailableEmployees.splice(indexToRemoveFrom, 1);
+              removedIndexes.push(index);
+            }
+
+            this.displayErrorToast("Došlo je do greške prilikom učitavanja dostupnih radnika. Pokušajte da osvežite stranicu.");
+          }
+        });
+
+        this.allActiveJobs[this.selectedActiveIndex] = updatedJob;
+        this.displaySuccessfulToast("Uspešno angažovanje radnika.");
+        this.hideAssignEmployeesDialog();
+        this.hideLoadingDialog();
+      },
+      error: () => {
+        this.displayErrorToast("Došlo je do greške prilikom angažovanja radnika. Pokušajte ponovo.");
+        this.hideLoadingDialog();
+      }
+    });
   }
 
 }

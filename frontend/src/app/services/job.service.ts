@@ -105,4 +105,16 @@ export class JobService {
 
     return this.http.post(`${GlobalConstants.URI}/job/getAgencyJobsWithState`, dataPayload);
   }
+
+
+  assignEmployeesToJob(jwt: string, agencyId: string, jobId: string, employees: Employee[]) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId,
+      "jobId": jobId,
+      "employees": employees
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/assignEmployeesToJob`, dataPayload);
+  }
 }

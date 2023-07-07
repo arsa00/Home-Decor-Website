@@ -121,6 +121,16 @@ export class AgencyService {
   }
 
 
+  getAllAvailableEmployeesForAgency(jwt: string, agencyId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/getAllAvailableEmployeesForAgency`, dataPayload);
+  }
+
+
   getNumOfOpenedPositions(jwt: string, agencyId: string) {
     const dataPayload = {
       "jwt": jwt,
@@ -139,4 +149,5 @@ export class AgencyService {
 
     return this.http.post(`${GlobalConstants.URI}/agency/addNewAgencyRequest`, dataPayload);
   }
+
 }

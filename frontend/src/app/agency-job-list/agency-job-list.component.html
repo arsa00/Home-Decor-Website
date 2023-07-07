@@ -27,7 +27,7 @@
 
 
 <div class="container-fluid h-100 w-100 position-fixed top-0 d-flex justify-content-center align-items-center" style="z-index: 3;"
-        *ngIf="isAcceptReqDialogActive">
+        *ngIf="isAcceptReqDialogActive || isAssignEmployeesDialogActive">
 
     <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
 
@@ -35,7 +35,7 @@
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
 
-                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer" 
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 pointer" 
                         (click)="hideAcceptReqDialog()">
                     cancel
                 </mat-icon>
@@ -67,7 +67,7 @@
     <div class="container position-relative" style="z-index: 3;" *ngIf="loadingDialogActive">
         <div class="row justify-content-center align-items-center">
             <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
-                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 cursor-pointer"  (click)="hideLoadingDialog()">
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 pointer"  (click)="hideLoadingDialog()">
                     cancel
                 </mat-icon>
 
@@ -83,6 +83,53 @@
             </div>
         </div>
     </div>
+
+
+    <!-- assign employees to job -->
+    <div class="container position-relative" style="z-index: 3;" *ngIf="isAssignEmployeesDialogActive">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8 bg-gray-plt-clr1 rounded p-3 position-relative">
+
+                <mat-icon class="position-absolute top-0 end-0 mt-3 me-2 me-sm-4 fs-2 pointer" 
+                        (click)="hideAssignEmployeesDialog()">
+                    cancel
+                </mat-icon>
+
+                <h1 class="text-center fw-medium mb-4">Angažovanje radnika</h1>
+
+                <div class="row justify-content-start align-items-center p-2 gy-3">
+
+                    <div class="col-lg-6"  *ngFor="let employee of allAvailableEmployees; let i = index;">
+                        <div class="form-check">
+                            <input class="form-check-input fs-6 border-black pointer" type="checkbox" value="" id="{{ employee._id }}" 
+                                (change)="toggleEmployeeAssignment($event, i)">
+
+                            <label class="form-check-label fs-6 pt-1 pointer" for="{{ employee._id }}">
+                              {{ employee.firstname }} {{ employee.lastname }} ({{ employee.specialization }})
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 text-center mt-3">
+                        <button type="button" class="btn btn-outline-plt1-clr2 fw-medium px-5 py-2 my-2 fs-6" 
+                                (click)="assignEmployees()">
+                            Potvrdite
+                        </button>
+                    </div>
+
+                    <div class="col-lg-12 mt-3 errorTxt">
+                        <ul>
+                            <li *ngFor="let msg of assignEmployeesErrMsgs"> 
+                                {{ msg }}    
+                            </li>
+                        </ul>
+                    </div>
+  
+
+                </div>
+            </div>
+        </div>
+    </div> 
 
 </div>
 
@@ -201,47 +248,64 @@
 
                 <div class="container d-flex justify-content-center">
                     
-                    <div class="card border border-2 border-black w-75" [ngClass]="{'bg-gray-plt-clr3': i == selectedIndex}">
+                    <div class="card border border-2 border-black px-2" [ngClass]="{'bg-gray-plt-clr3': i == selectedIndex}">
                         <div class="card-body">
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 mb-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Tip objekta:</span>
                                 <span class="text-end"> {{ job.objectType }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 my-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Adresa objekta:</span>
                                 <span class="text-end"> {{ job.objectAddress }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 my-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Datum početka radova:</span>
                                 <span class="text-end"> {{ getFormattedDate(job.startDate) }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 my-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Datum kraja radova:</span>
                                 <span class="text-end"> {{ getFormattedDate(job.endDate) }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 mt-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Ime klijenta:</span>
                                 <span class="text-end"> {{ job.clientFirstname }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 mt-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Prezime klijenta:</span>
                                 <span class="text-end"> {{ job.clientLastname }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 mt-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">Telefon klijenta:</span>
                                 <span class="text-end"> {{ job.clientPhone }} </span>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                            <div class="d-flex justify-content-between align-items-center fs-5 mt-2 py-2 border-bottom">
                                 <span class="me-3 fw-medium">E-mail klijenta:</span>
                                 <span class="text-end"> {{ job.clientMail }} </span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center fs-5 mt-2 py-2 border-bottom">
+                                <span class="me-3 fw-medium">Angažovani radnici:</span>
+
+                                <div class="d-flex flex-column justify-content-center align-items-start">
+                                    <span class="text-end my-2" *ngFor="let employee of job.assignedEmployees">
+                                        {{ employee.firstname }} {{ employee.lastname }} ({{ employee.specialization }}) 
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center align-items-center">
+                                <button class="btn btn-plt1-clr10 fw-medium fs-6 my-2 p-2 px-5" 
+                                        (click)="showAssignEmployeesDialog()">
+                                    Angažujte radnike
+                                </button>
                             </div>
                             
                         </div>
