@@ -151,7 +151,7 @@ export class JobController {
             const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
             const jobState = mongoSanitaze(req.body.jobState);
 
-            const allJobs = await JobModel.find({ "agencyID": agencyId, "state": jobState }).orFail();
+            const allJobs = await JobModel.find({ "agencyID": agencyId, "state": jobState });
             return res.status(200).json(allJobs);
         } catch(err) {
             console.log(err);

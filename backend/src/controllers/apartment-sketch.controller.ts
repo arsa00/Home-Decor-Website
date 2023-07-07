@@ -91,4 +91,21 @@ export class ApartmentSketchController {
         }
     }
 
+
+    getMultipleApartmentSketchesByIds = async (req: Request, res: Response) => {
+        try {
+            let apartmentSketchIds: any[] = sanitaze(req.body.apartmentSketchIds);
+
+            apartmentSketchIds = Array.from(apartmentSketchIds.map((val) => {
+                return new mongoTypes.ObjectId(val);
+            }));
+
+            const apartmentSketches = await ApartmentSketchModel.find({ "_id": { "$in": apartmentSketchIds } });
+            return res.status(200).json(apartmentSketches);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
 }

@@ -152,7 +152,7 @@ class JobController {
             try {
                 const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
                 const jobState = mongoSanitaze(req.body.jobState);
-                const allJobs = yield job_1.JobModel.find({ "agencyID": agencyId, "state": jobState }).orFail();
+                const allJobs = yield job_1.JobModel.find({ "agencyID": agencyId, "state": jobState });
                 return res.status(200).json(allJobs);
             }
             catch (err) {

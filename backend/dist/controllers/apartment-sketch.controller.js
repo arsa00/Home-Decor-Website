@@ -94,6 +94,20 @@ class ApartmentSketchController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getMultipleApartmentSketchesByIds = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                let apartmentSketchIds = sanitaze(req.body.apartmentSketchIds);
+                apartmentSketchIds = Array.from(apartmentSketchIds.map((val) => {
+                    return new mongoTypes.ObjectId(val);
+                }));
+                const apartmentSketches = yield apartment_sketch_1.ApartmentSketchModel.find({ "_id": { "$in": apartmentSketchIds } });
+                return res.status(200).json(apartmentSketches);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.ApartmentSketchController = ApartmentSketchController;
