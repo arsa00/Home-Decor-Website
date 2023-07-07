@@ -243,7 +243,7 @@
     <div id="carouselExample" class="carousel slide mt-3">
 
         <div class="carousel-inner">
-            <div class="carousel-item active" [ngClass]="{'active': i == 0}"
+            <div class="carousel-item active" [ngClass]="{'active': i == selected}"
                     *ngFor="let job of allActiveJobs; let i = index">
 
                 <div class="container d-flex justify-content-center">
@@ -318,7 +318,8 @@
 
         <app-apartment-sketch id="apartmentSketchCanvas" [updateProgressModeIn]="true" 
                             [showProgressIn]="true" [editModeIn]="false" [apartmentSkecthIn]="selectedApartment"
-                            [updateRoomProgressIn]="updateRoomSketchProgress">
+                            [updateRoomProgressIn]="updateRoomSketchProgress" [notEnoughEmployeesIn]="notEnoughEmployees"
+                            [isAnyEmployeeAssignedIn]="isAnyEmployeeAssignedOnJob">
         </app-apartment-sketch>
 
     </div>

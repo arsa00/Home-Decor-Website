@@ -8,6 +8,7 @@ import { ApartmentSketch, DoorPosition, ProgressState, RoomSketch } from '../mod
 })
 export class ApartmentSketchComponent implements OnInit {
 	static readonly MOVING_ROOM_FILL_COLOR: string = "#d3d3d3";
+	static readonly NOT_ENOUGH_EMPLOYEES_FILL_COLOR: string = "#fae22d";
 	static readonly BORDER_FILL_OFFSET: number = 2;
 	static readonly AUTOFIX_OFFSET: number = 7;
 	static readonly DOOR_HEIGHT: number = 0.95; // in meters
@@ -22,6 +23,8 @@ export class ApartmentSketchComponent implements OnInit {
 	@Input() showProgressIn: boolean = true;
 	@Input() editModeIn: boolean = true;
 	@Input() updateProgressModeIn: boolean = false;
+	@Input() notEnoughEmployeesIn: boolean = false;
+	@Input() isAnyEmployeeAssignedIn: boolean = false;
 	@Input() apartmentSkecthIn: ApartmentSketch;
 	@Input() updateRoomProgressIn: (roomIndex: number, progress: ProgressState) => void;
 
@@ -41,6 +44,8 @@ export class ApartmentSketchComponent implements OnInit {
 	static showProgress: boolean = true;
 	static editMode: boolean = true;
 	static updateProgressMode: boolean = false;
+	static notEnoughEmployees: boolean = false;
+	static isAnyEmployeeAssigned: boolean = false;
 
 	static isNewRoomAdded: boolean = false;
 	static newRoomWidth: number = 10;
@@ -69,6 +74,8 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.updateProgressMode = this.updateProgressModeIn;
 		ApartmentSketchComponent.editMode = this.editModeIn;
 		ApartmentSketchComponent.showProgress = this.showProgressIn;
+		ApartmentSketchComponent.notEnoughEmployees = this.notEnoughEmployeesIn;
+		ApartmentSketchComponent.isAnyEmployeeAssigned = this.isAnyEmployeeAssignedIn;
 
 		if(ApartmentSketchComponent.updateProgressMode) {
 			ApartmentSketchComponent.editMode = false;
@@ -118,6 +125,8 @@ export class ApartmentSketchComponent implements OnInit {
 		ApartmentSketchComponent.updateProgressMode = this.updateProgressModeIn;
 		ApartmentSketchComponent.editMode = this.editModeIn;
 		ApartmentSketchComponent.showProgress = this.showProgressIn;
+		ApartmentSketchComponent.notEnoughEmployees = this.notEnoughEmployeesIn;
+		ApartmentSketchComponent.isAnyEmployeeAssigned = this.isAnyEmployeeAssignedIn;
 
 		if(ApartmentSketchComponent.updateProgressMode) {
 			ApartmentSketchComponent.editMode = false;
@@ -378,6 +387,10 @@ export class ApartmentSketchComponent implements OnInit {
 					case ProgressState.IN_PROGRESS: ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.IN_PROGRESS_FILL_COLOR; break;
 					case ProgressState.FINISHED: ApartmentSketchComponent.sketchCanvasContext.fillStyle = RoomSketch.FINISHED_FILL_COLOR; break;
 					default: ApartmentSketchComponent.sketchCanvasContext.fillStyle = "rgba(0, 0, 0, 0)";
+				}
+
+				if(ApartmentSketchComponent.notEnoughEmployees) {
+					ApartmentSketchComponent.sketchCanvasContext.fillStyle = ApartmentSketchComponent.NOT_ENOUGH_EMPLOYEES_FILL_COLOR;
 				}
 
 				ApartmentSketchComponent.sketchCanvasContext.fillRect(rs.x, rs.y, rs.width, rs.height);
@@ -977,7 +990,11 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	showUpdateProgress(): void {
-		if(!ApartmentSketchComponent.selectedRoom) return
+		if(!ApartmentSketchComponent.selectedRoom 
+				|| ApartmentSketchComponent.notEnoughEmployees
+				|| !ApartmentSketchComponent.isAnyEmployeeAssigned) {
+			return; 
+		}
 		
 		this.rsToUpdate = ApartmentSketchComponent.selectedRoom;
 		this.rsProgress = `${this.rsToUpdate.progress}`;
@@ -989,6 +1006,11 @@ export class ApartmentSketchComponent implements OnInit {
 	}
 
 	updateRoomProgressWrapper(): void {
+		if(!this.rsToUpdate 
+				|| ApartmentSketchComponent.notEnoughEmployees 
+				|| !ApartmentSketchComponent.isAnyEmployeeAssigned) {
+			return; 
+		}
 
 		switch(this.rsProgress) {
 			case `${ProgressState.NOT_STARTED}`: this.rsToUpdate.progress = ProgressState.NOT_STARTED; break; 

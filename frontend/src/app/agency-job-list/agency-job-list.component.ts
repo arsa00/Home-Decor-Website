@@ -23,12 +23,15 @@ export class AgencyJobListComponent implements OnInit {
 
   allActiveJobs: Job[] = [];
   selectedActiveIndex: number;
+  selected: number  = 0;
 
   allApartments: ApartmentSketch[] = [];
   selectedApartment: ApartmentSketch = null;
 
   allAvailableEmployees: Employee[] = [];
   selectedEmployeesMap: Map<number, Employee> = new Map<number, Employee>();
+  notEnoughEmployees: boolean = false;
+  isAnyEmployeeAssignedOnJob: boolean = false;
 
   isAssignEmployeesDialogActive: boolean;
   assignEmployeesErrMsgs: string[] = [];
@@ -185,12 +188,12 @@ export class AgencyJobListComponent implements OnInit {
   }
 
   previewPrevSketch() {
-    this.selectedActiveIndex = (this.selectedActiveIndex == 0 ? this.allApartments.length : this.selectedActiveIndex) - 1;
+    this.selectedActiveIndex = (this.selectedActiveIndex == 0 ? this.allActiveJobs.length : this.selectedActiveIndex) - 1;
     this.changeSelectedApartment();
   }
 
   previewNextSketch() {
-    this.selectedActiveIndex = (this.selectedActiveIndex == this.allApartments.length - 1 ? -1 : this.selectedActiveIndex) + 1;
+    this.selectedActiveIndex = (this.selectedActiveIndex == this.allActiveJobs.length - 1 ? -1 : this.selectedActiveIndex) + 1;
     this.changeSelectedApartment();
   }
 
@@ -203,6 +206,15 @@ export class AgencyJobListComponent implements OnInit {
     this.selectedApartment = ApartmentSketch.clone( this.allApartments.find((object: ApartmentSketch) => {
       return object._id == this.allActiveJobs[this.selectedActiveIndex].objectID;
     }));
+
+    this.isAnyEmployeeAssignedOnJob = this.allActiveJobs[this.selectedActiveIndex].assignedEmployees.length > 0;
+
+    if(!this.isAnyEmployeeAssignedOnJob
+        && this.selectedApartment.roomSketches.length > this.allAvailableEmployees.length) {
+      this.notEnoughEmployees = true;
+    } else {
+      this.notEnoughEmployees = false;
+    }
   }
 
   showAssignEmployeesDialog() {
@@ -212,6 +224,7 @@ export class AgencyJobListComponent implements OnInit {
   hideAssignEmployeesDialog() {
     this.isAssignEmployeesDialogActive = false;
     this.selectedEmployeesMap = new Map<number, Employee>();
+    this.assignEmployeesErrMsgs = [];
   }
 
   toggleEmployeeAssignment(event, index: number) {
@@ -261,11 +274,14 @@ export class AgencyJobListComponent implements OnInit {
             this.displayErrorToast("Došlo je do greške prilikom učitavanja dostupnih radnika. Pokušajte da osvežite stranicu.");
           }
         });
-
+        
         this.allActiveJobs[this.selectedActiveIndex] = updatedJob;
+        this.changeSelectedApartment();
         this.displaySuccessfulToast("Uspešno angažovanje radnika.");
         this.hideAssignEmployeesDialog();
         this.hideLoadingDialog();
+        this.selected = this.selectedActiveIndex;
+        // setTimeout(() => {location.reload()}, 700);
       },
       error: () => {
         this.displayErrorToast("Došlo je do greške prilikom angažovanja radnika. Pokušajte ponovo.");
