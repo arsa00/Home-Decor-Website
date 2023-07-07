@@ -88,4 +88,14 @@ export class ApartmentSketchService {
 
     return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/getApartmentSketchByID`, dataPayload);
   }
+
+
+  getMultipleApartmentSketchesByIds(jwt: string, apartmentSketchIds: string[]) {
+    let dataPayload = {
+      "jwt": jwt,
+      "apartmentSketchIds": apartmentSketchIds 
+    };
+
+    return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/getMultipleApartmentSketchesByIds`, dataPayload);
+  }
 }

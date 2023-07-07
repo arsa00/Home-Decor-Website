@@ -4,6 +4,8 @@ import * as bootstrap from 'bootstrap';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { JobService } from '../services/job.service';
+import { ApartmentSketch } from '../models/ApartmentSketch';
+import { ApartmentSketchService } from '../services/apartment-sketch.service';
 
 @Component({
   selector: 'app-agency-job-list',
@@ -24,6 +26,11 @@ export class AgencyJobListComponent implements OnInit {
   allJobRequests: Job[] = [];
   selectedIndex: number;
 
+  allActiveJobs: Job[] = [];
+  selectedActiveIndex: number;
+  allApartments: ApartmentSketch[] = [];
+  selectedApartment: ApartmentSketch = null;
+
   isAcceptReqDialogActive: boolean = false;
   offer: number = 0;
 
@@ -35,7 +42,7 @@ export class AgencyJobListComponent implements OnInit {
   loadingDialogActive: boolean;
   loadingHeaderTxt: string;
 
-  constructor(private jobService: JobService) { }
+  constructor(private jobService: JobService, private apartmentSketchService: ApartmentSketchService) { }
 
   ngOnInit(): void {
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
@@ -47,6 +54,33 @@ export class AgencyJobListComponent implements OnInit {
       },
       error: () => { 
         this.displayErrorToast("Došlo je do greške prilikom učitavanja zahteva. Pokušajte da osvežite stranicu.");
+      }
+    });
+
+    this.jobService.getAgencyJobsWithState(this.loggedUser.jwt, this.loggedUser._id, JobState.ACTIVE)
+    .subscribe({
+      next: (allActiveJobs: Job[]) => {
+        console.log(allActiveJobs);
+        this.allActiveJobs = allActiveJobs;
+        this.selectedActiveIndex = 0;
+
+        const objectIds = Array.from(this.allActiveJobs.map((job: Job) => {
+          return job.objectID;
+        }));
+
+        this.apartmentSketchService.getMultipleApartmentSketchesByIds(this.loggedUser.jwt, objectIds)
+        .subscribe({
+          next: (allAs: ApartmentSketch[]) => {
+            this.allApartments = allAs; 
+            this.changeSelectedApartment();
+          },
+          error: () => {
+            this.displayErrorToast("Došlo je do greške prilikom učitavanja skica objekata. Pokušajte da osvežite stranicu.");
+          }
+        });
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom učitavanja aktivnih poslova. Pokušajte da osvežite stranicu.");
       }
     });
   }
@@ -135,6 +169,27 @@ export class AgencyJobListComponent implements OnInit {
         this.hideLoadingDialog();
       }
     });
+  }
+
+  previewPrevSketch() {
+    this.selectedActiveIndex = (this.selectedActiveIndex == 0 ? this.allApartments.length : this.selectedActiveIndex) - 1;
+    this.changeSelectedApartment();
+  }
+
+  previewNextSketch() {
+    this.selectedActiveIndex = (this.selectedActiveIndex == this.allApartments.length - 1 ? -1 : this.selectedActiveIndex) + 1;
+    this.changeSelectedApartment();
+  }
+
+  changeSelectedApartment() {
+    if(!this.allApartments || !this.allApartments.length) {
+      this.selectedApartment = null;
+      return;
+    }
+
+    this.selectedApartment = ApartmentSketch.clone( this.allApartments.find((object: ApartmentSketch) => {
+      return object._id == this.allActiveJobs[this.selectedActiveIndex].objectID;
+    }));
   }
 
 }
