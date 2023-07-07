@@ -119,7 +119,7 @@ class JobController {
         this.getAllClientJobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const clientID = new ObjectId(mongoSanitaze(req.body.clientID));
-                const allJobs = yield job_1.JobModel.find({ "clientID": clientID }).orFail();
+                const allJobs = yield job_1.JobModel.find({ "clientID": clientID });
                 return res.status(200).json(allJobs);
             }
             catch (err) {

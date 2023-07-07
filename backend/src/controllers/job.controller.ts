@@ -112,7 +112,7 @@ export class JobController {
         try {
             const clientID = new ObjectId(mongoSanitaze(req.body.clientID));
 
-            const allJobs = await JobModel.find({ "clientID": clientID }).orFail();
+            const allJobs = await JobModel.find({ "clientID": clientID });
             return res.status(200).json(allJobs);
         } catch(err) {
             console.log(err);

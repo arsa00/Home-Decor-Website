@@ -71,7 +71,7 @@ export class ApartmentSketchController {
     getAllOwnersApartmentSketches = async (req: Request, res: Response) => {
         try {
             const ownerId = new mongoTypes.ObjectId(sanitaze(req.body.ownerId));
-            const allApartmentSketches = await ApartmentSketchModel.find({ "ownerId": ownerId }).orFail();
+            const allApartmentSketches = await ApartmentSketchModel.find({ "ownerId": ownerId });
             return res.status(200).json(allApartmentSketches);
         } catch(err) {
             console.log(err);
@@ -102,6 +102,25 @@ export class ApartmentSketchController {
 
             const apartmentSketches = await ApartmentSketchModel.find({ "_id": { "$in": apartmentSketchIds } });
             return res.status(200).json(apartmentSketches);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    updateRoomSketchProgress = async (req: Request, res: Response) => {
+        try{
+            const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
+            const roomSketchIndex = sanitaze(req.body.roomSketchIndex);
+            const progress = sanitaze(req.body.progress);
+
+            const apartmentSketchDb = await ApartmentSketchModel.findOneAndUpdate(
+                { "_id": apartmentSketchId, "roomSketches.roomIndex": roomSketchIndex }, 
+                { "$set" : { "roomSketches.$.progress":  progress} }, 
+                { new: true }
+            ).orFail();
+            return res.status(200).json(apartmentSketchDb);
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});

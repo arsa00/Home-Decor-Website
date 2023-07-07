@@ -33,4 +33,9 @@ apartmentSketchRouter.route("/getMultipleApartmentSketchesByIds").post(
     (req, res) => new ApartmentSketchController().getMultipleApartmentSketchesByIds(req, res)
 );
 
+
+apartmentSketchRouter.route("/updateRoomSketchProgress").post(
+    (req, res) => new ApartmentSketchController().updateRoomSketchProgress(req, res)
+);
+
 export default apartmentSketchRouter;
