@@ -36,9 +36,9 @@ class RoomSketch {
     doorPosition: DoorPosition;
 
     isSet: boolean = false;
+    roomIndex: number;
 
-
-    constructor(projectWidth: number, projectHeight: number, savedX: number = 0, savedY: number = 0, doorX: number = 0, doorY: number = 0, doorPosition: DoorPosition = DoorPosition.TOP, progress = ProgressState.NOT_STARTED) {
+    constructor(projectWidth: number, projectHeight: number, savedX: number = 0, savedY: number = 0, doorX: number = 0, doorY: number = 0, doorPosition: DoorPosition = DoorPosition.TOP, progress = ProgressState.NOT_STARTED, roomIndex: number) {
         this.projectWidth = projectWidth;
         this.projectHeight = projectHeight;
         this.savedX = savedX;
@@ -48,6 +48,7 @@ class RoomSketch {
         this.doorX = doorX;
         this.doorY = doorY;
         this.doorPosition = doorPosition;
+        this.roomIndex = roomIndex;
 
         this.isSet = true;
         this.isCollided = false;
@@ -84,7 +85,7 @@ class ApartmentSketch {
         let newAS = new ApartmentSketch(apartmentSketch.firstRoomScreenUsage, apartmentSketch.type, apartmentSketch.address, apartmentSketch.squareFootage, apartmentSketch.ownerId, apartmentSketch._id);
 
         for(let rs of apartmentSketch.roomSketches) {
-            let newRS = new RoomSketch(rs.projectWidth, rs.projectHeight, rs.savedX, rs.savedY, rs.doorX, rs.doorY, rs.doorPosition, rs.progress);
+            let newRS = new RoomSketch(rs.projectWidth, rs.projectHeight, rs.savedX, rs.savedY, rs.doorX, rs.doorY, rs.doorPosition, rs.progress, rs.roomIndex);
             
             newRS.x = rs.x;
             newRS.y = rs.y;

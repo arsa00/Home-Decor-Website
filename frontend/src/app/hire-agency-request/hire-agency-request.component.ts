@@ -91,6 +91,21 @@ export class HireAgencyRequestComponent implements OnInit {
       this.errMessages.push("Datum kraja radova nije validan.");
     }
 
+    if(!this.allApartments || !this.allApartments.length) {
+      isErrorCatched = true;
+      this.errMessages.push("Nemate nijedan objekat.");
+    }
+
+    if(!this.selectedApartment?.roomSketches || !this.selectedApartment?.roomSketches.length) {
+      isErrorCatched = true;
+      this.errMessages.push("Nemate ni jednu prostoriju u objektu.");
+    }
+
+    if(!this.selectObject) {
+      isErrorCatched = true;
+      this.errMessages.push("Objekat mora biti izabran.");
+    }
+
     if(isErrorCatched) return;
 
     if(this.endJobDate <= this.startJobDate) {

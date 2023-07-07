@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApartmentSketch, ObjectType, RoomSketch } from '../models/ApartmentSketch';
+import { ApartmentSketch, ObjectType, ProgressState, RoomSketch } from '../models/ApartmentSketch';
 import { GlobalConstants } from '../global-constants';
 
 @Injectable({
@@ -97,5 +97,17 @@ export class ApartmentSketchService {
     };
 
     return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/getMultipleApartmentSketchesByIds`, dataPayload);
+  }
+
+
+  updateRoomSketchProgress(jwt: string, apartmentSketchId: string, roomSketchIndex: number, progress: ProgressState) {
+    let dataPayload = {
+      "jwt": jwt,
+      "apartmentSketchId": apartmentSketchId,
+      "roomSketchIndex": roomSketchIndex,
+      "progress": progress
+    };
+
+    return this.http.post(`${ GlobalConstants.URI }/apartmentSketch/updateRoomSketchProgress`, dataPayload);
   }
 }

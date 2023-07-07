@@ -4,7 +4,7 @@ import * as bootstrap from 'bootstrap';
 import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import { JobService } from '../services/job.service';
-import { ApartmentSketch } from '../models/ApartmentSketch';
+import { ApartmentSketch, ProgressState } from '../models/ApartmentSketch';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
 import { Employee } from '../models/Employee';
 import { AgencyService } from '../services/agency.service';
@@ -270,6 +270,31 @@ export class AgencyJobListComponent implements OnInit {
       error: () => {
         this.displayErrorToast("Došlo je do greške prilikom angažovanja radnika. Pokušajte ponovo.");
         this.hideLoadingDialog();
+      }
+    });
+  }
+
+  updateRoomSketchProgress = (roomIndex: number, progress: ProgressState) => {
+    this.showLoadingDialog("Ažuriranja prostorije...");
+
+    console.log(this.selectedApartment._id);
+
+    this.apartmentSketchService
+    .updateRoomSketchProgress(this.loggedUser.jwt, this.selectedApartment._id, roomIndex, progress)
+    .subscribe({
+      next: (apartmentSketch: ApartmentSketch) => {
+        const indexOfApartment = this.allApartments.indexOf(this.allApartments.find((object: ApartmentSketch) => {
+          return object._id == this.allActiveJobs[this.selectedActiveIndex].objectID;
+        }));
+
+        this.allApartments[indexOfApartment] = apartmentSketch;
+        this.changeSelectedApartment();
+        this.hideLoadingDialog();
+        this.displaySuccessfulToast("Uspešno ažuriranje prostorije.");
+      },
+      error: () => {
+        this.hideLoadingDialog();
+        this.displayErrorToast("Došlo je do greške prilikom ažuriranja prostorije. Pokušajte ponovo.");
       }
     });
   }

@@ -23,6 +23,7 @@ export class ApartmentSketchComponent implements OnInit {
 	@Input() editModeIn: boolean = true;
 	@Input() updateProgressModeIn: boolean = false;
 	@Input() apartmentSkecthIn: ApartmentSketch;
+	@Input() updateRoomProgressIn: (roomIndex: number, progress: ProgressState) => void;
 
 	// static variables
 	static doorTopImg: HTMLImageElement;
@@ -307,7 +308,10 @@ export class ApartmentSketchComponent implements OnInit {
 
 		// console.log(width, heigth, x, y, doorX);
 
-		let newRS: RoomSketch = new RoomSketch(projWidth, projHeigth, x/ApartmentSketchComponent.ratio, y/ApartmentSketchComponent.ratio, doorX, doorY, ApartmentSketchComponent.newRoomDoorPos);
+		let newRS: RoomSketch = new RoomSketch(projWidth, projHeigth, x/ApartmentSketchComponent.ratio, 
+												y/ApartmentSketchComponent.ratio, doorX, doorY, 
+												ApartmentSketchComponent.newRoomDoorPos, ProgressState.NOT_STARTED,
+												ApartmentSketchComponent.apartmentSketch.roomSketches.length);
 		newRS.width = width;
 		newRS.height = heigth;
 		newRS.x = x;
@@ -994,5 +998,7 @@ export class ApartmentSketchComponent implements OnInit {
 
 		ApartmentSketchComponent.drawAllRoomSketches();
 		this.isUpdateProgressShown = false;
+
+		this.updateRoomProgressIn(this.rsToUpdate.roomIndex, this.rsToUpdate.progress);
 	}
 }
