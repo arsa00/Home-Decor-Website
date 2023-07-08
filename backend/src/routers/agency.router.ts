@@ -73,4 +73,19 @@ agencyRouter.route("/addNewAgencyRequest").post(
     (req, res) => new AgencyController().addNewAgencyRequest(req, res)
 );
 
+
+agencyRouter.route("/getAllAgencyRequestsByAgencyId").post(
+    (req, res) => new AgencyController().getAllAgencyRequestsByAgencyId(req, res)
+);
+
+
+agencyRouter.route("/acceptAgencyRequest").post(
+    (req, res) => new AgencyController().acceptAgencyRequest(req, res)
+);
+
+
+agencyRouter.route("/rejectAgencyRequest").post(
+    (req, res) => new AgencyController().rejectAgencyRequest(req, res)
+);
+
 export default agencyRouter;

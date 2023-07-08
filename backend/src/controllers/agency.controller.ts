@@ -347,4 +347,56 @@ export class AgencyController {
         }
     }
 
+
+    getAllAgencyRequestsByAgencyId = async (req: Request, res: Response) => {
+        try {
+            const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+            
+            const allRequests = await AgencyRequestModel.find({ "agencyId": agencyId });
+            return res.status(200).json(allRequests);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    acceptAgencyRequest = async (req: Request, res: Response) => {
+        try {
+            const agencyRequestId = new ObjectId(mongoSanitaze(req.body.agencyRequestId));
+            
+            const agencyRequest = await AgencyRequestModel.findOneAndDelete({ "_id": agencyRequestId }).orFail();
+
+            const oldAgency = await UserModel.findOne({ "_id": agencyRequest.agencyId }).orFail();
+
+            let oldNumOfOpenedPositions: number = 0;
+            if(oldAgency.numOfOpenedPositions) {
+                oldNumOfOpenedPositions += oldAgency.numOfOpenedPositions;
+            }
+
+            const updatedAgency = await UserModel.findOneAndUpdate(
+                { "_id": agencyRequest.agencyId }, 
+                { "numOfOpenedPositions": oldNumOfOpenedPositions + agencyRequest.numOfPositions },
+                { new: true }
+            ).orFail();
+            return res.status(200).json(updatedAgency);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    rejectAgencyRequest = async (req: Request, res: Response) => {
+        try {
+            const agencyRequestId = new ObjectId(mongoSanitaze(req.body.agencyRequestId));
+            
+            await AgencyRequestModel.findOneAndDelete({ "_id": agencyRequestId }).orFail();
+            return res.status(200).json({"succMsg": "Uspešno odbijen zahtev."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
 }

@@ -294,6 +294,45 @@ class AgencyController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getAllAgencyRequestsByAgencyId = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyId = new ObjectId(mongoSanitaze(req.body.agencyId));
+                const allRequests = yield agency_request_1.AgencyRequestModel.find({ "agencyId": agencyId });
+                return res.status(200).json(allRequests);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.acceptAgencyRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyRequestId = new ObjectId(mongoSanitaze(req.body.agencyRequestId));
+                const agencyRequest = yield agency_request_1.AgencyRequestModel.findOneAndDelete({ "_id": agencyRequestId }).orFail();
+                const oldAgency = yield user_1.UserModel.findOne({ "_id": agencyRequest.agencyId }).orFail();
+                let oldNumOfOpenedPositions = 0;
+                if (oldAgency.numOfOpenedPositions) {
+                    oldNumOfOpenedPositions += oldAgency.numOfOpenedPositions;
+                }
+                const updatedAgency = yield user_1.UserModel.findOneAndUpdate({ "_id": agencyRequest.agencyId }, { "numOfOpenedPositions": oldNumOfOpenedPositions + agencyRequest.numOfPositions }, { new: true }).orFail();
+                return res.status(200).json(updatedAgency);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.rejectAgencyRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const agencyRequestId = new ObjectId(mongoSanitaze(req.body.agencyRequestId));
+                yield agency_request_1.AgencyRequestModel.findOneAndDelete({ "_id": agencyRequestId }).orFail();
+                return res.status(200).json({ "succMsg": "Uspešno odbijen zahtev." });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.AgencyController = AgencyController;
