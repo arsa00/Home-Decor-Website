@@ -30,6 +30,7 @@ import { JobListComponent } from './job-list/job-list.component';
 import { ClientJobDetailsComponent } from './client-job-details/client-job-details.component';
 import { AgencyEmployeesComponent } from './agency-employees/agency-employees.component';
 import { AgencyJobListComponent } from './agency-job-list/agency-job-list.component';
+import { AdminUserListComponent } from './admin-user-list/admin-user-list.component';
 
 
 @NgModule({
@@ -55,7 +56,8 @@ import { AgencyJobListComponent } from './agency-job-list/agency-job-list.compon
     JobListComponent,
     ClientJobDetailsComponent,
     AgencyEmployeesComponent,
-    AgencyJobListComponent
+    AgencyJobListComponent,
+    AdminUserListComponent
   ],
   imports: [
     BrowserModule,

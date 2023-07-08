@@ -103,7 +103,7 @@ export class UserService {
   }
 
 
-  updateClientData(username: string, jwt: string, phone?: string, mail?: string, firstname?: string, lastname?: string) {
+  updateClientData(username: string, jwt: string, phone?: string, mail?: string, firstname?: string, lastname?: string, newUsername?: string) {
     let dataPayload;
 
     dataPayload  = {"username": username, "jwt": jwt };
@@ -136,11 +136,18 @@ export class UserService {
       }
     }
 
+    if(newUsername) {
+      dataPayload = {
+        ...dataPayload,
+        "newUsername": newUsername
+      }
+    }
+
     return this.http.post(`${ GlobalConstants.URI }/user/updateData`, dataPayload);
   }
 
 
-  updateAgencyData(username: string, jwt: string, phone?: string, mail?: string, name?: string, address?: string, description?: string) {
+  updateAgencyData(username: string, jwt: string, phone?: string, mail?: string, name?: string, address?: string, description?: string, newUsername?: string) {
     let dataPayload;
 
     dataPayload  = {"username": username, "jwt": jwt };
@@ -180,6 +187,13 @@ export class UserService {
       }
     }
 
+    if(newUsername) {
+      dataPayload = {
+        ...dataPayload,
+        "newUsername": newUsername
+      }
+    }
+
     return this.http.post(`${ GlobalConstants.URI }/user/updateData`, dataPayload);
   }
 
@@ -193,5 +207,25 @@ export class UserService {
     }
 
     return this.http.post(`${ GlobalConstants.URI }/user/changePassword`, dataPayload);
+  }
+
+
+  getNumberOfUsers(jwt: string) {
+    const dataPayload = {
+      "jwt": jwt
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/getNumberOfUsers`, dataPayload);
+  }
+
+
+  getSliceOfUsers(jwt: string, offset: number, limit: number) {
+    const dataPayload = {
+      "jwt": jwt,
+      "offset": offset,
+      "limit": limit
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/getSliceOfUsers`, dataPayload);
   }
 }

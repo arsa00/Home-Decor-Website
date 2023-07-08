@@ -1,0 +1,213 @@
+
+
+<!-- error toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ errToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- successful toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="succ" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                {{ succToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
+
+
+<h1 class="fs-1 text-center fw-medium mt-5 mb-3 text-gray-plt-clr9"> Korisnici </h1>
+
+<div class="container-fluid p-3 mt-5 mb-1">
+
+    <div class="d-flex justify-content-start mb-3">
+        <button type="button" class="btn btn-plt1-clr6 text-white fw-medium" (click)="showAddNewUser()">
+            + Dodajte novog korisnika
+        </button>
+    </div>
+
+    <div class="row gy-4 mt-2">
+        <div class="col-1"></div>
+        <div class="col-10 d-flex justify-content-center align-items-center ">
+            <mat-icon class="me-5 pointer" (click)="selectPage(activePage - 1)">
+                arrow_back_ios
+            </mat-icon>
+
+            <div class="d-flex justify-content-center align-items-center mx-3">
+                <div class="mx-3 pointer fs-5" *ngFor="let el of showPageNumbers(); let i = index"
+                        [ngClass]="{'fw-bold': activePage == i }" (click)="selectPage(i)">
+                    {{ i + 1 }}
+                </div>
+            </div>
+
+            <mat-icon class="ms-5 pointer" (click)="selectPage(activePage + 1)">
+                arrow_forward_ios
+            </mat-icon>
+        </div>
+        <div class="col-1"></div>
+        
+        <div class="col-md-4" *ngFor="let user of allUsers; let i = index">
+            <div class="card border border-2 border-black userCard" [ngClass]="{'border-3': selectedIndex == i}" 
+                    (click)="setActive(i)">
+
+                <div class="card-body" [ngClass]="{'bg-plt2-clr1': selectedIndex == i}" *ngIf="isClient(user.type)">
+
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <span class="text-center fs-3 fw-medium"> Klijent </span>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <img class="rounded-circle mt-3 shadow-sm" width="70px" src="{{ getImageSrc(i) }}" id="{{ user.username }}_profileImg">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Korisničko ime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.username }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_username" 
+                            [(ngModel)]="selectedUser.username" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Ime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.firstname }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_firstname" 
+                            [(ngModel)]="selectedUser.firstname" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Prezime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.lastname }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_lastname" 
+                            [(ngModel)]="selectedUser.lastname" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">E-mail adresa:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.mail }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_mail" 
+                            [(ngModel)]="selectedUser.mail" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Kontakt telefon:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.phone }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_phone" 
+                            [(ngModel)]="selectedUser.phone" *ngIf="showEditField(i)">
+                    </div>
+
+                </div>
+
+
+                <div class="card-body" [ngClass]="{'bg-plt2-clr1': selectedIndex == i}" *ngIf="isAgency(user.type)">
+
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <span class="text-center fs-3 fw-medium"> Agencija </span>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <img class="rounded-circle mt-3 shadow-sm" width="70px" src="{{ getImageSrc(i) }}" id="{{ user.username }}_profileImg">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Korisničko ime:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.username }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_firstname" 
+                            [(ngModel)]="selectedUser.username" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Naziv:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.name }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_name" 
+                            [(ngModel)]="selectedUser.name" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Adresa:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.address }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_address" 
+                            [(ngModel)]="selectedUser.address" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Matični broj:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.idNumber }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_idNumber" 
+                            [(ngModel)]="selectedUser.idNumber" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">E-mail adresa:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.mail }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_mail" 
+                            [(ngModel)]="selectedUser.mail" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Kontakt telefon:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.phone }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_phone" 
+                            [(ngModel)]="selectedUser.phone" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Broj radnih mesta:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.numOfOpenedPositions }} </span>
+                        <input type="text" class="form-control" name="{{ user.username }}_numOfOpenedPositions" 
+                            [(ngModel)]="selectedUser.numOfOpenedPositions" *ngIf="showEditField(i)">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Opis:</span>
+                        <span class="text-end" *ngIf="!showEditField(i)"> {{ user.description }} </span>
+                        <textarea type="text" class="form-control" name="{{ user.username }}_description" 
+                            [(ngModel)]="selectedUser.description" *ngIf="showEditField(i)"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center pointer" *ngIf="showActionButtons()"
+            (click)="showDeleteDialog()">
+    <mat-icon class="circleIcon">
+        delete
+    </mat-icon>
+</div>
+
+<div class="fixedButton secondButton bg-plt1-clr10 d-flex justify-content-center align-items-center pointer" *ngIf="showActionButtons()"
+            (click)="activateEditMode()">
+    <mat-icon class="circleIcon">
+        edit
+    </mat-icon>
+</div>
+
+<div class="fixedButton bg-plt1-clr1 d-flex justify-content-center align-items-center pointer" *ngIf="editMode"
+            (click)="discardEdit()">
+    <mat-icon class="circleIcon">
+        close
+    </mat-icon>
+</div>
+
+<div class="fixedButton secondButton bg-plt1-clr6 d-flex justify-content-center align-items-center pointer" *ngIf="editMode"
+            (click)="submitEdit()">
+    <mat-icon class="circleIcon">
+        check
+    </mat-icon>
+</div>
