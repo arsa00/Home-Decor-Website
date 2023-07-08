@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+enum JobState {
+    PENDING,
+    REJECTED,
+    ACCEPTED,
+    ACTIVE,
+    CANCELED,
+    FINISHED
+}
+
 const schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -59,4 +68,4 @@ let Job = new schema({
 
 const JobModel = mongoose.model("JobModel", Job, "job");
 
-export { JobModel }
+export { JobModel, JobState }

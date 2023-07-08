@@ -20,8 +20,8 @@ class JobController {
         this.addJob = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const objectID = new ObjectId(mongoSanitaze(req.body.objectID));
-                // if object is already included within another job (that is not rejected, canceled nor finished), reject request
-                const objectAlreadyUnderConstruction = yield job_1.JobModel.findOne({ "objectID": objectID, "state": { "$nin": [1, 4, 5] } });
+                // if object is already included within another active job, reject request
+                const objectAlreadyUnderConstruction = yield job_1.JobModel.findOne({ "objectID": objectID, "state": job_1.JobState.ACTIVE });
                 if (objectAlreadyUnderConstruction)
                     throw Error();
                 // if object is not included within another job, 
@@ -54,6 +54,7 @@ class JobController {
             }
         });
         this.updateJob = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const objectAlreadyUnderConstructionErr = "Object already under construction";
             try {
                 const state = mongoSanitaze(req.body.state);
                 const agencyID = mongoSanitaze(req.body.agencyID);
@@ -72,6 +73,15 @@ class JobController {
                 const clientMail = mongoSanitaze(req.body.clientMail);
                 const clientPhone = mongoSanitaze(req.body.clientPhone);
                 const assignedEmployees = mongoSanitaze(req.body.assignedEmployees);
+                const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
+                if (state && state == job_1.JobState.ACTIVE) {
+                    const job = yield job_1.JobModel.findOne({ "_id": jobID }).orFail();
+                    // if object is already included within another active job, reject request
+                    const objectAlreadyUnderConstruction = yield job_1.JobModel.findOne({ "objectID": job.objectID, "state": job_1.JobState.ACTIVE });
+                    // better way: create new unique error class (that extends Error class) and throw it's instance
+                    if (objectAlreadyUnderConstruction)
+                        throw Error(objectAlreadyUnderConstructionErr);
+                }
                 let updateQuery;
                 if (state)
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "state": state });
@@ -107,12 +117,14 @@ class JobController {
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "clientPhone": clientPhone });
                 if (assignedEmployees)
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "assignedEmployees": assignedEmployees });
-                const jobID = new ObjectId(mongoSanitaze(req.body.jobID));
                 const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobID }, updateQuery, { new: true }).orFail();
                 return res.status(200).json(updatedJob);
             }
             catch (err) {
                 console.log(err);
+                if (err.message == objectAlreadyUnderConstructionErr) {
+                    return res.status(500).json({ "errMsg": "Radovi na objektu su već u toku.", "objectAlreadyUnderConstructionErr": true });
+                }
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
