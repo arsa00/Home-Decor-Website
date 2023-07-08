@@ -64,13 +64,33 @@ userRouter.route("/getNumberOfUsers").post(
 );
 
 
+userRouter.route("/getNumberOfPendingUsers").post(
+    (req, res) => new UserController().getNumberOfPendingUsers(req, res)
+);
+
+
 userRouter.route("/getSliceOfUsers").post(
     (req, res) => new UserController().getSliceOfUsers(req, res)
 );
 
 
+userRouter.route("/getSliceOfPendingUsers").post(
+    (req, res) => new UserController().getSliceOfPendingUsers(req, res)
+);
+
+
 userRouter.route("/deleteUserById").post(
     (req, res) => new UserController().deleteUserById(req, res)
+);
+
+
+userRouter.route("/acceptRegisterRequest").post(
+    (req, res) => new UserController().acceptRegisterRequest(req, res)
+);
+
+
+userRouter.route("/rejectRegisterRequest").post(
+    (req, res) => new UserController().rejectRegisterRequest(req, res)
 );
 
 export default userRouter;

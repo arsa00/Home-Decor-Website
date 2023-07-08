@@ -379,6 +379,19 @@ export class UserController {
     }
 
 
+    getNumberOfPendingUsers = async (req: Request, res: Response) => {
+        try {
+            const numOfUsers = await UserModel.countDocuments(
+                { "type": { "$ne": UserController.ADMIN_TYPE }, "status": UserController.STATUS_PENDING  }
+            );
+            return res.status(200).json({"numOfUsers": numOfUsers});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
     getSliceOfUsers = async (req: Request, res: Response) => {
         try {
             const offset = mongoSanitaze(req.body.offset);
@@ -393,12 +406,57 @@ export class UserController {
     }
 
 
+    getSliceOfPendingUsers = async (req: Request, res: Response) => {
+        try {
+            const offset = mongoSanitaze(req.body.offset);
+            const limit = mongoSanitaze(req.body.limit);
+
+            const users = await UserModel.find(
+                { 
+                    "type": { "$ne": UserController.ADMIN_TYPE }, 
+                    "status": UserController.STATUS_PENDING 
+                }
+            ).skip(offset).limit(limit);
+            return res.status(200).json(users);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
     deleteUserById = async (req: Request, res: Response) => {
         try {
             const userId = new mongoose.Types.ObjectId(mongoSanitaze(req.body.userId));
 
             await UserModel.findOneAndDelete({ "_id": userId }).orFail();
             return res.status(200).json({"succMsg": "Korisnik uspešno obirsan."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    acceptRegisterRequest = async (req: Request, res: Response) => {
+        try {
+            const userId = new mongoose.Types.ObjectId(mongoSanitaze(req.body.userId));
+
+            await UserModel.findOneAndUpdate({ "_id": userId }, { "status": UserController.STATUS_ACCEPTED } ).orFail();
+            return res.status(200).json({"succMsg": "Zahtev uspešno prihvaćen."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    rejectRegisterRequest = async (req: Request, res: Response) => {
+        try {
+            const userId = new mongoose.Types.ObjectId(mongoSanitaze(req.body.userId));
+
+            await UserModel.findOneAndUpdate({ "_id": userId }, { "status": UserController.STATUS_REJECTED } ).orFail();
+            return res.status(200).json({"succMsg": "Zahtev uspešno prihvaćen."});
         } catch(err) {
             console.log(err);
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
