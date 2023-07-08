@@ -150,4 +150,34 @@ export class AgencyService {
     return this.http.post(`${GlobalConstants.URI}/agency/addNewAgencyRequest`, dataPayload);
   }
 
+
+  getAllAgencyRequestsByAgencyId(jwt: string, agencyId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyId": agencyId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/getAllAgencyRequestsByAgencyId`, dataPayload);
+  }
+
+
+  acceptAgencyRequest(jwt: string, agencyRequestId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyRequestId": agencyRequestId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/acceptAgencyRequest`, dataPayload);
+  }
+
+
+  rejectAgencyRequest(jwt: string, agencyRequestId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "agencyRequestId": agencyRequestId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/agency/rejectAgencyRequest`, dataPayload);
+  }
+
 }

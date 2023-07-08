@@ -22,9 +22,6 @@ export class UserService {
 
   logout() {
     localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER);
-  }
-
-  logoutAdmin() {
     localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN);
   }
 

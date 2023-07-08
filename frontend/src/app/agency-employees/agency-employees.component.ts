@@ -5,6 +5,7 @@ import { Employee } from '../models/Employee';
 import { AgencyService } from '../services/agency.service';
 import * as bootstrap from 'bootstrap';
 import { AgencyRequest, RequestType } from '../models/AgencyRequest';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-agency-employees',
@@ -62,10 +63,15 @@ export class AgencyEmployeesComponent implements OnInit {
   mailRegEx = new RegExp(GlobalConstants.REGEX_MAIL);
   phoneRegEx = new RegExp(GlobalConstants.REGEX_PHONE);
 
+  isAdminPage:boolean = false;
 
-  constructor(private agencyService: AgencyService) { }
+  constructor(private agencyService: AgencyService, private router: Router) { }
 
   ngOnInit(): void {
+    if(`/${GlobalConstants.ROUTE_ADMIN_AGENCY_EMPLOYEES}` == this.router.url) {
+      this.isAdminPage = true;
+    }
+
     this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
 
     this.agencyService.getNumOfOpenedPositions(this.loggedUser.jwt, this.loggedUser._id).subscribe({
@@ -272,7 +278,7 @@ export class AgencyEmployeesComponent implements OnInit {
       return;
     }
 
-    this.hideNewOpenPositionsDialog();
+    this.requestNewOpenPositionsMode = false;
     this.showLoadingDialog("Slanje zahteva...");
 
     const newReq = new AgencyRequest();
@@ -284,6 +290,7 @@ export class AgencyEmployeesComponent implements OnInit {
       next: () => {
         this.displaySuccessfulToast("Uspešno poslat zahtev.");
         this.hideLoadingDialog(); 
+        this.hideNewOpenPositionsDialog();
       },
       error: () => { 
         this.displayErrorToast("Došlo je do greške prilikom slanja zahteva. Pokušajte ponovo."); 

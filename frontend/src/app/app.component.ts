@@ -15,17 +15,21 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     const jwtHelper = new JwtHelperService();
     let user: User;
+    let admin: User;
 
     try {
+      admin =  JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
       user = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
     } catch(err) {
       return;
     }
     
-    if(!user) return;
-
-    if(jwtHelper.isTokenExpired(user.jwt)) {
+    if(user && jwtHelper.isTokenExpired(user.jwt)) {
       localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER);
+    }
+
+    if(admin && jwtHelper.isTokenExpired(admin.jwt)) {
+      localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN);
     }
 
   }

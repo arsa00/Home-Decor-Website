@@ -54,6 +54,6 @@ export class GlobalConstants {
     static readonly ROUTE_ADMIN_DASHBOARD = "adminDashboard";
     static readonly ROUTE_ADMIN_USER_LIST = "adminUserList";
     static readonly ROUTE_ADMIN_ADD_USER = "adminAddUser";
-    
+    static readonly ROUTE_ADMIN_AGENCY_EMPLOYEES = "adminAgencyEmployees";
 
 }

@@ -1,4 +1,4 @@
-<app-navbar [activeNav]="'agency'"></app-navbar>
+<app-navbar [activeNav]="'agency'" *ngIf="!isAdminPage"></app-navbar>
 
 <!-- error toast message -->
 <div class="toast-container position-fixed end-0 bottom-0 p-3">
@@ -171,7 +171,10 @@
 
 
 
-<h1 class="fs-1 text-center fw-medium mt-5 mb-3 text-gray-plt-clr9"> Radnici </h1>
+<div class="col-md-12 d-flex justify-content-center align-items-center flex-column mt-5">
+    <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0"> Radnici </h1>
+    <div class="w-50 bg-plt1-clr6 rounded mt-md-3 mt-0" style="height: 5px;"></div>
+</div>
 
 <div class="container my-4 p-3 rounded-5 shadow bg-plt1-clr5">
     <div class="row gy-3 justify-content-center align-items-center">

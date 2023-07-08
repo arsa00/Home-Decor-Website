@@ -346,7 +346,7 @@ export class RegisterComponent implements OnInit {
   }
 
   logoutAdmin() {
-    this.userService.logoutAdmin();
+    this.userService.logout();
     this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 

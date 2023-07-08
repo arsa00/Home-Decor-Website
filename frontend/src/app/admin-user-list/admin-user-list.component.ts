@@ -267,7 +267,7 @@ export class AdminUserListComponent implements OnInit {
     const originalUser: User = this.allUsers[this.selectedIndex];
 
     if(this.selectedUser.type == GlobalConstants.AGENCY_TYPE) {
-      this.userService.updateAgencyData(originalUser.username, originalUser.jwt, this.selectedUser.phone, this.selectedUser.mail, 
+      this.userService.updateAgencyData(originalUser.username, this.loggedAdmin.jwt, this.selectedUser.phone, this.selectedUser.mail, 
                                           this.selectedUser.name, this.selectedUser.address, this.selectedUser.description, this.selectedUser.username)
       .subscribe({
         next: (updatedUser: User) => {
@@ -285,7 +285,7 @@ export class AdminUserListComponent implements OnInit {
       });
 
     } else {
-      this.userService.updateClientData(originalUser.username, originalUser.jwt, this.selectedUser.phone, this.selectedUser.mail, 
+      this.userService.updateClientData(originalUser.username, this.loggedAdmin.jwt, this.selectedUser.phone, this.selectedUser.mail, 
                                           this.selectedUser.firstname, this.selectedUser.lastname, this.selectedUser.username)
       .subscribe({
         next: (updatedUser: User) => {
@@ -362,12 +362,21 @@ export class AdminUserListComponent implements OnInit {
   }
 
   logoutAdmin() {
-    this.userService.logoutAdmin();
+    this.userService.logout();
     this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
   returnToHomePage() {
     this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
+  }
+
+  redirectToAgencyEmployeesPage(agency: User) {
+    agency.jwt = this.loggedAdmin.jwt;
+    localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(agency));
+    setTimeout(() => {
+      this.router.navigate([GlobalConstants.ROUTE_ADMIN_AGENCY_EMPLOYEES]);
+    }, 100);
+    
   }
 
 }

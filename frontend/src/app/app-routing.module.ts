@@ -23,6 +23,7 @@ import { AgencyJobListComponent } from './agency-job-list/agency-job-list.compon
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { LoggedAsAdminGuard } from './guards/logged-as-admin';
 import { AdminUserListComponent } from './admin-user-list/admin-user-list.component';
+import { AdminAgencyEmployeesComponent } from './admin-agency-employees/admin-agency-employees.component';
 
 const routes: Routes = [
   { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -46,7 +47,8 @@ const routes: Routes = [
 
   { path: GlobalConstants.ROUTE_ADMIN_DASHBOARD, component: AdminDashboardComponent, canActivate: [LoggedAsAdminGuard] },  
   { path: GlobalConstants.ROUTE_ADMIN_USER_LIST, component: AdminUserListComponent, canActivate: [LoggedAsAdminGuard] }, 
-  { path: GlobalConstants.ROUTE_ADMIN_ADD_USER, component: RegisterComponent, canActivate: [LoggedAsAdminGuard] },   
+  { path: GlobalConstants.ROUTE_ADMIN_ADD_USER, component: RegisterComponent, canActivate: [LoggedAsAdminGuard] }, 
+  { path: GlobalConstants.ROUTE_ADMIN_AGENCY_EMPLOYEES, component: AdminAgencyEmployeesComponent, canActivate: [LoggedAsAdminGuard] },  
 ];
 
 @NgModule({
