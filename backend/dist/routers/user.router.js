@@ -32,5 +32,6 @@ userRouter.route("/updateData").post((req, res) => new user_controller_1.UserCon
 userRouter.route("/changePassword").post((req, res) => new user_controller_1.UserController().changePassword(req, res));
 userRouter.route("/getNumberOfUsers").post((req, res) => new user_controller_1.UserController().getNumberOfUsers(req, res));
 userRouter.route("/getSliceOfUsers").post((req, res) => new user_controller_1.UserController().getSliceOfUsers(req, res));
+userRouter.route("/deleteUserById").post((req, res) => new user_controller_1.UserController().deleteUserById(req, res));
 exports.default = userRouter;
 //# sourceMappingURL=user.router.js.map

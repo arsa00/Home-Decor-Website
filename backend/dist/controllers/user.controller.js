@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const user_1 = require("../models/user");
 const path_1 = __importDefault(require("path"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
@@ -331,7 +332,7 @@ class UserController {
             }
             catch (err) {
                 console.log(err);
-                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
         this.getSliceOfUsers = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -343,7 +344,18 @@ class UserController {
             }
             catch (err) {
                 console.log(err);
-                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.deleteUserById = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = new mongoose_1.default.Types.ObjectId(mongoSanitaze(req.body.userId));
+                yield user_1.UserModel.findOneAndDelete({ "_id": userId }).orFail();
+                return res.status(200).json({ "succMsg": "Korisnik uspešno obirsan." });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
     }

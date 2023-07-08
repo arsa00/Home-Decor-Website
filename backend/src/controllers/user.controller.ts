@@ -2,6 +2,7 @@ import { NextFunction, Response } from 'express';
 import { Request } from 'express';
 import { UserModel } from '../models/user';
 import path from 'path';
+import mongoose from 'mongoose';
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -373,7 +374,7 @@ export class UserController {
             return res.status(200).json({"numOfUsers": numOfUsers});
         } catch(err) {
             console.log(err);
-            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
 
@@ -387,7 +388,20 @@ export class UserController {
             return res.status(200).json(users);
         } catch(err) {
             console.log(err);
-            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    deleteUserById = async (req: Request, res: Response) => {
+        try {
+            const userId = new mongoose.Types.ObjectId(mongoSanitaze(req.body.userId));
+
+            await UserModel.findOneAndDelete({ "_id": userId }).orFail();
+            return res.status(200).json({"succMsg": "Korisnik uspešno obirsan."});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
 }

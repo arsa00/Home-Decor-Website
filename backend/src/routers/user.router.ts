@@ -68,4 +68,9 @@ userRouter.route("/getSliceOfUsers").post(
     (req, res) => new UserController().getSliceOfUsers(req, res)
 );
 
+
+userRouter.route("/deleteUserById").post(
+    (req, res) => new UserController().deleteUserById(req, res)
+);
+
 export default userRouter;
