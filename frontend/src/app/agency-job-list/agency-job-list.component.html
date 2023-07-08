@@ -216,11 +216,11 @@
 
 <div class="col-md-12 d-flex justify-content-center align-items-center flex-column mt-5">
     <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0">Aktivni poslovi</h1>
-    <div class="w-50 bg-plt1-clr5 rounded mt-md-3 mt-0" style="height: 5px;"></div>
+    <div class="w-50 bg-plt1-clr6 rounded mt-md-3 mt-0" style="height: 5px;"></div>
 </div>
 
 
-<div class="text-center fs-3 fw-medium text-gray-plt-clr7 mt-5" *ngIf="!allActiveJobs.length">
+<div class="text-center fs-3 fw-medium text-gray-plt-clr7 mt-5 pb-5" *ngIf="!allActiveJobs.length">
     Nema aktivnih poslova.
 </div>
 
@@ -243,7 +243,7 @@
     <div id="carouselExample" class="carousel slide mt-3">
 
         <div class="carousel-inner">
-            <div class="carousel-item active" [ngClass]="{'active': i == selected}"
+            <div class="carousel-item active" [ngClass]="{'active': i == carouselSelected}"
                     *ngFor="let job of allActiveJobs; let i = index">
 
                 <div class="container d-flex justify-content-center">

@@ -23,7 +23,7 @@ export class AgencyJobListComponent implements OnInit {
 
   allActiveJobs: Job[] = [];
   selectedActiveIndex: number;
-  selected: number  = 0;
+  carouselSelected: number  = 0;
 
   allApartments: ApartmentSketch[] = [];
   selectedApartment: ApartmentSketch = null;
@@ -280,7 +280,7 @@ export class AgencyJobListComponent implements OnInit {
         this.displaySuccessfulToast("Uspešno angažovanje radnika.");
         this.hideAssignEmployeesDialog();
         this.hideLoadingDialog();
-        this.selected = this.selectedActiveIndex;
+        this.carouselSelected = this.selectedActiveIndex;
         // setTimeout(() => {location.reload()}, 700);
       },
       error: () => {

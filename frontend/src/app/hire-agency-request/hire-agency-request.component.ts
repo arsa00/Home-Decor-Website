@@ -21,6 +21,7 @@ export class HireAgencyRequestComponent implements OnInit {
 
   allApartments: ApartmentSketch[] = [];
   selectedIndex: number;
+  carouselSelected: number = 0;
 
   previewIndex: number;
   selectedApartment: ApartmentSketch;
@@ -28,6 +29,7 @@ export class HireAgencyRequestComponent implements OnInit {
   startJobDate: Date;
   endJobDate: Date;
 
+  errToastMsg: string;
   errMessages: string[] = [];
   isWaitingForResposne: boolean = false;
 
@@ -49,14 +51,20 @@ export class HireAgencyRequestComponent implements OnInit {
         this.selectedApartment = ApartmentSketch.clone(this.allApartments[0]);
         // console.log(allApartmentSketches);
       },
-      // error: () => { new bootstrap.Toast(document.getElementById("err")).show(); }
+      error: () => {this.displayErrorToast("Došlo je do greške prilikom pretrage. Pokušajte ponovo."); }
     });
+  }
+
+  displayErrorToast(msg: string) {
+    this.errToastMsg = msg;
+    new bootstrap.Toast(document.getElementById("err")).show(); 
   }
 
   selectObject(index: number) {
     if(index < 0 || index >= this.allApartments.length) return;
 
     this.selectedIndex = index;
+    this.carouselSelected = index;
     this.previewIndex = index;
     this.selectedApartment = ApartmentSketch.clone(this.allApartments[index]);
   }
@@ -129,7 +137,13 @@ export class HireAgencyRequestComponent implements OnInit {
       },
       error: () => { 
         this.isWaitingForResposne = false; 
-        new bootstrap.Toast(document.getElementById("err")).show(); 
+        this.displayErrorToast("Došlo je do greške prilikom kreiranja zahteva. " +
+              "Proverite da izabrani objekat nije već uključen u neki posao, pa pokušajte ponovo.");
+        this.carouselSelected = this.previewIndex;
+        // delay to avoid double loading apartmentSketch (once for load and once for update)
+        setTimeout(() => {
+          this.selectedApartment = ApartmentSketch.clone(this.allApartments[this.previewIndex]);
+        }, 10); 
       }
     });
   }

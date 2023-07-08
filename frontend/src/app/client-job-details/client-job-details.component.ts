@@ -78,17 +78,17 @@ export class ClientJobDetailsComponent implements OnInit {
   }
 
   getFormattedStartDate(): string {
-    const validDate = new Date(this.job.startDate);
+    const validDate = new Date(this.job?.startDate);
     return `${validDate.getDate()}.${validDate.getMonth() + 1}.${validDate.getFullYear()}`;
   }
 
   getFormattedEndDate(): string {
-    const validDate = new Date(this.job.endDate);
+    const validDate = new Date(this.job?.endDate);
     return `${validDate.getDate()}.${validDate.getMonth() + 1}.${validDate.getFullYear()}`;
   }
 
   getFormattedJobState(): string {
-    switch(this.job.state) {
+    switch(this.job?.state) {
       case JobState.ACTIVE: return ("Aktivan posao" + (this.job.cancelRequested ? ". Zahtev za otkazivanje na čekanju." : ""));
       case JobState.FINISHED: return "Završen posao";
       case JobState.CANCELED: return "Otkazan posao";
@@ -100,29 +100,29 @@ export class ClientJobDetailsComponent implements OnInit {
   }
 
   isJobActive(): boolean {
-    return this.job.state === JobState.ACTIVE;
+    return this.job?.state === JobState.ACTIVE;
   }
 
   isJobReq(): boolean {
-    return this.job.state === JobState.ACCEPTED 
-            || this.job.state === JobState.PENDING 
-            || this.job.state === JobState.REJECTED; 
+    return this.job?.state === JobState.ACCEPTED 
+            || this.job?.state === JobState.PENDING 
+            || this.job?.state === JobState.REJECTED; 
   }
 
   isJobRejected(): boolean {
-    return this.job.state === JobState.REJECTED; 
+    return this.job?.state === JobState.REJECTED; 
   }
 
   isJobAccepted(): boolean {
-    return this.job.state === JobState.ACCEPTED; 
+    return this.job?.state === JobState.ACCEPTED; 
   }
 
   isJobFinished(): boolean {
-    return this.job.state === JobState.FINISHED;
+    return this.job?.state === JobState.FINISHED;
   }
 
   isJobCanceled(): boolean {
-    return this.job.state === JobState.CANCELED;
+    return this.job?.state === JobState.CANCELED;
   }
 
   areAllRoomsFinished(): boolean {
@@ -279,9 +279,16 @@ export class ClientJobDetailsComponent implements OnInit {
           this.apartmentInCanvas = ApartmentSketch.clone(this.objectUnderConstruction);
         }, 10); 
         
-        this.displaySuccessfulToast("Ponuda uspešno prihvaćena.");
+        this.displaySuccessfulToast("Ponuda agencije uspešno prihvaćena.");
       },
-      error: () => { this.displayErrorToast("Došlo je do greške prilikom prihvatanja ponude. Pokušajte ponovo."); }
+      error: (res) => {
+        if(res.error.objectAlreadyUnderConstructionErr) {
+          this.displayErrorToast("Radovi na objektu su već u toku. Nije moguće da se dva posla istovremeno izvršavaju na istom objektu.");
+          return;
+        }
+        
+        this.displayErrorToast("Došlo je do greške prilikom prihvatanja ponude. Pokušajte ponovo.");
+       }
     });
   }
 
