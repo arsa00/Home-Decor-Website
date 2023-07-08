@@ -89,7 +89,10 @@ export class LoginComponent implements OnInit {
       next: (userDB: User) => {
 
         if(userDB) {
-          localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(userDB));
+          if(userDB.type == GlobalConstants.ADMIN_TYPE)
+            localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN, JSON.stringify(userDB));
+          else
+            localStorage.setItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER, JSON.stringify(userDB));
 
           switch(userDB.type) {
             case GlobalConstants.CLIENT_TYPE: this.router.navigate([GlobalConstants.ROUTE_CLIENT_PROFILE]); break;

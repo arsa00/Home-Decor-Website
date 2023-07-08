@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import { GlobalConstants } from '../global-constants';
 import * as bootstrap from 'bootstrap';
 import { UserService } from '../services/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-user-list',
@@ -23,6 +24,15 @@ export class AdminUserListComponent implements OnInit {
   selectedIndex: number;
   selectedUser: User;
 
+
+  activeReqPage: number = 0;
+  numOfReqPages: number = 0;
+  showReqPage: number[] = [];
+
+  allReqUsers: User[] = [];
+  selectedReqIndex: number;
+
+
   editMode: boolean = false;
   deleteMode: boolean = false;
 
@@ -34,11 +44,33 @@ export class AdminUserListComponent implements OnInit {
   loadingDialogActive: boolean = false;
   loadingHeaderTxt: string;
 
-  constructor(private userService: UserService) { }
+  mailRegEx = new RegExp(GlobalConstants.REGEX_MAIL);
+  phoneRegEx = new RegExp(GlobalConstants.REGEX_PHONE); 
+  mailErr: boolean = false;
+  phoneErr: boolean = false;
+
+  constructor(private userService: UserService,
+              private router: Router) { }
 
   ngOnInit(): void {
-    this.loggedAdmin = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    this.loggedAdmin = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
 
+    const isRegistrationSucc = sessionStorage.getItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+
+    if(isRegistrationSucc) {
+      if(isRegistrationSucc === "true") {
+        this.displaySuccessfulToast("Novi korisnik uspešno dodat.");
+      }
+
+      sessionStorage.removeItem(GlobalConstants.SESSION_STORAGE_REGISTRATION);
+    }
+
+    this.getNumOfPagesAndFetch();
+
+    this.getNumOfReqPagesAndFetch();
+  }
+
+  getNumOfPagesAndFetch() {
     this.userService.getNumberOfUsers(this.loggedAdmin.jwt).subscribe({
       next: (res) => { 
         if(res["numOfUsers"]) {
@@ -47,11 +79,30 @@ export class AdminUserListComponent implements OnInit {
           this.numOfPages = Math.floor(numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE) 
                           + ((numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
 
-          console.log(this.numOfPages);
+          if(this.activePage >= this.numOfPages) this.activePage = this.numOfPages - 1;
 
           if(!this.numOfPages) return;
-
           this.fetchUsers();
+        }
+      },
+      error: () => { this.displayErrorToast("Došlo je do greške. Probajte da osvežite stranicu."); }
+    });
+  }
+
+  getNumOfReqPagesAndFetch() {
+    this.userService.getNumberOfPendingUsers(this.loggedAdmin.jwt).subscribe({
+      next: (res) => { 
+        if(res["numOfUsers"]) {
+          const numOfUsers = res["numOfUsers"];
+
+          this.numOfReqPages = Math.floor(numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE) 
+                          + ((numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
+
+          if(this.activeReqPage >= this.numOfReqPages) this.activeReqPage = this.numOfReqPages - 1;
+
+          if(!this.numOfReqPages) return;
+
+          this.fetchReqUsers();
         }
       },
       error: () => { this.displayErrorToast("Došlo je do greške. Probajte da osvežite stranicu."); }
@@ -84,7 +135,18 @@ export class AdminUserListComponent implements OnInit {
     .subscribe({
       next: (users: User[]) => {
         this.allUsers = users;
-        console.log(users);
+      },
+      error: () => { this.displayErrorToast("Došlo je do greške prilikom dohvatanja korisnika. Probajte da osvežite stranicu."); }
+    });
+  }
+
+  fetchReqUsers() {
+    this.userService.getSliceOfPendingUsers(this.loggedAdmin.jwt,
+                                    this.activeReqPage * AdminUserListComponent.NUM_OF_USERS_PER_PAGE, 
+                                    AdminUserListComponent.NUM_OF_USERS_PER_PAGE)
+    .subscribe({
+      next: (users: User[]) => {
+        this.allReqUsers = users;
       },
       error: () => { this.displayErrorToast("Došlo je do greške prilikom dohvatanja korisnika. Probajte da osvežite stranicu."); }
     });
@@ -110,18 +172,21 @@ export class AdminUserListComponent implements OnInit {
     this.fetchUsers();
   }
 
-  showAddNewUser() {
-    // probably better to redirect to register page
-    this.isAddNewUserDialogActive = true;
+  showReqPageNumbers() {
+    return Array(this.numOfReqPages);
   }
 
-  hideAddNewUser() {
-    this.isAddNewUserDialogActive = true;
+  selectReqPage(page: number) {
+    if(page < 0 || page >= this.numOfReqPages) return;
+
+    this.activeReqPage = page;
+    this.selectedReqIndex = null;
+    this.fetchReqUsers();
   }
 
   resetSelection() {
     this.selectedIndex = null;
-      this.selectedUser = null;
+    this.selectedUser = null;
   }
 
   setActive(index): void {
@@ -152,8 +217,7 @@ export class AdminUserListComponent implements OnInit {
     this.deleteMode = true;
   }
 
-  getImageSrc(index: number): string {
-    const user = this.allUsers[index];
+  getImageSrc(user: User): string {
     if(user.imageType) {
       return `${GlobalConstants.URI}/images/${user.username}/profileImg${user.imageType}`;
     }
@@ -166,6 +230,8 @@ export class AdminUserListComponent implements OnInit {
 
     this.selectedUser = User.clone(this.allUsers[this.selectedIndex]);
     this.editMode = true;
+    this.mailErr = false;
+    this.phoneErr = false;
   }
   
   discardEdit() {
@@ -174,6 +240,25 @@ export class AdminUserListComponent implements OnInit {
   }
 
   submitEdit() {
+    this.mailErr = false;
+    this.phoneErr = false;
+
+    let isErrCatched: boolean = false;
+
+    if(!this.mailRegEx.test(this.selectedUser.mail)) {
+      this.displayErrorToast("Uneti mejl nije dobrog formata.");
+      this.mailErr = true;
+      isErrCatched = true;
+    }
+    
+    if(!this.phoneRegEx.test(this.selectedUser.phone)) {
+      this.displayErrorToast("Uneti kontakt telefon nije dobrog formata.");
+      this.phoneErr = true;
+      isErrCatched = true;
+    }
+
+    if(isErrCatched) return;
+
     this.editMode = false;    
     this.updateUser();    
   }
@@ -227,7 +312,7 @@ export class AdminUserListComponent implements OnInit {
     .subscribe({
       next: () => {
         this.allUsers.splice(this.selectedIndex, 1);
-        this.fetchUsers();
+        this.getNumOfReqPagesAndFetch();
         this.selectedIndex = null;
         this.selectedUser = null;
         this.hideLoadingDialog();
@@ -238,6 +323,51 @@ export class AdminUserListComponent implements OnInit {
         this.hideLoadingDialog();
       }
     });
+  }
+
+  acceptReq(index: number) {
+    if(index < 0 || index >= this.allReqUsers.length) return;
+
+    const user = this.allReqUsers[index];
+    this.userService.acceptRegisterRequest(this.loggedAdmin.jwt, user._id).subscribe({
+      next: () => { 
+        this.allReqUsers.splice(index, 1);
+        this.getNumOfReqPagesAndFetch();
+        this.displaySuccessfulToast("Korisnički zahtev uspešno prihvaćen.");
+      },
+      error: () => {
+        this.displayErrorToast("Došlo je do greške prilikom prihvatanja korisničkog zahteva. Pokušajte ponovo.");
+      }
+    });
+  }
+
+  rejectReq(index: number) {
+    if(index < 0 || index >= this.allReqUsers.length) return;
+
+    const user = this.allReqUsers[index];
+    this.userService.rejectRegisterRequest(this.loggedAdmin.jwt, user._id).subscribe({
+      next: () => { 
+        this.allReqUsers.splice(index, 1);
+        this.getNumOfReqPagesAndFetch();
+        this.displaySuccessfulToast("Korisnički zahtev uspešno odbijen.");
+      },
+      error: () => {
+        this.displayErrorToast("Došlo je do greške prilikom odbijanja korisničkog zahteva. Pokušajte ponovo.");
+      }
+    });
+  }
+
+  addNewUser() {
+    this.router.navigate([GlobalConstants.ROUTE_ADMIN_ADD_USER]);
+  }
+
+  logoutAdmin() {
+    this.userService.logoutAdmin();
+    this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
+  }
+
+  returnToHomePage() {
+    this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
 }

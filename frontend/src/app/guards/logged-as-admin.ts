@@ -17,9 +17,10 @@ export class LoggedAsAdminGuard implements CanActivate {
     ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
         try {
-            const loggedUser: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+            const loggedAdmin: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
+            if(loggedAdmin.type == GlobalConstants.ADMIN_TYPE) return true;
 
-            if(loggedUser.type == GlobalConstants.ADMIN_TYPE) return true;
+            const loggedUser: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
 
             switch(loggedUser.type) {
                 case GlobalConstants.CLIENT_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_CLIENT_PROFILE);

@@ -2,6 +2,7 @@ export class GlobalConstants {
     static readonly URI: string = "http://localhost:4000";
 
     static readonly LOCAL_STORAGE_LOGGED_USER = "loggedUser";
+    static readonly LOCAL_STORAGE_LOGGED_ADMIN = "loggedAdmin";
     static readonly SESSION_STORAGE_REGISTRATION = "registrationSuccessful";
     static readonly SESSION_STORAGE_PASS_RESET = "passResetSuccessful";
     static readonly SESSION_STORAGE_PASS_RESET_REQ = "passResetRequestSuccessful";
@@ -52,6 +53,7 @@ export class GlobalConstants {
     static readonly ROUTE_ADMIN_LOGIN = "adminLogin";
     static readonly ROUTE_ADMIN_DASHBOARD = "adminDashboard";
     static readonly ROUTE_ADMIN_USER_LIST = "adminUserList";
+    static readonly ROUTE_ADMIN_ADD_USER = "adminAddUser";
     
 
 }

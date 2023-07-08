@@ -45,7 +45,8 @@ const routes: Routes = [
   { path: GlobalConstants.ROUTE_AGENCY_JOB_LIST, component: AgencyJobListComponent, canActivate: [LoggedAsAgencyGuard] },
 
   { path: GlobalConstants.ROUTE_ADMIN_DASHBOARD, component: AdminDashboardComponent, canActivate: [LoggedAsAdminGuard] },  
-  { path: GlobalConstants.ROUTE_ADMIN_USER_LIST, component: AdminUserListComponent, canActivate: [LoggedAsAdminGuard] },  
+  { path: GlobalConstants.ROUTE_ADMIN_USER_LIST, component: AdminUserListComponent, canActivate: [LoggedAsAdminGuard] }, 
+  { path: GlobalConstants.ROUTE_ADMIN_ADD_USER, component: RegisterComponent, canActivate: [LoggedAsAdminGuard] },   
 ];
 
 @NgModule({

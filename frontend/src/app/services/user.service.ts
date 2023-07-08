@@ -24,6 +24,10 @@ export class UserService {
     localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER);
   }
 
+  logoutAdmin() {
+    localStorage.removeItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN);
+  }
+
 
   registerClient(username: string, password: string, phone: string, mail: string, firstname: string, lastname: string) { 
     const dataPayload = {
@@ -219,6 +223,15 @@ export class UserService {
   }
 
 
+  getNumberOfPendingUsers(jwt: string) {
+    const dataPayload = {
+      "jwt": jwt
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/getNumberOfPendingUsers`, dataPayload);
+  }
+
+
   getSliceOfUsers(jwt: string, offset: number, limit: number) {
     const dataPayload = {
       "jwt": jwt,
@@ -230,6 +243,17 @@ export class UserService {
   }
 
 
+  getSliceOfPendingUsers(jwt: string, offset: number, limit: number) {
+    const dataPayload = {
+      "jwt": jwt,
+      "offset": offset,
+      "limit": limit
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/getSliceOfPendingUsers`, dataPayload);
+  }
+
+
   deleteUserById(jwt: string, userId: string) {
     const dataPayload = {
       "jwt": jwt,
@@ -237,5 +261,25 @@ export class UserService {
     }
 
     return this.http.post(`${ GlobalConstants.URI }/user/deleteUserById`, dataPayload);
+  }
+
+
+  acceptRegisterRequest(jwt: string, userId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "userId": userId
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/acceptRegisterRequest`, dataPayload);
+  }
+
+
+  rejectRegisterRequest(jwt: string, userId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "userId": userId
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/rejectRegisterRequest`, dataPayload);
   }
 }

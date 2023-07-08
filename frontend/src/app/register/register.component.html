@@ -9,10 +9,26 @@
     </div>
 </div>
 
+<div class="container-fluid mt-3 text-center" *ngIf="isAdminPage">
+
+            <button type="button" class="btn btn-plt1-clr9 fs-6 mx-3" (click)="returnToHomePage()">
+                Vratite se na početnu stranu
+            </button>
+
+            <button type="button" class="btn btn-plt1-clr6 fs-6 mx-3" (click)="returnToUserList()">
+                Vratite se na prikaz korisnika
+            </button>
+
+            <button type="button" class="btn btn-plt1-clr1 fs-6 mx-3" (click)="logoutAdmin()">
+                Odjavite se
+            </button>
+
+</div>
+
 <div class="container  my-5">
     <div class="row  justify-content-center align-items-center px-3 px-md-0">
         <div class="col-lg-5 shadow px-2 px-md-5 pb-3 pt-3 text-center">
-            <h1 class="fs-2">Registracija</h1>
+            <h1 class="fs-2">{{ headingTxt }}</h1>
 
             <div class="my-3 full-width bg-gray-plt-clr3 rounded" style="height: 5px;"></div>
 
@@ -213,9 +229,15 @@
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width" (click)="register()">Registrujte se</button>
+                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width" (click)="register()" *ngIf="!isAdminPage">
+                    Registrujte se
+                </button>
+
+                <button type="button" class="btn btn-plt1-clr9 fs-5 my-2 full-width" (click)="register()" *ngIf="isAdminPage">
+                    Dodajte novog korisnika
+                </button>
                 
-                <div class="mt-2">
+                <div class="mt-2" *ngIf="!isAdminPage">
                     <span>Već imate nalog? </span><a class="text-plt1-clr2 fw-medium" routerLink="">Prijavite se</a>
                 </div>
 

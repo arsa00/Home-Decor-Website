@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GlobalConstants } from '../global-constants';
 import { UserService } from '../services/user.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as bootstrap from 'bootstrap';
 import { User } from '../models/User';
 
@@ -11,6 +11,9 @@ import { User } from '../models/User';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
+  
+  isAdminPage: boolean = false;
+  headingTxt: string = "Registracija";
 
   isPassHidden: boolean = true;
   isRPassHidden: boolean = true;
@@ -52,9 +55,14 @@ export class RegisterComponent implements OnInit {
   imgErrMessages: string[] = [];
 
 
-  constructor(private userService: UserService, private router: Router) { }
+  constructor(private userService: UserService, 
+              private router: Router) { }
 
   ngOnInit(): void {
+    if(`/${GlobalConstants.ROUTE_ADMIN_ADD_USER}` === this.router.url) {
+      this.isAdminPage = true;
+      this.headingTxt = "Dodajte novog korisnika";
+    }
     this.profileImg = document.getElementById("profileImg");
     this.setProfileImg();
     document.getElementById("rbClient").addEventListener("change", this.setProfileImg);
@@ -155,6 +163,15 @@ export class RegisterComponent implements OnInit {
 
   clientLastnameInputClicked(): void {
     this.clientLastnameErr = false;
+  }
+
+  setSuccRegistrationAndForwad(): void {
+    sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
+    
+    if(this.isAdminPage)
+      this.router.navigate([GlobalConstants.ROUTE_ADMIN_USER_LIST]);
+    else
+      this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
   register(): void {
@@ -264,8 +281,7 @@ export class RegisterComponent implements OnInit {
                 });
               }
 
-              sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
-              this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
+              this.setSuccRegistrationAndForwad();
             },
 
             error: (res) => {
@@ -300,8 +316,7 @@ export class RegisterComponent implements OnInit {
                 });
               }
 
-              sessionStorage.setItem(GlobalConstants.SESSION_STORAGE_REGISTRATION, "true");
-              this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
+              this.setSuccRegistrationAndForwad();
             },
 
             error: (res) => {
@@ -318,6 +333,21 @@ export class RegisterComponent implements OnInit {
           });
     }
 
+  }
+
+  // admin methods
+
+  returnToHomePage() {
+    this.router.navigate([GlobalConstants.ROUTE_ADMIN_DASHBOARD]);
+  }
+
+  returnToUserList() {
+    this.router.navigate([GlobalConstants.ROUTE_ADMIN_USER_LIST]);
+  }
+
+  logoutAdmin() {
+    this.userService.logoutAdmin();
+    this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
 }

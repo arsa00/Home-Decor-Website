@@ -18,13 +18,15 @@ export class AlreadyLoggedGuard implements CanActivate {
 
         try {
             const loggedUser: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+            const loggedAdmin: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
 
-            if(!loggedUser) return true;
+            if(!loggedUser && !loggedAdmin) return true;
+
+            if(loggedAdmin) return this.router.parseUrl(GlobalConstants.ROUTE_ADMIN_DASHBOARD);
 
             switch(loggedUser.type) {
                 case GlobalConstants.CLIENT_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_CLIENT_PROFILE);
                 case GlobalConstants.AGENCY_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_AGENCY_PROFILE);
-                case GlobalConstants.ADMIN_TYPE: return this.router.parseUrl(GlobalConstants.ROUTE_ADMIN_DASHBOARD);
                 default: return false;
             }
         } catch(err) {

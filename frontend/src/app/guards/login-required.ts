@@ -18,8 +18,9 @@ export class LoginRequiredGuard implements CanActivate {
 
         try {
             const loggedUser: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+            const loggedAdmin: User = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
 
-            if(loggedUser) return true;
+            if(loggedUser || loggedAdmin) return true;
 
             return this.router.parseUrl(GlobalConstants.ROUTE_LOGIN);
         } catch(err) {
