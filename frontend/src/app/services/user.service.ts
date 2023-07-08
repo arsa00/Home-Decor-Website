@@ -228,4 +228,14 @@ export class UserService {
 
     return this.http.post(`${ GlobalConstants.URI }/user/getSliceOfUsers`, dataPayload);
   }
+
+
+  deleteUserById(jwt: string, userId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "userId": userId
+    }
+
+    return this.http.post(`${ GlobalConstants.URI }/user/deleteUserById`, dataPayload);
+  }
 }

@@ -31,6 +31,9 @@ export class AdminUserListComponent implements OnInit {
   errToastMsg: string;
   succToastMsg: string;
 
+  loadingDialogActive: boolean = false;
+  loadingHeaderTxt: string;
+
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
@@ -41,8 +44,10 @@ export class AdminUserListComponent implements OnInit {
         if(res["numOfUsers"]) {
           const numOfUsers = res["numOfUsers"];
 
-          this.numOfPages = numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE 
-                          + numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE;
+          this.numOfPages = Math.floor(numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE) 
+                          + ((numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
+
+          console.log(this.numOfPages);
 
           if(!this.numOfPages) return;
 
@@ -61,6 +66,15 @@ export class AdminUserListComponent implements OnInit {
   displaySuccessfulToast(msg: string) {
     this.succToastMsg = msg;
     new bootstrap.Toast(document.getElementById("succ")).show(); 
+  }
+
+  hideLoadingDialog() {
+    this.loadingDialogActive = false;
+  }
+
+  private showLoadingDialog(msg: string) {
+    this.loadingHeaderTxt = msg;
+    this.loadingDialogActive = true;
   }
 
   fetchUsers() {
@@ -203,6 +217,27 @@ export class AdminUserListComponent implements OnInit {
         }
       });
     }
+  }
+
+  deleteUser() {
+    this.hideDeleteDialog();
+    this.showLoadingDialog("Brisanje korisnika...");
+
+    this.userService.deleteUserById(this.loggedAdmin.jwt, this.selectedUser._id)
+    .subscribe({
+      next: () => {
+        this.allUsers.splice(this.selectedIndex, 1);
+        this.fetchUsers();
+        this.selectedIndex = null;
+        this.selectedUser = null;
+        this.hideLoadingDialog();
+        this.displaySuccessfulToast("Korisnik uspešno obirsan.");
+      },
+      error: (res) => {
+        this.displayErrorToast("Došlo je do greške prilikom brisanja korisnika. Pokušajte ponovo.");
+        this.hideLoadingDialog();
+      }
+    });
   }
 
 }
