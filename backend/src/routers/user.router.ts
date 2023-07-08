@@ -58,4 +58,14 @@ userRouter.route("/changePassword").post(
     (req, res) => new UserController().changePassword(req, res)
 );
 
+
+userRouter.route("/getNumberOfUsers").post(
+    (req, res) => new UserController().getNumberOfUsers(req, res)
+);
+
+
+userRouter.route("/getSliceOfUsers").post(
+    (req, res) => new UserController().getSliceOfUsers(req, res)
+);
+
 export default userRouter;

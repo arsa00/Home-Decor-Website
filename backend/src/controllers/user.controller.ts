@@ -283,10 +283,24 @@ export class UserController {
         const name = mongoSanitaze(req.body.name);
         const address = mongoSanitaze(req.body.address);
         const description = mongoSanitaze(req.body.description);
+        const newUsername = mongoSanitaze(req.body.newUsername);
+
+        const user = await UserModel.findOne({ "username": username }).orFail();
+
+        if(newUsername && newUsername != user.username) {
+            const usernameExist = await UserModel.findOne({ "username": newUsername });
+            if(usernameExist) return res.status(409).json({errMsg: "Uneto korisničko ime već postoji"});
+        }
+
+        if(mail && mail != user.mail) {
+            const mailAddrExist = await UserModel.findOne({ "mail": mail });
+            if(mailAddrExist) return res.status(409).json({errMsg: "Uneta mejl adresa se već koristi"});
+        }
 
         let updateQuery;
 
         // common data
+        if(newUsername) updateQuery = { ...updateQuery, "username": newUsername };
         if(phone) updateQuery = { ...updateQuery, "phone": phone };
         if(mail) updateQuery = { ...updateQuery, "mail": mail };
 
@@ -311,7 +325,7 @@ export class UserController {
             return res.status(200).json(newUser);
         } catch(err) {
             console.log(err);
-            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
 
@@ -348,8 +362,32 @@ export class UserController {
             return res.status(200).json({"succMsg": "Lozinka uspešno promenjena."});
         } catch(err) {
             console.log(err);
-            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."})
+            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
         }
     }
 
+
+    getNumberOfUsers = async (req: Request, res: Response) => {
+        try {
+            const numOfUsers = await UserModel.countDocuments({ "type": { "$ne": UserController.ADMIN_TYPE } });
+            return res.status(200).json({"numOfUsers": numOfUsers});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+        }
+    }
+
+
+    getSliceOfUsers = async (req: Request, res: Response) => {
+        try {
+            const offset = mongoSanitaze(req.body.offset);
+            const limit = mongoSanitaze(req.body.limit);
+
+            const users = await UserModel.find({ "type": { "$ne": UserController.ADMIN_TYPE } }).skip(offset).limit(limit);
+            return res.status(200).json(users);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo."});
+        }
+    }
 }

@@ -245,8 +245,22 @@ class UserController {
             const name = mongoSanitaze(req.body.name);
             const address = mongoSanitaze(req.body.address);
             const description = mongoSanitaze(req.body.description);
+            const newUsername = mongoSanitaze(req.body.newUsername);
+            const user = yield user_1.UserModel.findOne({ "username": username }).orFail();
+            if (newUsername && newUsername != user.username) {
+                const usernameExist = yield user_1.UserModel.findOne({ "username": newUsername });
+                if (usernameExist)
+                    return res.status(409).json({ errMsg: "Uneto korisničko ime već postoji" });
+            }
+            if (mail && mail != user.mail) {
+                const mailAddrExist = yield user_1.UserModel.findOne({ "mail": mail });
+                if (mailAddrExist)
+                    return res.status(409).json({ errMsg: "Uneta mejl adresa se već koristi" });
+            }
             let updateQuery;
             // common data
+            if (newUsername)
+                updateQuery = Object.assign(Object.assign({}, updateQuery), { "username": newUsername });
             if (phone)
                 updateQuery = Object.assign(Object.assign({}, updateQuery), { "phone": phone });
             if (mail)
@@ -276,7 +290,7 @@ class UserController {
             }
             catch (err) {
                 console.log(err);
-                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
         this.changePassword = (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -304,6 +318,28 @@ class UserController {
                 const newHashedPassword = yield bcrypt.hash(newPassword, salt);
                 yield user_1.UserModel.findOneAndUpdate({ "_id": user._id }, { "password": newHashedPassword }).orFail();
                 return res.status(200).json({ "succMsg": "Lozinka uspešno promenjena." });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+            }
+        });
+        this.getNumberOfUsers = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const numOfUsers = yield user_1.UserModel.countDocuments({ "type": { "$ne": UserController.ADMIN_TYPE } });
+                return res.status(200).json({ "numOfUsers": numOfUsers });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške prilikom promene lozinke. Pokušajte ponovo." });
+            }
+        });
+        this.getSliceOfUsers = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offset = mongoSanitaze(req.body.offset);
+                const limit = mongoSanitaze(req.body.limit);
+                const users = yield user_1.UserModel.find({ "type": { "$ne": UserController.ADMIN_TYPE } }).skip(offset).limit(limit);
+                return res.status(200).json(users);
             }
             catch (err) {
                 console.log(err);
