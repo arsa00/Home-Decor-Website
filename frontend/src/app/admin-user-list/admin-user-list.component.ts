@@ -73,13 +73,13 @@ export class AdminUserListComponent implements OnInit {
   getNumOfPagesAndFetch() {
     this.userService.getNumberOfUsers(this.loggedAdmin.jwt).subscribe({
       next: (res) => { 
-        if(res["numOfUsers"]) {
+        if(res["numOfUsers"] != null && res["numOfUsers"] != undefined) {
           const numOfUsers = res["numOfUsers"];
 
           this.numOfPages = Math.floor(numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE) 
                           + ((numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
 
-          if(this.activePage >= this.numOfPages) this.activePage = this.numOfPages - 1;
+          if(this.activePage >= this.numOfPages && this.numOfPages > 0) this.activePage = this.numOfPages - 1;
 
           if(!this.numOfPages) return;
           this.fetchUsers();
@@ -92,13 +92,13 @@ export class AdminUserListComponent implements OnInit {
   getNumOfReqPagesAndFetch() {
     this.userService.getNumberOfPendingUsers(this.loggedAdmin.jwt).subscribe({
       next: (res) => { 
-        if(res["numOfUsers"]) {
+        if(res["numOfUsers"] != null && res["numOfUsers"] != undefined) {
           const numOfUsers = res["numOfUsers"];
 
           this.numOfReqPages = Math.floor(numOfUsers / AdminUserListComponent.NUM_OF_USERS_PER_PAGE) 
                           + ((numOfUsers % AdminUserListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
 
-          if(this.activeReqPage >= this.numOfReqPages) this.activeReqPage = this.numOfReqPages - 1;
+          if(this.activeReqPage >= this.numOfReqPages && this.numOfReqPages > 0) this.activeReqPage = this.numOfReqPages - 1;
 
           if(!this.numOfReqPages) return;
 

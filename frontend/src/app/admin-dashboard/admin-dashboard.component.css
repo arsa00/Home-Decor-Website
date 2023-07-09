@@ -1,0 +1,11 @@
+.dashboardBtn {
+    aspect-ratio: 1/1;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.dashboardBtn:hover {
+    border-radius: 15px;
+    transform: scale(1.05);
+}

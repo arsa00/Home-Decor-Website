@@ -1,1 +1,50 @@
-<p>admin-dashboard works!</p>
+<!-- successful password changed toast message -->
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="passResetSucc" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                Lozinka uspešno promenjena.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="h-100 d-flex justify-content-center align-items-center ">
+    <div class="container-fluid" >
+        <div class="row justify-content-center align-items-center p-2 gy-4" >
+
+            <div class="col-lg-2 col-5 bg-plt1-clr5 dashboardBtn d-flex justify-content-center align-items-center mx-3"
+                    (click)="redirectToUserListPage()">
+                <span class="fs-3 fw-medium text-center">Korisnički nalozi</span>
+            </div>
+
+
+            <div class="col-lg-2 col-5  bg-plt1-clr4 dashboardBtn d-flex justify-content-center align-items-center mx-3"
+                    (click)="redirectToJobListPage()">
+                <span class="fs-3 fw-medium text-center">Poslovi</span>
+            </div>
+
+
+            <div class="col-lg-2 col-5  bg-plt1-clr6 dashboardBtn d-flex justify-content-center align-items-center mx-3"
+                    (click)="openChangePassDialog()">
+                <span class="fs-3 fw-medium text-center">Promena lozinke</span>
+            </div>
+
+
+            <div class="col-lg-2 col-5  bg-plt1-clr1 dashboardBtn d-flex justify-content-center align-items-center mx-3"
+                    (click)="logout()">
+                <span class="fs-3 fw-medium text-center">Odjava</span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid h-100 w-100 position-fixed top-0" *ngIf="changePassMode" style="z-index: 3;">
+    <div class="h-100 w-100 position-absolute top-0 start-0 bg-gray-plt-clr9" style="opacity: 0.8;"></div>
+    <app-change-password style="position: relative; z-index: 5;" [user]="loggedAdmin" 
+                [closeDialogFunc]="closeChangePassDialog" [changeSuccessful]="passChangeSucc">
+    </app-change-password>
+</div>

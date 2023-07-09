@@ -97,14 +97,14 @@ export class AdminJobListComponent implements OnInit {
   getNumOfJobsAndFetch() {
     this.jobService.getNumberOfJobs(this.loggedAdmin.jwt).subscribe({
       next: (res) => { 
-        if(res["numOfJobs"]) {
+        if(res["numOfJobs"] != null && res["numOfJobs"] != undefined) {
           const numOfJobs = res["numOfJobs"];
 
           this.numOfPages = Math.floor(numOfJobs / AdminJobListComponent.NUM_OF_USERS_PER_PAGE) 
                           + ((numOfJobs % AdminJobListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
 
-          if(this.activePage >= this.numOfPages) this.activePage = this.numOfPages - 1;
-
+          if(this.activePage >= this.numOfPages && this.numOfPages > 0) this.activePage = this.numOfPages - 1;
+          this.allJobs = [];
           if(!this.numOfPages) return;
           this.fetchJobs();
         }
@@ -114,16 +114,18 @@ export class AdminJobListComponent implements OnInit {
   }
 
   getNumOfJobCancelReqsAndFetch() {
+    
     this.jobService.getNumberOfJobCancelRequests(this.loggedAdmin.jwt).subscribe({
       next: (res) => { 
-        if(res["numOfJobs"]) {
+        console.log(res);
+        if(res["numOfJobs"] != null && res["numOfJobs"] != undefined) {
           const numOfJobs = res["numOfJobs"];
 
           this.numOfPages = Math.floor(numOfJobs / AdminJobListComponent.NUM_OF_USERS_PER_PAGE) 
                           + ((numOfJobs % AdminJobListComponent.NUM_OF_USERS_PER_PAGE) == 0 ? 0 : 1);
-
-          if(this.activePage >= this.numOfPages) this.activePage = this.numOfPages - 1;
-
+              
+          if(this.activePage >= this.numOfPages && this.numOfPages > 0) this.activePage = this.numOfPages - 1;
+          this.allJobs = [];
           if(!this.numOfPages) return;
           this.fetchJobCancelReqs();
         }
