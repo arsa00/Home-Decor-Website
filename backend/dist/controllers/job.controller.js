@@ -208,7 +208,7 @@ class JobController {
         });
         this.getNumberOfJobCancelRequests = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const numOfJobs = yield job_1.JobModel.countDocuments({ "cancelRequested": true });
+                const numOfJobs = yield job_1.JobModel.countDocuments({ "cancelRequested": true, "state": job_1.JobState.ACTIVE });
                 return res.status(200).json({ "numOfJobs": numOfJobs });
             }
             catch (err) {
@@ -232,7 +232,7 @@ class JobController {
             try {
                 const offset = mongoSanitaze(req.body.offset);
                 const limit = mongoSanitaze(req.body.limit);
-                const jobs = yield job_1.JobModel.find({ "cancelRequested": true }).skip(offset).limit(limit);
+                const jobs = yield job_1.JobModel.find({ "cancelRequested": true, "state": job_1.JobState.ACTIVE }).skip(offset).limit(limit);
                 return res.status(200).json(jobs);
             }
             catch (err) {

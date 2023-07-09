@@ -228,7 +228,7 @@ export class JobController {
 
     getNumberOfJobCancelRequests = async (req: Request, res: Response) => {
         try {
-            const numOfJobs = await JobModel.countDocuments({ "cancelRequested": true });
+            const numOfJobs = await JobModel.countDocuments({ "cancelRequested": true, "state": JobState.ACTIVE });
             return res.status(200).json({"numOfJobs": numOfJobs});
         } catch(err) {
             console.log(err);
@@ -256,7 +256,9 @@ export class JobController {
             const offset = mongoSanitaze(req.body.offset);
             const limit = mongoSanitaze(req.body.limit);
 
-            const jobs = await JobModel.find({ "cancelRequested": true }).skip(offset).limit(limit);
+            const jobs = await JobModel.find(
+                { "cancelRequested": true, "state": JobState.ACTIVE }
+            ).skip(offset).limit(limit);
             return res.status(200).json(jobs);
         } catch(err) {
             console.log(err);
