@@ -117,4 +117,74 @@ export class JobService {
 
     return this.http.post(`${GlobalConstants.URI}/job/assignEmployeesToJob`, dataPayload);
   }
+
+
+  getNumberOfJobs(jwt: string) {
+    const dataPayload = {
+      "jwt": jwt
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getNumberOfJobs`, dataPayload);
+  }
+
+
+  getNumberOfJobCancelRequests(jwt: string) {
+    const dataPayload = {
+      "jwt": jwt
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getNumberOfJobCancelRequests`, dataPayload);
+  }
+
+
+  getSliceOfJobs(jwt: string, offset: number, limit: number) {
+    const dataPayload = {
+      "jwt": jwt,
+      "offset": offset,
+      "limit": limit
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getSliceOfJobs`, dataPayload);
+  }
+
+
+  getSliceOfJobCancelRequests(jwt: string, offset: number, limit: number) {
+    const dataPayload = {
+      "jwt": jwt,
+      "offset": offset,
+      "limit": limit
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/getSliceOfJobCancelRequests`, dataPayload);
+  }
+
+
+  acceptJobCancelRequest(jwt: string, jobId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobId": jobId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/acceptJobCancelRequest`, dataPayload);
+  }
+
+
+  rejectJobCancelRequest(jwt: string, jobId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobId": jobId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/rejectJobCancelRequest`, dataPayload);
+  }
+
+
+  receiveRejectedJobCancelRequest(jwt: string, jobId: string) {
+    const dataPayload = {
+      "jwt": jwt,
+      "jobId": jobId
+    }
+
+    return this.http.post(`${GlobalConstants.URI}/job/receiveRejectedJobCancelRequest`, dataPayload);
+  }
 }

@@ -1,4 +1,20 @@
-<app-navbar [activeNav]="'client'"></app-navbar>
+<app-navbar [activeNav]="'client'" *ngIf="!isAdminPage"></app-navbar>
+
+<div class="container-fluid mt-3 text-end" *ngIf="isAdminPage">
+
+    <button type="button" class="btn btn-plt1-clr9 fs-6 mx-3" (click)="returnToHomePage()">
+        Vratite se na početnu stranu
+    </button>
+
+    <button type="button" class="btn btn-plt1-clr6 fs-6 mx-3" (click)="returnToJobList()">
+        Vratite se na prikaz poslova
+    </button>
+
+    <button type="button" class="btn btn-plt1-clr1 fs-6 mx-3" (click)="logoutAdmin()">
+        Odjavite se
+    </button>
+
+</div>
 
 <div class="toast-container position-fixed end-0 bottom-0 p-3">
     <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -194,13 +210,13 @@
             </app-apartment-sketch>
         </div> 
 
-        <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && !job.cancelRequested && !areAllRoomsFinished()">
+        <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && !job.cancelRequested && !areAllRoomsFinished() && !isAdminPage">
             <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium" (click)="showCancelDialog()">
                 Zatražite otkazivanje posla
             </button>
         </div>
 
-        <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && areAllRoomsFinished()">
+        <div class="col-12 d-flex justify-content-center" *ngIf="isJobActive() && areAllRoomsFinished() && !isAdminPage">
             <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium" (click)="payAgency()">
                 Plaćanje
             </button>
@@ -208,7 +224,7 @@
 
 
         <!-- fields for finished jobs -->
-        <div class="col-12 d-flex justify-content-center" *ngIf="isJobFinished()">
+        <div class="col-12 d-flex justify-content-center" *ngIf="isJobFinished() && !isAdminPage">
             <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium" *ngIf="!isCommentPublished()"
                     (click)="showAddCommentDialog()">
                 Ostavite komentar
@@ -223,15 +239,31 @@
 
         <!-- fields for accepted job requests -->
         <div class="col-xl-12"></div>
-        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted()" (click)="acceptAgencyOffer()">
+        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted() && !isAdminPage" (click)="acceptAgencyOffer()">
             <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium">
                 Prihvatite ponudu agencije
             </button>
         </div>
 
-        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted()" (click)="rejectAgencyOffer()">
+        <div class="col-xl-3 d-flex justify-content-center" *ngIf="isJobAccepted() && !isAdminPage" (click)="rejectAgencyOffer()">
             <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium">
                 Odbijte ponudu agencije
+            </button>
+        </div>
+
+
+
+        <!-- ADMIN fields for accepting CANCEL job requests -->
+        <div class="col-xl-12"></div>
+        <div class="col-xl-5 d-flex justify-content-center" *ngIf="!isJobCanceled() && job.cancelRequested && isAdminPage" (click)="acceptJobCancelReq()">
+            <button type="button" class="btn btn-plt1-clr6 px-5 py-3 fs-5 fw-medium">
+                Prihvatite zahtev za otkazivanje
+            </button>
+        </div>
+
+        <div class="col-xl-5 d-flex justify-content-center" *ngIf="!isJobCanceled() && job.cancelRequested && isAdminPage" (click)="rejectJobCancelReq()">
+            <button type="button" class="btn btn-plt1-clr1 px-5 py-3 fs-5 fw-medium">
+                Odbijte zahtev za otkazivanje
             </button>
         </div>
 

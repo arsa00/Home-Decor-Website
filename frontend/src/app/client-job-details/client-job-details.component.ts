@@ -9,6 +9,7 @@ import { ApartmentSketch, ProgressState } from '../models/ApartmentSketch';
 import { ApartmentSketchService } from '../services/apartment-sketch.service';
 import { AgencyService } from '../services/agency.service';
 import { Comment } from '../models/Comment';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-client-job-details',
@@ -36,19 +37,38 @@ export class ClientJobDetailsComponent implements OnInit {
   grade: number = 0;
   commentGradeErrMsgs: string[] = [];
 
+  isAdminPage: boolean = false;
+
   constructor(private route: ActivatedRoute,
               private router: Router,
               private jobService: JobService,
               private apartmentSketchService: ApartmentSketchService,
-              private agencyService: AgencyService) { }
+              private agencyService: AgencyService,
+              private userService: UserService) { }
 
   ngOnInit(): void {
-    this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    if(GlobalConstants.ROUTE_ADMIN_JOB_DETAILS == this.router.url.split("/")[1]) {
+      this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_ADMIN));
+      this.isAdminPage = true;
+    } else {
+      this.loggedUser = JSON.parse(localStorage.getItem(GlobalConstants.LOCAL_STORAGE_LOGGED_USER));
+    }
 
     const jobID = this.route.snapshot.paramMap.get("jobID");
     this.jobService.getJobByID(this.loggedUser.jwt, jobID).subscribe({
       next: (job: Job) => {
         this.job = job;
+
+        // if cancel request is reject show feedback to user and inform server that rejection is received
+        if(!this.isAdminPage && !job.cancelRequested && job.cancelReqMsg) {
+          this.displayErrorToast("Zahtev za otkazivanje odbijen od strane administratora.");
+          this.jobService.receiveRejectedJobCancelRequest(this.loggedUser.jwt, jobID).subscribe({
+            next: (job: Job) => {
+              console.log(job);
+            },
+            error: (err) => { console.log(err); }
+          })
+        }
 
         this.apartmentSketchService.getApartmentSketchByID(this.loggedUser.jwt, job.objectID).subscribe({
           next: (apartmentSketch: ApartmentSketch) => {
@@ -307,6 +327,46 @@ export class ClientJobDetailsComponent implements OnInit {
       },
       error: () => { this.displayErrorToast("Došlo je do greške prilikom brisanja zahteva. Pokušajte ponovo."); }
     });
+  }
+
+
+  // admin methods
+  acceptJobCancelReq() {
+    this.jobService.acceptJobCancelRequest(this.loggedUser.jwt, this.job._id).subscribe({
+      next: (updatedJob: Job) => { 
+        this.job = updatedJob;
+        this.displaySuccessfulToast("Uspešno prihvaćen zahtev za otkazivanje.");
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom prihvatanja zahteva za otkazivanje. Pokušajte ponovo.");
+      }
+    });
+  }
+
+  rejectJobCancelReq() {
+      this.jobService.rejectJobCancelRequest(this.loggedUser.jwt, this.job._id).subscribe({
+      next: (updatedJob: Job) => { 
+        this.job = updatedJob;
+        this.displaySuccessfulToast("Uspešno odbijen zahtev za otkazivanje.");
+      },
+      error: () => { 
+        this.displayErrorToast("Došlo je do greške prilikom odbijanja zahteva za otkazivanje. Pokušajte ponovo.");
+      }
+    });
+  }
+
+
+  returnToHomePage() {
+    this.router.navigate([GlobalConstants.ROUTE_ADMIN_DASHBOARD]);
+  }
+
+  returnToJobList() {
+    this.router.navigate([GlobalConstants.ROUTE_ADMIN_JOB_LIST]);
+  }
+
+  logoutAdmin() {
+    this.userService.logout();
+    this.router.navigate([GlobalConstants.ROUTE_LOGIN]);
   }
 
 }

@@ -24,6 +24,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { LoggedAsAdminGuard } from './guards/logged-as-admin';
 import { AdminUserListComponent } from './admin-user-list/admin-user-list.component';
 import { AdminAgencyEmployeesComponent } from './admin-agency-employees/admin-agency-employees.component';
+import { AdminJobListComponent } from './admin-job-list/admin-job-list.component';
 
 const routes: Routes = [
   { path: GlobalConstants.ROUTE_LOGIN, component: LoginComponent, canActivate: [AlreadyLoggedGuard] },
@@ -48,7 +49,9 @@ const routes: Routes = [
   { path: GlobalConstants.ROUTE_ADMIN_DASHBOARD, component: AdminDashboardComponent, canActivate: [LoggedAsAdminGuard] },  
   { path: GlobalConstants.ROUTE_ADMIN_USER_LIST, component: AdminUserListComponent, canActivate: [LoggedAsAdminGuard] }, 
   { path: GlobalConstants.ROUTE_ADMIN_ADD_USER, component: RegisterComponent, canActivate: [LoggedAsAdminGuard] }, 
-  { path: GlobalConstants.ROUTE_ADMIN_AGENCY_EMPLOYEES, component: AdminAgencyEmployeesComponent, canActivate: [LoggedAsAdminGuard] },  
+  { path: GlobalConstants.ROUTE_ADMIN_AGENCY_EMPLOYEES, component: AdminAgencyEmployeesComponent, canActivate: [LoggedAsAdminGuard] },
+  { path: GlobalConstants.ROUTE_ADMIN_JOB_LIST, component: AdminJobListComponent, canActivate: [LoggedAsAdminGuard] },    
+  { path: `${GlobalConstants.ROUTE_ADMIN_JOB_DETAILS}/:jobID`, component: ClientJobDetailsComponent, canActivate: [LoggedAsAdminGuard] },   
 ];
 
 @NgModule({

@@ -1,0 +1,175 @@
+<div class="container-fluid mt-3 text-end">
+
+    <button type="button" class="btn btn-plt1-clr9 fs-6 mx-3" (click)="returnToHomePage()">
+        Vratite se na početnu stranu
+    </button>
+
+    <button type="button" class="btn btn-plt1-clr1 fs-6 mx-3" (click)="logoutAdmin()">
+        Odjavite se
+    </button>
+
+</div>
+
+
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="err" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr1 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                <!-- Došlo je do greške. Pokušajte ponovo. -->
+                {{ errToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed end-0 bottom-0 p-3">
+    <div id="succ" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex bg-plt1-clr6 rounded">
+            <div class="toast-body fs-6 fw-medium">
+                <!-- Zahtev za otkazivanje posla uspešno poslat. -->
+                {{ succToastMsg }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-md-12 d-flex justify-content-center align-items-center flex-column mt-5">
+    <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0"> Poslovi </h1>
+    <div class="w-50 bg-plt1-clr6 rounded mt-md-3 mt-0" style="height: 5px;"></div>
+</div>
+
+
+<div class="container-fluid p-3 mt-5 mb-1">
+
+    <div class="row gy-4 mt-2">
+
+        <div class="col-lg-9 col-3 fs-4 fw-medium text-gray-plt-clr8 text-end d-flex align-items-center justify-content-end">
+            Prikaz:
+        </div>
+
+        <div class="col-lg-3 col-9">
+
+            <select class="form-select" name="jobStateFilter" id="jobStateFilter" [(ngModel)]="jobStateFilter">
+                <option value="{{ ALL_JOB_FILTER }}">Svi poslovi</option>
+                <option value="{{ CANCEL_REQUEST_JOB_FILTER }}">Zahtevi za otkazivanje</option>
+            </select>
+            
+        </div>
+
+        <div class="col-1"></div>
+        <div class="col-10 d-flex justify-content-center align-items-center ">
+            <mat-icon class="me-5 pointer" (click)="selectPage(activePage - 1)">
+                arrow_back_ios
+            </mat-icon>
+
+            <div class="d-flex justify-content-center align-items-center mx-3">
+                <div class="mx-3 pointer fs-5" *ngFor="let el of showPageNumbers(); let i = index"
+                        [ngClass]="{'fw-bold': activePage == i }" (click)="selectPage(i)">
+                    {{ i + 1 }}
+                </div>
+            </div>
+
+            <mat-icon class="ms-5 pointer" (click)="selectPage(activePage + 1)">
+                arrow_forward_ios
+            </mat-icon>
+        </div>
+        <div class="col-1"></div>
+
+
+        <div class="col-12 text-center fs-3 fw-medium text-gray-plt-clr7" *ngIf="!allJobs.length">
+            Nema poslova.
+        </div>
+
+        
+        <div class="col-xl-4" *ngFor="let job of allJobs; let i = index">
+            <div class="card border border-2 border-black" >
+
+                <div class="card-body" >
+
+                    <div class="d-flex justify-content-center align-items-center mb-4">
+                        <span class="text-center fs-5 fw-medium" *ngIf="job.cancelRequested && !isJobCanceled(job)"> Zahtev za otkazivanje </span>
+                        <span class="text-center fs-5 fw-medium" *ngIf="!job.cancelRequested || isJobCanceled(job)"> {{ getFormattedJobState(job) }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mb-4">
+                        <span class="me-3 fw-medium">Tip objekta:</span>
+                        <span class="text-end"> {{ job.objectType }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Adresa objekta:</span>
+                        <span class="text-end"> {{ job.objectAddress }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Datum početka radova:</span>
+                        <span class="text-end"> {{ getFormattedDate(job.startDate) }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 my-4">
+                        <span class="me-3 fw-medium">Datum kraja radova:</span>
+                        <span class="text-end"> {{ getFormattedDate(job.endDate) }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4 fs-5">
+                        <span class="mx-3 fw-medium">Naziv agencije:</span>
+                        <span class="text-end"> {{ job.agencyName }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Ime klijenta:</span>
+                        <span class="text-end"> {{ job.clientFirstname }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Prezime klijenta:</span>
+                        <span class="text-end"> {{ job.clientLastname }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">Telefon klijenta:</span>
+                        <span class="text-end"> {{ job.clientPhone }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4">
+                        <span class="me-3 fw-medium">E-mail klijenta:</span>
+                        <span class="text-end"> {{ job.clientMail }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center fs-5 mt-4" *ngIf="job.cancelRequested && !isJobCanceled(job)">
+                        <span class="me-3 fw-medium">Razlog za otkazivanje:</span>
+                        <span class="text-end"> {{ job.cancelReqMsg }} </span>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center fs-5 mt-5">
+                        <button type="button" class="btn btn-plt1-clr9 py-2 fs-5 fw-medium w-75"
+                                (click)="checkJobDetails(job._id)">
+                            Pogledajte detalje posla
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center fs-5 mt-3" *ngIf="job.cancelRequested && !isJobCanceled(job)">
+                        <button type="button" class="btn btn-plt1-clr6 py-2 fs-5 fw-medium w-75"
+                                (click)="acceptJobCancelReq(i)">
+                            Prihvatite zahtev
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center fs-5 mt-3" *ngIf="job.cancelRequested && !isJobCanceled(job)">
+                        <button type="button" class="btn btn-plt1-clr1 py-2 fs-5 fw-medium w-75" 
+                                (click)="rejectJobCancelReq(i)">
+                            Odbijte zahtev
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
