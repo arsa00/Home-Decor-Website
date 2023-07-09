@@ -196,6 +196,83 @@ class JobController {
                 return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
             }
         });
+        this.getNumberOfJobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const numOfJobs = yield job_1.JobModel.countDocuments({});
+                return res.status(200).json({ "numOfJobs": numOfJobs });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.getNumberOfJobCancelRequests = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const numOfJobs = yield job_1.JobModel.countDocuments({ "cancelRequested": true });
+                return res.status(200).json({ "numOfJobs": numOfJobs });
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.getSliceOfJobs = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offset = mongoSanitaze(req.body.offset);
+                const limit = mongoSanitaze(req.body.limit);
+                const jobs = yield job_1.JobModel.find({}).skip(offset).limit(limit);
+                return res.status(200).json(jobs);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.getSliceOfJobCancelRequests = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offset = mongoSanitaze(req.body.offset);
+                const limit = mongoSanitaze(req.body.limit);
+                const jobs = yield job_1.JobModel.find({ "cancelRequested": true }).skip(offset).limit(limit);
+                return res.status(200).json(jobs);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.acceptJobCancelRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+                const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobId }, { "state": job_1.JobState.CANCELED }, { new: true }).orFail();
+                return res.status(200).json(updatedJob);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.rejectJobCancelRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+                const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobId }, { "cancelRequested": false }, { new: true }).orFail();
+                return res.status(200).json(updatedJob);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
+        this.receiveRejectedJobCancelRequest = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+                const updatedJob = yield job_1.JobModel.findOneAndUpdate({ "_id": jobId, "cancelRequested": false }, { "cancelReqMsg": "" }, { new: true }).orFail();
+                return res.status(200).json(updatedJob);
+            }
+            catch (err) {
+                console.log(err);
+                return res.status(500).json({ "errMsg": "Došlo je do greške. Pokušajte ponovo." });
+            }
+        });
     }
 }
 exports.JobController = JobController;

@@ -37,4 +37,39 @@ jobRouter.route("/assignEmployeesToJob").post(
     (req, res) => new JobController().assignEmployeesToJob(req, res)
 );
 
+
+jobRouter.route("/getNumberOfJobs").post(
+    (req, res) => new JobController().getNumberOfJobs(req, res)
+);
+
+
+jobRouter.route("/getNumberOfJobCancelRequests").post(
+    (req, res) => new JobController().getNumberOfJobCancelRequests(req, res)
+);
+
+
+jobRouter.route("/getSliceOfJobs").post(
+    (req, res) => new JobController().getSliceOfJobs(req, res)
+);
+
+
+jobRouter.route("/getSliceOfJobCancelRequests").post(
+    (req, res) => new JobController().getSliceOfJobCancelRequests(req, res)
+);
+
+
+jobRouter.route("/acceptJobCancelRequest").post(
+    (req, res) => new JobController().acceptJobCancelRequest(req, res)
+);
+
+
+jobRouter.route("/rejectJobCancelRequest").post(
+    (req, res) => new JobController().rejectJobCancelRequest(req, res)
+);
+
+
+jobRouter.route("/receiveRejectedJobCancelRequest").post(
+    (req, res) => new JobController().receiveRejectedJobCancelRequest(req, res)
+);
+
 export default jobRouter;

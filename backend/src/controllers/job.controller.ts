@@ -213,4 +213,105 @@ export class JobController {
             return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
         }
     }
+
+
+    getNumberOfJobs = async (req: Request, res: Response) => {
+        try {
+            const numOfJobs = await JobModel.countDocuments({ });
+            return res.status(200).json({"numOfJobs": numOfJobs});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    getNumberOfJobCancelRequests = async (req: Request, res: Response) => {
+        try {
+            const numOfJobs = await JobModel.countDocuments({ "cancelRequested": true });
+            return res.status(200).json({"numOfJobs": numOfJobs});
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    getSliceOfJobs = async (req: Request, res: Response) => {
+        try {
+            const offset = mongoSanitaze(req.body.offset);
+            const limit = mongoSanitaze(req.body.limit);
+
+            const jobs = await JobModel.find({ }).skip(offset).limit(limit);
+            return res.status(200).json(jobs);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    getSliceOfJobCancelRequests = async (req: Request, res: Response) => {
+        try {
+            const offset = mongoSanitaze(req.body.offset);
+            const limit = mongoSanitaze(req.body.limit);
+
+            const jobs = await JobModel.find({ "cancelRequested": true }).skip(offset).limit(limit);
+            return res.status(200).json(jobs);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    acceptJobCancelRequest = async (req: Request, res: Response) => {
+        try {
+            const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+
+            const updatedJob = await JobModel.findOneAndUpdate(
+                { "_id": jobId },
+                { "state": JobState.CANCELED },
+                {new: true}
+            ).orFail();
+            return res.status(200).json(updatedJob);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    rejectJobCancelRequest = async (req: Request, res: Response) => {
+        try {
+            const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+
+            const updatedJob = await JobModel.findOneAndUpdate(
+                { "_id": jobId }, 
+                { "cancelRequested": false },
+                {new: true}
+            ).orFail();
+            return res.status(200).json(updatedJob);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
+
+
+    receiveRejectedJobCancelRequest = async (req: Request, res: Response) => {
+        try {
+            const jobId = new ObjectId(mongoSanitaze(req.body.jobId));
+
+            const updatedJob = await JobModel.findOneAndUpdate(
+                { "_id": jobId, "cancelRequested": false },
+                { "cancelReqMsg": "" },
+                {new: true}
+            ).orFail();
+            return res.status(200).json(updatedJob);
+        } catch(err) {
+            console.log(err);
+            return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
+        }
+    }
 }
