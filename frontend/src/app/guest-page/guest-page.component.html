@@ -1,3 +1,4 @@
+<div style="min-height: 95%;">
 <app-navbar [activeNav]="'guest'" *ngIf="isAnonymous()"></app-navbar>
 <app-navbar [activeNav]="'client'" *ngIf="!isAnonymous()"></app-navbar>
 
@@ -91,4 +92,5 @@
         </div>
 
     </div>
+</div>
 </div>
