@@ -214,6 +214,10 @@
     </div>
 
     <div class="row gy-4">
+
+        <div class="col-12 text-center fs-3 fw-medium text-gray-plt-clr7" *ngIf="!allEmployees.length">
+            Nema zaposlenih radnika.
+        </div>
         
         <div class="col-md-4" *ngFor="let employee of allEmployees; let i = index">
             <div class="card border border-2 border-black employeeCard" [ngClass]="{'border-3': selectedIndex == i}" 

@@ -106,7 +106,7 @@
 
 
 <div class="col-md-12 d-flex justify-content-center align-items-center flex-column mt-5">
-    <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0"> Zahtevi za registraciju</h1>
+    <h1 class="text-right fs-1 fw-medium mt-5 pt-3 m-md-0 p-md-0"> Zahtevi za registraciju </h1>
     <div class="w-50 bg-plt1-clr5 rounded mt-md-3 mt-0" style="height: 5px;"></div>
 </div>
 
@@ -133,6 +133,11 @@
             </mat-icon>
         </div>
         <div class="col-1"></div>
+
+
+        <div class="col-12 text-center fs-3 fw-medium text-gray-plt-clr7" *ngIf="!allReqUsers.length">
+            Nema zahteva za registraciju.
+        </div>
 
 
         <div class="col-md-4" *ngFor="let user of allReqUsers; let i = index">
@@ -296,6 +301,11 @@
             </mat-icon>
         </div>
         <div class="col-1"></div>
+
+
+        <div class="col-12 text-center fs-3 fw-medium text-gray-plt-clr7" *ngIf="!allUsers.length">
+            Nema korisničkih naloga.
+        </div>
 
         
         <div class="col-md-4" *ngFor="let user of allUsers; let i = index">
