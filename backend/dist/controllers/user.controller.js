@@ -16,6 +16,8 @@ exports.UserController = void 0;
 const user_1 = require("../models/user");
 const path_1 = __importDefault(require("path"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const comment_1 = require("../models/comment");
+const job_1 = require("../models/job");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
@@ -134,6 +136,7 @@ class UserController {
                 console.log("Image successfuly uploaded");
                 try {
                     const user = yield user_1.UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true }).orFail();
+                    yield comment_1.CommentModel.updateMany({ "authorUsername": user.username }, { "authorImgType": imageType });
                     return res.status(200).json(user);
                 }
                 catch (err) {
@@ -283,6 +286,36 @@ class UserController {
                 return res.status(400).json({ "errMsg": "Loš zahtev. Pošaljite nove podatke." });
             try {
                 const newUser = yield user_1.UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
+                // update referenced redundant data used for better query performance
+                // comment
+                let commentUpdateQuery;
+                if (newUsername)
+                    commentUpdateQuery = Object.assign(Object.assign({}, commentUpdateQuery), { "authorUsername": newUsername });
+                if (firstname)
+                    commentUpdateQuery = Object.assign(Object.assign({}, commentUpdateQuery), { "authorFirstname": firstname });
+                if (lastname)
+                    commentUpdateQuery = Object.assign(Object.assign({}, commentUpdateQuery), { "authorLastname": lastname });
+                yield comment_1.CommentModel.updateMany({ "authorUsername": username }, commentUpdateQuery);
+                // job [agency]
+                if (newUser.type == UserController.AGENCY_TYPE) {
+                    let agencyJobUpdateQuery;
+                    if (name)
+                        agencyJobUpdateQuery = { "agencyName": name };
+                    yield job_1.JobModel.updateMany({ "agencyID": newUser._id }, agencyJobUpdateQuery);
+                }
+                // job [client]
+                if (newUser.type == UserController.CLIENT_TYPE) {
+                    let clientJobUpdateQuery;
+                    if (firstname)
+                        clientJobUpdateQuery = Object.assign(Object.assign({}, clientJobUpdateQuery), { "clientFirstname": firstname });
+                    if (lastname)
+                        clientJobUpdateQuery = Object.assign(Object.assign({}, clientJobUpdateQuery), { "clientLastname": lastname });
+                    if (phone)
+                        clientJobUpdateQuery = Object.assign(Object.assign({}, clientJobUpdateQuery), { "clientPhone": phone });
+                    if (mail)
+                        clientJobUpdateQuery = Object.assign(Object.assign({}, clientJobUpdateQuery), { "clientMail": mail });
+                    yield job_1.JobModel.updateMany({ "clientID": newUser._id }, clientJobUpdateQuery);
+                }
                 newUser.password = null;
                 // user._id = null; // maybe
                 if (newUser.recoveryLink)

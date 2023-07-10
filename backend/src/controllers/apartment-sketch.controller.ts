@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ApartmentSketchModel } from "..//models/apartment-sketch";
+import { JobModel } from "../models/job";
 // import mongoose from "mongoose";
 
 const sanitaze = require('mongo-sanitize');
@@ -48,6 +49,15 @@ export class ApartmentSketchController {
         try{
             const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
             const apartmentSketchDb = await ApartmentSketchModel.findOneAndUpdate({ "_id": apartmentSketchId }, updateQuery, { new: true }).orFail();
+            
+            // update referenced redundant data used for better query performance
+            let objectJobUpdateQuery;
+
+            if(type) objectJobUpdateQuery = { ...objectJobUpdateQuery, "objectType": type };
+            if(address) objectJobUpdateQuery = { ...objectJobUpdateQuery, "objectAddress": address };
+
+            await JobModel.updateMany({ "objectID": apartmentSketchId }, objectJobUpdateQuery);
+
             return res.status(200).json(apartmentSketchDb);
         } catch(err) {
             console.log(err);

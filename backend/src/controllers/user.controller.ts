@@ -3,6 +3,8 @@ import { Request } from 'express';
 import { UserModel } from '../models/user';
 import path from 'path';
 import mongoose from 'mongoose';
+import { CommentModel } from '../models/comment';
+import { JobModel } from '../models/job';
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -153,6 +155,7 @@ export class UserController {
             console.log("Image successfuly uploaded");
             try{
                 const user = await UserModel.findOneAndUpdate({ username: req.body.username }, { imageType: imageType }, { new: true }).orFail();
+                await CommentModel.updateMany({ "authorUsername": user.username }, { "authorImgType": imageType });
                 return res.status(200).json(user);
             } catch (err) {
                 return res.status(500).json({"errMsg": "Došlo je do greške. Pokušajte ponovo."});
@@ -320,6 +323,33 @@ export class UserController {
 
         try {
             const newUser = await UserModel.findOneAndUpdate({ "username": username }, updateQuery, { new: true }).orFail();
+
+            // update referenced redundant data used for better query performance
+
+            // comment
+            let commentUpdateQuery;
+            if(newUsername) commentUpdateQuery = { ...commentUpdateQuery, "authorUsername": newUsername };
+            if(firstname) commentUpdateQuery = { ...commentUpdateQuery, "authorFirstname": firstname };
+            if(lastname) commentUpdateQuery = { ...commentUpdateQuery, "authorLastname": lastname };
+            await CommentModel.updateMany({ "authorUsername": username }, commentUpdateQuery);
+
+            // job [agency]
+            if(newUser.type == UserController.AGENCY_TYPE) {
+                let agencyJobUpdateQuery;
+                if(name) agencyJobUpdateQuery = { "agencyName": name };
+                await JobModel.updateMany({ "agencyID": newUser._id }, agencyJobUpdateQuery);
+            }
+
+            // job [client]
+            if(newUser.type == UserController.CLIENT_TYPE) {
+                let clientJobUpdateQuery;
+                if(firstname) clientJobUpdateQuery = { ...clientJobUpdateQuery, "clientFirstname": firstname };
+                if(lastname) clientJobUpdateQuery = { ...clientJobUpdateQuery, "clientLastname": lastname };
+                if(phone) clientJobUpdateQuery = { ...clientJobUpdateQuery, "clientPhone": phone };
+                if(mail) clientJobUpdateQuery = { ...clientJobUpdateQuery, "clientMail": mail };
+                await JobModel.updateMany({ "clientID": newUser._id }, clientJobUpdateQuery);
+            }
+
             newUser.password = null;
             // user._id = null; // maybe
             if(newUser.recoveryLink) newUser.recoveryLink = null;

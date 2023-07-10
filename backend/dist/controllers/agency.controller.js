@@ -216,6 +216,8 @@ class AgencyController {
                 if (specialization)
                     updateQuery = Object.assign(Object.assign({}, updateQuery), { "specialization": specialization });
                 const updatedEmployee = yield employee_1.EmployeeModel.findOneAndUpdate({ "_id": employeeId }, updateQuery, { new: true }).orFail();
+                // update referenced redundant data used for better query performance
+                yield job_1.JobModel.updateMany({ "assignedEmployees._id": employeeId }, { "$set": { "assignedEmployees.$": updatedEmployee } });
                 return res.status(200).json(updatedEmployee);
             }
             catch (err) {

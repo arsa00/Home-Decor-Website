@@ -250,6 +250,13 @@ export class AgencyController {
             if(specialization) updateQuery = { ...updateQuery, "specialization": specialization };
             
             const updatedEmployee = await EmployeeModel.findOneAndUpdate({ "_id": employeeId }, updateQuery, { new: true }).orFail();
+
+            // update referenced redundant data used for better query performance
+            await JobModel.updateMany(
+                { "assignedEmployees._id": employeeId }, 
+                { "$set" : { "assignedEmployees.$":  updatedEmployee} }
+            );
+
             return res.status(200).json(updatedEmployee);
         } catch(err) {
             console.log(err);

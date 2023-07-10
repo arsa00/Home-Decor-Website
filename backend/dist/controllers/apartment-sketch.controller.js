@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApartmentSketchController = void 0;
 const apartment_sketch_1 = require("..//models/apartment-sketch");
+const job_1 = require("../models/job");
 // import mongoose from "mongoose";
 const sanitaze = require('mongo-sanitize');
 const mongoTypes = require('mongoose').Types;
@@ -54,6 +55,13 @@ class ApartmentSketchController {
             try {
                 const apartmentSketchId = new mongoTypes.ObjectId(sanitaze(req.body.apartmentSketchId));
                 const apartmentSketchDb = yield apartment_sketch_1.ApartmentSketchModel.findOneAndUpdate({ "_id": apartmentSketchId }, updateQuery, { new: true }).orFail();
+                // update referenced redundant data used for better query performance
+                let objectJobUpdateQuery;
+                if (type)
+                    objectJobUpdateQuery = Object.assign(Object.assign({}, objectJobUpdateQuery), { "objectType": type });
+                if (address)
+                    objectJobUpdateQuery = Object.assign(Object.assign({}, objectJobUpdateQuery), { "objectAddress": address });
+                yield job_1.JobModel.updateMany({ "objectID": apartmentSketchId }, objectJobUpdateQuery);
                 return res.status(200).json(apartmentSketchDb);
             }
             catch (err) {
