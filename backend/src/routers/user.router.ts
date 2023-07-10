@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
 import path from "path";
+import { JwtAuth } from "../middlewares/jwt-auth";
 
 const fs = require("fs");
 const multer = require('multer');
@@ -50,46 +51,55 @@ userRouter.route("/resetPassword").post(
 
 
 userRouter.route("/updateData").post(
+    (req, res, next) => new JwtAuth().postValidateJwt(req, res, next),
     (req, res) => new UserController().updateData(req, res)
 );
 
 
 userRouter.route("/changePassword").post(
+    (req, res, next) => new JwtAuth().postValidateJwt(req, res, next),
     (req, res) => new UserController().changePassword(req, res)
 );
 
 
 userRouter.route("/getNumberOfUsers").post(
+    (req, res, next) => new JwtAuth().postValidateJwt(req, res, next),
     (req, res) => new UserController().getNumberOfUsers(req, res)
 );
 
 
 userRouter.route("/getNumberOfPendingUsers").post(
+    (req, res, next) => new JwtAuth().postValidateJwt(req, res, next),
     (req, res) => new UserController().getNumberOfPendingUsers(req, res)
 );
 
 
 userRouter.route("/getSliceOfUsers").post(
+    (req, res, next) => new JwtAuth().postValidateJwtAndAdminType(req, res, next),
     (req, res) => new UserController().getSliceOfUsers(req, res)
 );
 
 
 userRouter.route("/getSliceOfPendingUsers").post(
+    (req, res, next) => new JwtAuth().postValidateJwtAndAdminType(req, res, next),
     (req, res) => new UserController().getSliceOfPendingUsers(req, res)
 );
 
 
 userRouter.route("/deleteUserById").post(
+    (req, res, next) => new JwtAuth().postValidateJwtAndAdminType(req, res, next),
     (req, res) => new UserController().deleteUserById(req, res)
 );
 
 
 userRouter.route("/acceptRegisterRequest").post(
+    (req, res, next) => new JwtAuth().postValidateJwtAndAdminType(req, res, next),
     (req, res) => new UserController().acceptRegisterRequest(req, res)
 );
 
 
 userRouter.route("/rejectRegisterRequest").post(
+    (req, res, next) => new JwtAuth().postValidateJwtAndAdminType(req, res, next),
     (req, res) => new UserController().rejectRegisterRequest(req, res)
 );
 
