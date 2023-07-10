@@ -459,7 +459,16 @@ export class UserController {
         try {
             const userId = new mongoose.Types.ObjectId(mongoSanitaze(req.body.userId));
 
-            await UserModel.findOneAndDelete({ "_id": userId }).orFail();
+            const deletedUser =await UserModel.findOneAndDelete({ "_id": userId }).orFail();
+
+            // delete image if user had one
+            if(deletedUser.imageType) {
+                const userFolder = path.join(__dirname, `../../assets/images/${deletedUser.username}`);
+                if (fs.existsSync(userFolder)) {
+                    fs.rmSync(userFolder, { recursive: true, force: true });
+                }
+            }
+                
             return res.status(200).json({"succMsg": "Korisnik uspešno obirsan."});
         } catch(err) {
             console.log(err);

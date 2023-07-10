@@ -408,7 +408,14 @@ class UserController {
         this.deleteUserById = (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = new mongoose_1.default.Types.ObjectId(mongoSanitaze(req.body.userId));
-                yield user_1.UserModel.findOneAndDelete({ "_id": userId }).orFail();
+                const deletedUser = yield user_1.UserModel.findOneAndDelete({ "_id": userId }).orFail();
+                // delete image if user had one
+                if (deletedUser.imageType) {
+                    const userFolder = path_1.default.join(__dirname, `../../assets/images/${deletedUser.username}`);
+                    if (fs.existsSync(userFolder)) {
+                        fs.rmSync(userFolder, { recursive: true, force: true });
+                    }
+                }
                 return res.status(200).json({ "succMsg": "Korisnik uspešno obirsan." });
             }
             catch (err) {
