@@ -287,11 +287,12 @@ export class ClientObjectsComponent implements OnInit {
             || (rs.projectWidth ?? -1) < 0
             || rs.savedX == null
             || rs.savedY == null
+            || rs.roomIndex == null
             ) {
               throw new TypeError();
             }
 
-            // setting not required fields
+            // setting non required fields
             if(rs.height == null) rs.height = 0;
             if(rs.width == null) rs.width = 0;
             if(rs.x == null) rs.x = 0;

@@ -312,7 +312,7 @@ export class AdminUserListComponent implements OnInit {
     .subscribe({
       next: () => {
         this.allUsers.splice(this.selectedIndex, 1);
-        this.getNumOfReqPagesAndFetch();
+        this.getNumOfPagesAndFetch();
         this.selectedIndex = null;
         this.selectedUser = null;
         this.hideLoadingDialog();
